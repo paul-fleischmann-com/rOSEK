@@ -105,7 +105,62 @@ Bereits als Grundgerüst angelegt und in der Sandbox gegen das Target cross-komp
 - Config-Parser/Codegenerator (`build.rs`-Logik): normale Host-Unit-Tests, laufen ohne Zielhardware
 - Kernel-Logik, die sich isolieren lässt (z. B. Scheduler-Entscheidungen bei gegebener Task-Menge): Host-Unit-Tests über ein `#[cfg(test)]`-Feature, das die HAL durch Mocks ersetzt
 - Alles Hardware-Nahe (MMU, Interrupts, UART, GPIO): nur auf echtem Board verifizierbar, sichtbar über UART-Konsole und LED-Zustände
-- Kein automatisierter CI-Hardwaretest im ersten Schritt — CI (Drone, laut bestehendem Setup) prüft Build + Host-Tests, manuelles Flashen/Verifizieren auf Hardware pro Phase
+- Kein automatisierter CI-Hardwaretest im ersten Schritt — CI (GitHub Actions, siehe eigener Abschnitt) prüft Build + Host-Tests, manuelles Flashen/Verifizieren auf Hardware pro Phase
+
+## CI/CD: GitHub Actions
+
+Drei Jobs pro Push/PR auf `main`, laufen auf `ubuntu-latest` — kein Drone (das ist am bestehenden `beaglebone_black`-Repo im Einsatz, hier neu und eigenständig auf GitHub Actions aufgesetzt, da das Repo dort liegt).
+
+```yaml
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2022-11-22
+          components: rust-src
+      - run: sudo apt-get update && sudo apt-get install -y lld
+      - run: cargo build --release
+      - run: cargo install cargo-binutils --locked
+      - run: rustup component add llvm-tools-preview --toolchain nightly-2022-11-22
+      - run: cargo objcopy --release -- -O binary rosek.bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rosek-bin
+          path: rosek.bin
+
+  host-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p rosek-core --features mock-hal
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2022-11-22
+          components: rust-src, clippy, rustfmt
+      - run: cargo fmt --check
+      - run: cargo clippy -- -D warnings
+```
+
+- **build**: cross-kompiliert `rosek-core` + den aktuellen Port/Board (Phase-abhängig) gegen `armv7a-none-eabi`, wandelt das ELF per `cargo objcopy` in ein Raw-Binary um und legt es als Workflow-Artifact ab — herunterladbar, um es manuell per SD-Karte/u-boot auf die BeagleBone Black zu flashen
+- **host-test**: läuft auf dem Standard-Stable-Toolchain, testet nur die Host-fähigen Teile von `rosek-core` (Scheduler-Logik etc.) gegen die Mock-HAL aus der Testinfrastruktur — keine Cross-Kompilierung nötig
+- **lint**: `cargo fmt` + `cargo clippy` gegen das Zieltarget, fängt Formatierungs- und Stilfehler ab, bevor sie in den Build-Job laufen
+- Branch-Protection auf `main`: alle drei Jobs müssen grün sein, bevor gemerged werden darf
+- Bewusst kein automatisierter Hardwaretest in dieser Phase (siehe Testinfrastruktur) — als spätere Erweiterung wäre ein selbst gehosteter Runner an einer echten BeagleBone Black denkbar, der das Artifact flasht und die UART-Ausgabe prüft; kein Bestandteil der frühen Phasen
 
 ## Offene Punkte für Rücksprache
 
