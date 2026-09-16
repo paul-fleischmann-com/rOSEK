@@ -6,6 +6,8 @@
 
 Ein eigener, AUTOSAR-OS-konformer Realtime-Kernel in Rust auf der BeagleBone Black (AM335x/Cortex-A8) — als Portfolio-Beweis für tiefes AUTOSAR-Verständnis, nicht als Produkt.
 
+Projektname: **rOSEK** (Rust + OSEK/AUTOSAR OS).
+
 - Zielgruppe: Bewerbungen für Embedded-/Automotive-Architektur-Rollen im DACH-Raum
 - Abgrenzung zu bestehenden Projekten: eigenständiges Repo, getrennt von `beaglebone_black` (Embedded Linux) und `minilink` (ELF-Linker)
 - Kernaussage nach außen: "AUTOSAR-OS-Kernel aus der Spezifikation (SWS\_OS) implementiert", nicht "ERIKA nach Rust portiert"
@@ -57,6 +59,17 @@ flowchart TD
 - **Static-Config-Layer**: Tasks, OS-Applications, Resources, Alarme werden in einer Konfigurationsdatei deklariert, `build.rs` generiert daraus Rust-Konstanten — keine dynamische Allokation zur Laufzeit, wie im AUTOSAR-Original
 - **API-Layer**: die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)
 
+## Portierbarkeit: Core / Port / Derivat
+
+rOSEK ist von Anfang an in drei Schichten getrennt, damit ein neues Ziel (anderer SoC) oder eine neue Variante (anderes Board mit gleichem SoC) ohne Eingriff in den Kernel selbst möglich ist — analog zur MCAL/ECU-Abstraction-Trennung in AUTOSAR.
+
+- **rosek-core**: komplett architektur- und boardneutral. Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarbeitung. Kennt nur Rust-Traits (HAL), keine Register.
+- **rosek-hal**: definiert die Trait-Schnittstellen, die rosek-core braucht (`Timer`, `InterruptController`, `Mmu`, `Uart`, `Gpio`). Ein neues Target implementiert diese Traits, ändert core nicht.
+- **rosek-port-\<soc-familie>** (z. B. `rosek-port-am335x`): Implementierung der HAL-Traits für eine ganze SoC-Familie — Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt für alle Boards mit diesem SoC.
+- **rosek-board-\<derivat>** (z. B. `rosek-board-beaglebone-black`): nur das Board-Spezifische — Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind.
+
+Ein Cargo-Workspace bündelt diese Crates. Ein neues Target bedeutet einen neuen `rosek-port-*` (neuer SoC) oder `rosek-board-*` (neues Board mit bekanntem SoC) — nie eine Änderung an `rosek-core`. Die Static-Config-Pipeline (Phase 1) bleibt dabei board-übergreifend: sie beschreibt Tasks/OS-Apps/Resources unabhängig von der Zielhardware.
+
 ## Startpunkt-Entscheidung: AUTOSAR-Erweiterungen zuerst
 
 Entscheidung: OS-Applications und Memory Protection stehen von Anfang an im Zentrum, nicht als spätere Erweiterung eines einfachen BCC1-Kerns.
@@ -96,7 +109,7 @@ Bereits als Grundgerüst angelegt und in der Sandbox gegen das Target cross-komp
 
 ## Offene Punkte für Rücksprache
 
-- [ ] Projektname: rustika, ferrOS, oxidRTOS, korOS — oder eigener Vorschlag?
+- [ ] Projektname: entschieden — rOSEK.
 - [ ] Lizenz für das Repo (MIT/Apache-2.0 üblich für Rust-Portfolio-Projekte)?
 - [ ] Syntax der OIL-ähnlichen Konfigdatei: eng ans originale OIL angelehnt oder eigene, einfachere Notation?
 - [ ] Wie viele OS-Applications sollen in Phase 2 zur Demonstration der Memory-Protection-Grenzen dienen (z. B. zwei: eine trusted, eine non-trusted)?
