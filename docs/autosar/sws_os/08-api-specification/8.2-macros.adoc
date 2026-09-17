@@ -1,0 +1,3 @@
+== 8.2 Macros
+
+OSMEMORY_IS_READABLE(<AccessType>) OSMEMORY_IS_WRITEABLE(<AccessType>) OSMEMORY_IS_EXECUTABLE(<AccessType>) OSMEMORY_IS_STACKSPACE(<AccessType>) These macros return a value not equal to zero if the memory is readable / writable / executable or stack space. The argument of the macros must be of type Ac- cessType. Typically the return value of the service CheckTaskMemoryAccess (or CheckISRMemoryAccess) is used as argument for these macros.

@@ -1,0 +1,13 @@
+== 10 Configuration specification
+
+In general, this chapter defines configuration parameters and their clustering into con- tainers. In order to support the specification Chapter 10.1 describes fundamentals. It also specifies a template (table) you shall use for the parameter specification. We intend to leave Chapter 10.1 in the specification to guarantee comprehension. Chapter 10.2 specifies the structure (containers) and the parameters of the module Os. Chapter 10.3 specifies the structure (containers) and the parameters of the Ioc. Chapter 10.4 specifies the structure (containers) and the ARTI parameters for the Os and Ioc. Chapter 10.5 specifies published information of the module Os.
+
+include::10-configuration-specification/10.1-how-to-read-this-chapter.adoc[]
+
+include::10-configuration-specification/10.2-containers-and-configuration-parameters.adoc[]
+
+include::10-configuration-specification/10.3-containers-and-configuration-parameter-extensions-of-the.adoc[]
+
+include::10-configuration-specification/10.4-containers-and-configuration-parameters-for-arti.adoc[]
+
+include::10-configuration-specification/10.5-published-information.adoc[]

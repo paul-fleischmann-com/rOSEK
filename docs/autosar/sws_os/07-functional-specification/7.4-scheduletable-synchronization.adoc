@@ -1,0 +1,221 @@
+== 7.4 ScheduleTable Synchronization
+
+=== 7.4.1 Background & Rationale
+
+The absolute time at which the Initial Expiry Point on a ScheduleTable is processed is under user control. However, if the ScheduleTable repeats then it is not guaran- teed that the absolute count value at which the initial expiry point was first processed is the same count value at which it is subsequently processed. This is because the duration of the ScheduleTable need not be equal to the Counter modulus. In many cases it may be important that ScheduleTable expiry points are processed at specific absolute values of the underlying Counter. This is called synchronization. Typical use-cases include:
+....
+    • Synchronization of expiry points to degrees of angular rotation for motor manage-
+      ment
+    • Synchronizing the computation to a global (network) time base. Note that in
+      AUTOSAR, the Operating System does not provide a global (network) time
+      source because
+        1. a global time may not be needed in many cases
+        2. other AUTOSAR modules, most notably FlexRay, provide this independently
+           to the Operating System
+
+        3. if the Operating System is required to synchronize to multiple global (net-
+           work) time sources (for example when building a gateway between two time-
+           triggered networks) the Operating System cannot be the source of a unique
+           global time.
+....
+AUTOSAR OS provides support for synchronization in two ways:
+....
+    • implicit synchronization - the Counter driving the ScheduleTable is the
+      Counter with which synchronization is required. This is typically how syn-
+      chronization with time-triggered networking technologies (e.g. FlexRay, TTP) is
+      achieved - the underlying hardware manages network time synchronization and
+      simply presents time as an output/compare timer interface to the Operating Sys-
+      tem. The following figure shows the possible states for ScheduleTables with
+      implicit synchronization.
+
+            Figure 7.4: States of an implicit synchronized ScheduleTable
+
+    • explicit synchronization - the ScheduleTable is driven by an Operating Sys-
+      tem Counter which is not the Counter with which synchronization is required.
+      The Operating System provides additional functionality to keep ScheduleTa-
+      ble processing driven by the Operating System Counter synchronized with the
+      synchronization Counter. This is typically how synchronization with periodically
+      broadcast global times works. The next figure shows the states of such Sched-
+      uleTables.
+....
+Figure 7.5: States of an explicit synchronized ScheduleTable (not all conditions for transitions are shown in the picture)
+
+=== 7.4.2 Requirements
+
+[[SWS_Os_00013]]
+Upstream requirements: SRS_Os_11002
+
+⌈The Operating System module shall provide the ability to synchronize the processing of ScheduleTable to known Counter values.⌋
+
+==== 7.4.2.1 Implicit Synchronization
+
+The Operating System module does not need to provide any additional support for implicit synchronization of ScheduleTables. However, it is necessary to constrain configuration and runtime control of the ScheduleTable so that ticks on the config- ured ScheduleTable can be aligned with ticks on the Counter. This requires the range of the ScheduleTable to be identical to the range of the Counter (the equality of tick resolution of each is guaranteed by the requirements on the ScheduleTable / Counter interaction):
+
+[[SWS_Os_00429]]
+Upstream requirements: SRS_Os_11002
+
+⌈A ScheduleTable of the Operating System module that is implicitly synchronized shall have a Duration equal to OsCounterMaxAllowedValue + 1 of its associated OSEK OS Counter.⌋
+
+To synchronize the processing of the ScheduleTable it must be started at a known counter value. The implication of this is that a ScheduleTable requiring implicit syn- chronization must only be started at an absolute counter value and cannot be started at a relative count value.
+
+[[SWS_Os_00430]]
+Upstream requirements: SRS_Os_11002
+
+⌈The Operating System module shall prevent a ScheduleTable that is implicitly syn- chronized from being started at a relative count value.⌋
+
+When the ScheduleTable is started at an absolute counter value each expiry point will be processed when the counter equals the value specified in the service call plus expiry point’s offset. The common use-case is to ensure that the offsets specified in the ScheduleTable configuration correspond to absolute values of the underlying Counter. This is achieved trivially using StartScheduleTableAbs(Tbl,0) as shown below.
+
+....
+              Figure 7.6: Example for implicit synchronized ScheduleTable
+....
+
+==== 7.4.2.2 Explicit Synchronization
+
+An explicitly synchronized ScheduleTable requires additional support from the Op- erating System module. The ScheduleTable is driven by an Operating System mod- ule’s Counter as normal (termed the "drive Counter") but processing needs to be synchronized with a different Counter (termed the "synchronization Counter") which is not an Operating System module’s Counter object.
+
+The following constraints must be enforced between the ScheduleTable, the Oper- ating System module’s Counter and the synchronization Counter: Constraint1:
+
+[[SWS_Os_00431]]
+Upstream requirements: SRS_Os_11002
+
+⌈A ScheduleTable that is explicitly synchronized shall have a duration no greater than modulus of the drive Counter.⌋
+
+Constraint2:
+
+[[SWS_Os_00462]]
+Upstream requirements: SRS_Os_11002
+
+⌈A ScheduleTable that is explicitly synchronized shall have a duration equal to the modulus of the synchronization Counter.⌋
+
+Constraint3:
+
+[[SWS_Os_00463]]
+Upstream requirements: SRS_Os_11002
+
+⌈The synchronization Counter shall have the same resolution as the drive Counter associated with the ScheduleTable. This means that a tick on the ScheduleTable has the same duration as a tick on the synchronization Counter.⌋
+
+Note that it is in the responsibility of the Operating System module user to verify that Constraints 2 and 3 are satisfied by their system. The function of explicit synchronization is for the Operating System module to keep processing each expiry point at absolute value of the synchronization Counter equal to the expiry point’s offset. This means that explicit synchronization always assumes that the notional zero of the ScheduleTable has to be synchronized with absolute value zero on the synchronization Counter. To achieve this, the Operating System module must be told the value of the synchro- nization Counter by the user. As the modulus of the synchronization Counter and the ScheduleTable are identical, the Operating System module can use this infor- mation to calculate drift. The Operating System module then automatically adjusts the delay between specially configured expiry points, retarding them or advancing them as appropriate, to ensure that synchronization is maintained.
+
+===== 7.4.2.2.1 Startup
+
+There are two options for starting an explicitly synchronized ScheduleTable:
+
+1. Asynchronous start: Start the ScheduleTable at an arbitrary value of the syn-
+....
+     chronization Counter.
+....
+2. Synchronous start: Start the ScheduleTable at absolute value zero of the syn-
+....
+     chronization Counter only after a synchronization count has been provided. This
+     may mean waiting for first synchronization indefinitely.
+....
+Asynchronous start is provided by the existing absolute and relative ScheduleTable start services. Both of these services set the point at which the initial expiry point is processed with respect to the driver Counter not the synchronization Counter. This allows the ScheduleTable to start running before the value of the synchronization Counter is known. Synchronous start requires an additional service that starts the ScheduleTable only after the Operating System module is told the value of the synchronization Counter. The Operating System module provides the service StartScheduleTableSyn- chron (see [SWS_Os_00201]) to start an explicitly synchronized ScheduleTable synchronously. The Initial Expiry Point will be processed after (Duration - Value) + Ini- tial Offset ticks of the driver Counter have elapsed where Value is the absolute value of the synchronization Counter provided to the ScheduleTable.
+
+[[SWS_Os_00435]]
+Upstream requirements: SRS_Os_11002
+
+⌈If an explicitly synchronized ScheduleTable was started synchronously, then the Operating System module shall guarantee that it has state "waiting" when the call of service StartScheduleTableSynchron returns.⌋
+
+===== 7.4.2.2.2 Providing a Synchronization Count
+
+The Operating System module must be told the value of the synchronization Counter. Since the ScheduleTable duration is equal to the modulus of the synchronization Counter, the Operating System module can use this to determine the drift between the current count value on the ScheduleTable time and the synchronization count and decide whether (or not) any action to achieve synchronization is required. The Operating System module provides the service SyncScheduleTable (see
+[[SWS_Os_00199]]
+) to provide the ScheduleTable with a synchronization count and start synchronization.
+
+===== 7.4.2.2.3 Specifying Synchronization Bounds
+
+A ScheduleTable defaults to denying adjustment at all expiry points. Adjustment is allowed only when explicitly configured. The range of adjustment that the Operating System module can make at an adjustable expiry point is controlled by specifying:
+
+....
+    • OsScheduleTableMaxShorten : the maximum value that can be subtracted
+      from the expiry offset
+    • OsScheduleTableMaxLengthen: the maximum value that can be added to the
+      expiry point offset
+....
+The following figure illustrates the behaviour depending on OsScheduleTable- MaxShorten and OsScheduleTableMaxLengthen:
+
+....
+            Figure 7.7: Adjustment of Expiry Points
+....
+[[SWS_Os_00415]]
+Upstream requirements: SRS_Os_11002
+
+⌈An expiry point shall permit the configuration of an OsScheduleTableMaxShorten that defines the maximum number of ticks that can be subtracted from expiry point offset.⌋
+
+[[SWS_Os_00416]]
+Upstream requirements: SRS_Os_11002
+
+⌈An expiry point shall permit the configuration of an OsScheduleTable- MaxLengthen that defines the maximum number of ticks that can be added to expiry point offset.⌋
+
+When performing synchronization it is important that the expiry points on the Sched- uleTable are processed according to the total ordering defined by their offsets. This means that the range of permitted values for OsScheduleTableMaxShorten and OsScheduleTableMaxLengthen must ensure that the next expiry point is not re- tarded into the past or advanced beyond more than one iteration of the Schedule Table.
+
+[[SWS_Os_00436]]
+Upstream requirements: SRS_Os_11002
+
+⌈The value of (Offset - OsScheduleTableMaxShorten ) of an expiry point shall be greater than (Offset + OsCounterMinCycle) of the pervious expiry point.⌋
+
+[[SWS_Os_00559]]
+Upstream requirements: SRS_Os_11002
+
+⌈The value of OsScheduleTableMaxLengthen shall be smaller than the duration of the ScheduleTable.⌋
+
+[[SWS_Os_00437]]
+Upstream requirements: SRS_Os_11002
+
+⌈The value of (OsScheduleTableMaxLengthen + delay_from_previous_EP) of an expiry point shall be less than the OsCounterMaxAllowedValue of the underlying Counter.⌋
+
+Explicitly synchronized ScheduleTables allow the tolerance of some drift between the ScheduleTable value and the synchronization counter value. This tolerance can be zero, indicating that the ScheduleTable is not considered synchronized unless the values are identical.
+
+[[SWS_Os_00438]]
+Upstream requirements: SRS_Os_11002
+
+⌈A ScheduleTable shall define a precision bound with a value in the range 0 to duration.⌋
+
+==== 7.4.2.3 Performing Synchronization
+
+The Operating System module uses the synchronization count to support (re- )synchronization of a ScheduleTable at each expiry point by calculating an adjust- ment to the delay to the next expiry point. This provides faster re-synchronization of the ScheduleTable than doing the action on the final expiry point.
+
+[[SWS_Os_00206]]
+Upstream requirements: SRS_Os_11002
+
+⌈When a new synchronization count is provided, the Operating System module shall calculate the current deviation between the explicitly synchronized scheduled table and the synchronization count.⌋
+
+It is meaningless to try and synchronize an explicitly synchronized ScheduleTable before a synchronization count is provided.
+
+[[SWS_Os_00417]]
+Upstream requirements: SRS_Os_11002
+
+⌈The Operating System module shall start to synchronize an explicitly synchronized ScheduleTable after a synchronization count is provided AND shall continue to ad- just expiry points until synchronized.⌋
+
+[[SWS_Os_00418]]
+Upstream requirements: SRS_Os_11002
+
+⌈The Operating System module shall set the state of an explicitly synchronized Sched- uleTable to "running and synchronous" if the deviation is less than or equal to the configured OsScheduleTblExplicitPrecision threshold.⌋
+
+[[SWS_Os_00419]]
+Upstream requirements: SRS_Os_11002
+
+⌈The Operating System module shall set the state of an explicitly synchronized Sched- uleTable to "running" if the deviation is greater than the configured OsScheduleT- blExplicitPrecision threshold.⌋
+
+[[SWS_Os_00420]]
+Upstream requirements: SRS_Os_11002
+
+⌈IF the deviation is non-zero AND the next expiry point is adjustable AND the table is behind the sync Counter (TableTicksAheadOfSyncCounter <= TableTicksBehindOf SyncCounter) THEN the OS shall set the next EP to expire delay - min(MaxShorten, Deviation) ticks from the current expiry.⌋
+
+[[SWS_Os_00421]]
+Upstream requirements: SRS_Os_11002
+
+⌈IF the deviation is non-zero AND the next expiry point is adjustable AND the table is ahead of the sync Counter (TableTicksAheadOfSyncCounter > TableTicksBehindOf SyncCounter) THEN the OS shall set the next EP to expire delay + min(MaxLengthen, Deviation) ticks from the current expiry.⌋
+
+Figure 7.8 shows explicit synchronization of a ScheduleTable. It assumes the fol- lowing:
+....
+    • EP1-3 have OsScheduleTableMaxLengthen=2
+    • EP1-3 have OsScheduleTableMaxShorten =1
+
+                 Figure 7.8: Explicit ScheduleTable Synchronization
+....
+The Operating System module provides the service SetScheduleTableAsync (see
+[[SWS_Os_00422]]
+) to cancel synchronization being performed at adjustable expiry points on a ScheduleTable. The Operating System module provides the service GetScheduleTableStatus (see
+[[SWS_Os_00227]]
+) to query the state of a ScheduleTable also with respect to syn- chronization.

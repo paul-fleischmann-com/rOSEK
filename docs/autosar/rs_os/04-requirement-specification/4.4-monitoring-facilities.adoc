@@ -1,0 +1,18 @@
+== 4.4 Monitoring Facilities
+
+=== 4.4.1 Functional Overview
+
+A monitoring function detects an error at an appropriate stage in execution and not the instant that the error occurs. Consequently, any monitoring function is the detection of a failure at runtime rather than the prevention of a fault.
+
+=== 4.4.2 Requirements
+
+[[SRS_Os_11003]]
+The operating system shall be able to monitor stack usage and check for a stack overflow on a per executable object basis ⌈ The operating system shall be able to monitor stack usage and check for a Description: stack overflow on a per executable object basis (task/ISR). On some hardware it will not be possible to implement any sophisticated Rationale:      memory protection. Stack monitoring provides an alternative (but less secure) solution where some protection is deemed better than none. If a system where an application could overflow its stack is implemented on Use Case:       hardware that cannot support true memory protection, stack monitoring is a useful alternative. ▽
+
+....
+                                                 △
+    Dependencies:    –
+    Supporting       –
+    Material:
+....
+⌋

@@ -1,0 +1,11 @@
+== 1 Introduction and functional overview
+
+This document describes the essential requirements on the AUTOSAR Operating Sys- tem to satisfy the top-level requirements presented in the AUTOSAR SRS [1]. In general, operating systems can be split up in different groups according to their characteristics, e.g. statically configured vs. dynamically managed. To classify the AUTOSAR OS, here are the basic features of the OS
+....
+    • is configured and scaled statically
+    • is amenable to reasoning of real-time performance
+    • provides a priority-based scheduling policy
+    • provides protective functions (memory, timing etc.) at run-time
+    • is hostable on low-end controllers and without external resources
+....
+This feature set defines the type of OS commonly used in the current generation of au- tomotive ECUs, except for Telematic/Infotainment systems. It is assumed that Telem- atic/Infotainment systems will continue to use proprietary OSs under the AUTOSAR framework (e.g. Windows CE, VxWorks, QNX, etc.). In the case where AUTOSAR components are needed to run on these proprietary OSs, the interfaces defined in this document should be provided as an Operating System Abstraction Layer (OSAL). This document uses the industry standard [2] (ISO 17356-3) as the basis for the AUTOSAR OS. The reader should be familiar with this standard before reading this document. This document describes extensions to, and restrictions of [2].

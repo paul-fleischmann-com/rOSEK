@@ -1,0 +1,244 @@
+== Document Change History
+
+....
+Specification of Operating
+ Document Title                 System
+ Document Owner                 AUTOSAR
+ Document Responsibility        AUTOSAR
+ Document Identification No     34
+
+
+ Document Status                published
+ Part of AUTOSAR Standard       Classic Platform
+ Part of Standard Release       R25-11
+
+
+                        Document Change History
+ Date         Release   Changed by       Description
+                                         • Removal of "Service Interfaces"
+
+                                         • Removal of feature "ControlIdle"
+
+                        AUTOSAR          • Timing protection extension for aperiodic
+ 2025-11-27   R25-11    Release            servers
+                        Management
+                                         • Several ARTI updates
+
+                                         • Minor correction / clarification / editorial
+                                           changes
+                                         • Clarification on PRO_IGNORE, new
+                                           PRO_PREVENT_ARRIVAL_RATE
+
+                                         • Clarification of
+                        AUTOSAR            CallTrustedFunction, added new
+                        Release            column to table 7.1
+ 2024-11-27   R24-11
+                        Management       • Remove option to restart a
+                                           OS-Application
+
+                                         • Minor correction / clarification / editorial
+                                           changes
+                                     ▽
+
+                                    △
+                                        • Renaming of restart symbols
+
+                                        • Added new API isOsStarted,
+                                          configuration change in
+                       AUTOSAR            OS-Application/EcuPartition/Core
+ 2023-11-23   R23-11   Release            assignment
+                       Management
+                                        • Memory mapping update
+
+                                        • Minor correction / clarification / editorial
+                                          changes
+                                        • Several minor issues and clarifications
+                                          (IOC error codes, applicability of
+                                          multi-core, ARTI updates)
+                       AUTOSAR          • Additional memory allocation keywords
+ 2022-11-24   R22-11   Release
+                       Management       • Added further uptraces to SRS
+                                          requirements
+
+                                        • Removal of StartNonAutosarCore
+                                          API
+                                        • Further updates to ARTI sections
+
+                                        • API changes and clarifications
+                                          (SetScheduleTableAsync,
+                                          GetNumberOfActivatedCores)
+                       AUTOSAR
+ 2021-11-25   R21-11   Release          • New configuration options for placement
+                       Management         of callouts.
+
+                                        • Update of RES_SCHEDULER handling.
+
+                                        • Minor correction / clarification / editorial
+                                          changes
+                                        • Updates to ARTI description and
+                                          configuration
+                       AUTOSAR
+                                        • Ioc: correction regarding N:M
+ 2020-11-30   R20-11   Release
+                                          communication
+                       Management
+                                        • Minor correction / clarification / editorial
+                                          changes
+                                    ▽
+
+                                    △
+                                        • Various updates for ARTI
+
+                                        • Enhanced memory mapping for IOC
+
+                       AUTOSAR          • Some type improvements for multi-core
+ 2019-11-28   R19-11   Release
+                       Management       • Minor correction / clarification / editorial
+                                          changes
+
+                                        • Changed Document Status from Final to
+                                          published
+                                        • New asynchronous services
+                       AUTOSAR
+ 2018-10-31   4.4.0    Release          • ARTI support (DRAFT)
+                       Management
+                                        • Editorial changes / clarifications
+                       AUTOSAR          • minor corrections / clarifications /
+ 2017-12-08   4.3.1    Release            editorial changes; For details please
+                       Management         refer to the ChangeDocumentation
+                                        • Added new API for peripheral access
+
+                       AUTOSAR          • Added new API for interrupt handling
+ 2016-11-30   4.3.0    Release          • Minor updates/clarification of
+                       Management         descriptions
+
+                                        • Editorial changes
+                                        • Allow calls to ControlIdle from all cores
+                       AUTOSAR
+                                        • Minor updates/clarification of
+ 2015-07-31   4.2.2    Release
+                                          descriptions
+                       Management
+                                        • Editorial changes
+                                        • Add support for AsilQmProtection
+                       AUTOSAR
+                                        • Minor updates/clarification of
+ 2014-10-31   4.2.1    Release
+                                          descriptions
+                       Management
+                                        • Editorial changes
+                                        • Changed multiplicity of attributes in
+                                          IocSender/ReceiverProperties
+                       AUTOSAR
+ 2014-03-31   4.1.3    Release          • Minor updates/clarification of
+                       Management         descriptions
+
+                                        • Editorial changes
+                                    ▽
+
+                                       △
+                                           • Clarification on
+                                             E_OS_NESTING_DEADLOCK
+
+                                           • Update of table 2
+
+                                           • Corrected multiplicity of
+                      AUTOSAR                ECUC_Os_00393
+ 2013-10-31   4.1.2   Release
+                      Management           • Minor updates/clarification of
+                                             descriptions
+
+                                           • Editorial changes
+
+                                           • Removed chapter(s) on change
+                                             documentation
+                                           • Add support for ECU degradation
+
+                      AUTOSAR              • Changed service interface description to
+ 2013-03-15   4.1.1
+                      Administration         a formal format
+
+                                           • Several minor changes and clarifications
+                                           • Included Multi-Core support from former
+                      AUTOSAR
+ 2011-12-22   4.0.3                          "Specification of Multi-Core OS
+                      Administration
+                                             Architecture"
+                                           • Clarification in 7.8.1 (meaning of "do
+                                             nothing") and 7.1.2.1 ("OSEK
+                      AUTOSAR
+ 2010-09-30   3.1.5                          declarations")
+                      Administration
+                                           • Minor changes as typos and rewording
+                                           • Extension of services (Chapter 12)
+
+                                           • States in OS- Applications
+
+                      AUTOSAR              • Active termination of other
+ 2010-02-02   3.1.4
+                      Administration         OS-Applications in possible (Chapter8)
+
+                                           • Legal disclaimer revised
+
+                                           • Chapter 10.4 revised
+                                           • Changes in OS configuration:
+
+                                           • removed "OsAppModeId" Parameter
+                      AUTOSAR                from OsAppModeContainer
+ 2009-02-04   3.1.2
+                      Administration
+                                           • added optional references from
+                                             OsAppModeContainer to OsAlarm,
+                                             OsTask and OsScheduleTable
+                      AUTOSAR
+ 2008-08-13   3.1.1                        • Legal Disclaimer revised
+                      Administration
+                                       ▽
+
+                                        △
+                                            • Added "OsScheduleTableDuration"
+                       AUTOSAR
+ 2008-02-01   3.0.2                           parameter to configuration specification
+                       Administration
+                                              chapter
+                                            • Changed methods for timing protection
+
+                                            • Moved configuration from OIL to
+                                              AUTOSAR XML
+                       AUTOSAR
+ 2007-12-21   3.0.1                         • Clarrified description for synchronization
+                       Administration
+                                              and ScheduleTables
+
+                                            • Document meta information extended
+
+                                            • Small layout adaptations made
+                                            • Added support for
+                                              SoftwareFreeRunningTimer (SWFRT)
+                                              incl. 2 new APIs
+
+                                            • Added API to start a ScheduleTable
+                                              synchron
+
+                       AUTOSAR              • Misc. Corrections, Clarification and
+ 2007-01-24   2.1.15                          further explanations
+                       Administration
+                                            • Legal disclaimer revised
+
+                                            • Release Notes added
+
+                                            • "Advice for users" revised
+
+                                            • "Revision Information" added
+                                            • Document structure adapted to common
+                                              Release 2.0 SWS Template.
+                       AUTOSAR              • Major changes in chapter 10
+ 2006-05-16   2.0
+                       Administration
+                                            • Structure of document changed partly
+
+                                            • Other changes see chapter 14
+                       AUTOSAR
+ 2005-05-31   1.0                           • Initial Release
+                       Administration
+....

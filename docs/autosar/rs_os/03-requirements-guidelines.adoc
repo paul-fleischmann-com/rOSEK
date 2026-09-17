@@ -1,0 +1,56 @@
+== 3 Requirements Guidelines
+
+Existing specifications shall be referenced (in form of a single requirement). Differ- ences to these specifications are specified as additional requirements.
+
+=== 3.1 Requirements quality
+
+All Requirements shall have the following properties:
+....
+    • Redundancy
+      Requirements shall not be repeated within one requirement or in other require-
+      ments
+    • Clearness
+      All requirements shall allow one possibility of interpretation only. Only technical
+      terms of the glossary [2] may be used. Furthermore, it must be clear from the
+      requirement, what object the statement is a requirement on.
+      Examples:
+           – The <...> module shall/should/may ...
+           – The <...> module’s environment shall ...
+           – The <...> configuration shall...
+           – The function <...> shall ...
+           – The <...> SWS shall ...
+           – The hardware shall ...
+    • Atomicity
+      Each Requirement shall only contain one requirement. A Requirement is atomic
+      if it cannot be split up in further requirements.
+    • Testability
+      Requirements shall be testable by analysis, review or test.
+    • Traceability
+      The source and status of a requirement shall be visible at all times.
+    • Formulation
+      All requirements shall be formulated so that they can be interpreted without
+      the surrounding context (for example: "the function Xyz..." instead of "this func-
+      tion...").
+....
+
+=== 3.2 Requirements identification
+
+Each requirement has its unique identifier starting with BSW as prefix. For any re- view annotations, remarks and/or questions please refer to this unique ID rather than chapter or page numbers!
+
+=== 3.3 Requirements status
+
+Additionally, each requirement contains a state information. The state can be one of the following.
+....
+ State:              Description:
+ Open                The requirement has been created by a member of the WP but not yet discussed in the WP
+                     meeting.
+ Proposed            The requirement has been reviewed during the WP meeting. It is accepted, but there are still
+                     open issues pending.
+ Approved            The requirement has been reviewed and approved by all WP participants.
+ Conflict            The requirement has been reviewed, but there are conflicts (e.g. contradictions with other
+                     requirements) which could not be resolved so far.
+ Rejected            The requirement has been reviewed and rejected.
+
+                                 Table 3.1: Requirements status
+....
+Thus, all requirements finalized are in the state "Approved".

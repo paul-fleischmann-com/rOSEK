@@ -1,0 +1,184 @@
+== 7.10 Inter-OS-Application Communicator (IOC)
+
+=== 7.10.1 Background & Rationale
+
+IOC stands for Inter OS-Application Communicator. The "IOC" is responsible for the communication between OS-Applications and in partic- ular for the communication crossing core or memory protection boundaries. Its internal functionality is closely connected to the Operating System.
+
+5
+....
+      StartOS
+
+                               Figure 7.24: IOC overall view
+....
+There are use cases where 1 to N IOC code instances needs to be generated on top of the OS code which is used by multiple different Software Clusters. As those Software Clusters use different IOC configurations, as a consequence the OS code shall not include any code depending on a specific IOC configuration. To ensure compatibility between IOC and OS code, there is still a dependency in that it is necessary to use the same OS configuration for the generation of the different IOC code Instances. Furthermore, the OS and IOC code should be generated from an OS Generator coming from the same vendor.
+
+[[SWS_Os_00671]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IOC implementation shall be part of the Operating System The IOC is a third type of communication, in addition to
+....
+     • Intra OS-Application communication: Always handled within the RTE
+     • Inter ECU communication: Already available via well-defined interfaces to the
+       communication stack (COM)
+....
+⌋
+
+IOC mode: This is the mode where the OS generator is invoked with a configuration parameter to generate the IOC code only. OS mode: This is the mode where the OS generator is invoked with a configuration parameter to generate the OS code only. Default mode: This is the current behavior where the IOC code is generated along with OS code.
+
+[[SWS_Os_00831]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈The OS Generator shall provide configuration parameters allowing IOC communica- tion code ("IOC mode") to be generated separately from OS code (("OS mode").⌋
+
+[[SWS_Os_00831]]
+means that the OS Generator shall be able to produce only OS code or only IOC code in a single invocation.
+
+[[SWS_Os_00832]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈The Operating System in the Host Software Cluster shall be able to handle multiple IOC code Instances related to different Software Clusters.⌋
+
+[[SWS_Os_00833]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈When the OS generator is invoked in "OS mode" it shall only generate the OS code. Thereby the OS code shall not include any code that depends on a specific IOC config- uration, because different Clusters will use different IOC configurations with the same OS code.⌋
+
+Please note that it is mandatory to use the same OS configuration for the generation of the different IOC instances to ensure compatibility between the IOC and OS code.
+
+[[SWS_Os_00834]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈When the OS generator is invoked in "IOC mode" it shall only generate the IOC code. Thereby the name of the C module containing the generated IOC code shall be Ioc.c and the name of the header file containing the generated IOC APIs shall be Ioc.h.⌋
+
+Requirements [SWS_Os_00833] and [SWS_Os_00834] ensure that OS and IOC can be generated independently from each other but linked together while building the ECU instance /Machine. ()
+
+[[SWS_Os_00835]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈If the IOC is configured, there shall be a function IocInit responsible for the initial- ization of the data structures of the IOC.⌋
+
+Memory protection boundaries are a characteristic of OS-Applications and special communication mechanisms are needed to cross them. Multi-Core systems may also need additional measures to make communication between cores safe. All AUTOSAR software, both BSW and software components, must belong to an OS- Application (see 7.9.3), but not necessarily to the same one. It is expected that the BSW will be trusted code, but it shall be defined as one or more OS-Applications.
+
+The IOC provides communication services between OS-Applications and in particular over core boundaries in Multi-Core systems. Because the cross-core communication is always an inter-OS-Application communication, the two mechanisms are combined. An inter OS-Application communication may not necessarily require a cross core com- munication, however. Communication between OS-Applications is expected to be more frequent than inter ECU communication. This would be the case when existing; closely related Software Components and their runnable entities are distributed to two or more cores to increase system performance. Meeting timing constraints is expected to become more difficult, when runnables which have been designed to run on a single core are distributed over several cores. In systems with only one core, the IOC can be omitted completely, if just one OS- Application is available, or if no OS-Application uses memory protection mechanisms. The IOC does not provide standardized support for measurement of IOC channels.
+
+=== 7.10.2 IOC - General purpose
+
+The IOC provides communication services which can be accessed by clients which need to communicate across OS-Application boundaries on the same ECU or Software Cluster. The RTE uses IOC services to communicate across such boundaries. All communica- tion must be routed through the RTE on sender (or client) and on receiver (or server) side. Direct access to IOC services by clients other than the RTE is not supported. A use of IOC from CDDs is discouraged. Only sender/receiver communication is supported however by the IOC. To keep the RTE as hardware independent as possible, all inter OS-Application and inter core communication mechanisms and implementation variants are encapsulated in the IOC. The IOC internal functionality is dependent on hardware architecture prop- erties, in particular on the memory architecture. The IOC has to guarantee data consistency in inter OS-Application and inter core (Multi-Core systems) communication, this means in particular:
+....
+    • In queued communication the sequential order of communication operations shall
+      remain unchanged. In the N:1 communication case, the order of the messages
+      from the different sources is a property of the implementation.
+    • The content of all data sent in one communication operation shall remain un-
+      changed, i.e. each communication operation shall be treated as atomic opera-
+      tion.
+    • The lock mechanism (interrupt locks; spinlocks; lock free implementation; ...)
+      which is used by the IOC to guarantee the data consistency is not standardized.
+....
+
+=== 7.10.3 IOC functionality
+
+==== 7.10.3.1 Communication
+
+The IOC provides sender-receiver (signal passing) communication only. The RTE translates Client-Server invocations and response transmissions into Sender-Receiver communication. 1:1, N:1 and N:M (unqueued only) communication are supported by the IOC. The IOC allows the transfer of one data item per atomic communication operation. A data item can either be a value for atomic basic data types or a reference for complex data structures. The data structure must be implemented as a single memory block, however. This way the data item can be transmitted in one piece. The IOC does not need to know the internal data structure. The basic memory address and length (which can be calculated from the type of the data item) is sufficient. The IOC does, e.g., not support a conversion of endianness between cores. Transferring more than one data item in one operation is also supported for 1:1 com- munication only. In this case several types and memory addresses have to be used by the IOC function. The advantage compared to sequential IOC calls is that mechanisms to open memory protection boundaries and to notify the receiver have to be executed just once. Additionally, all data items are guaranteed to be consistent, because they are transferred in one atomic operation. The IOC provides both, unqueued (Last-is-Best, data semantics) or queued (First-In- First-Out, event semantics) communication operations. If present, the IOC internal queue has a configurable length. Each atomic communication operation gets specified individually by its own descrip- tion block in a Configuration Description with regard to sender, receiver, data type(s), notification, and queuing.
+
+==== 7.10.3.2 Notification
+
+The IOC optionally notifies the receiver as soon as the transferred data is available for access on the receiver side, by calling a configured callback function which gets provided by the user of the communication. A possible implementation is to trigger an interrupt (Category 2 ISR) mechanism to invoke the callback function from the ISR on receiver side, or to use a microcontroller supplied trap. The callback function shall be efficient and compact, because it is called from within the ISR. In certain cases, it might not be necessary to trigger an ISR to notify the receiver. The IOC generator can then select the appropriate IOC internal notification method based on the hardware architecture and other constraints. This might be more efficient than an ISR for communication between OS-Applications on the same core.
+
+The notification might be handled completely by the client of the IOC, e.g. when the RTE calls the IOC send function, and then notifies the receiver side RTE that new data are available from the IOC. In this case, the IOC is not affected at all by the details of the notification mechanism. In case such alternative solutions prove to be more efficient, the IOC internal notifica- tion might get removed in future AUTOSAR releases.
+
+=== 7.10.4 IOC interface
+
+The interface between RTE and IOC shall be similar to the interface between Software Components and the RTE, i.e. by generating specific interfaces for each communica- tion operation instead of providing a generic API. This supports optimization methods (like function inlining or replacing function calls by macros) much better than standardized interfaces. Most of the optimization can be performed offline at code generation time instead of consuming valuable real-time resources. There is a unique set of IOC service APIs (at least to send and receive data) for each data communication specified in the IOC Configuration Description. Each service API gets generated and can be identified by a unique Id for each data communication. In case of N:1 communication, each sender must use its own API. The same IOC service API and hence the same 1:1 communication can get used by more than one runnable inside the same SWC both on sender and on receiver side. However, the IOC functions are not reentrant, because otherwise e.g. spinlock errors could occur in case the IOC uses spinlocks in Multi-Core systems. The same IOC API must therefore only be called sequentially. This is no problem, if all runnable entities are scheduled within the same Task, otherwise the caller is responsible to guarantee that the same IOC API is not called again before it returns from a different invocation. Software Components may access the IOC only via RTE. Only the RTE decides which communication services to use to support the communication needs of Software Com- ponents.
+
+=== 7.10.5 IOC internal structure
+
+This section gives some hints on possible IOC implementation options. The IOC may enter the privileged mode to cross the protection boundaries between OS-Applications. The IOC therefore has to be part of the OS. Note that functionality that is placed in the kernel context might be non-interruptible by Tasks or Category 2 ISR. The functionality can be interrupted by Cat1 ISRs, however. The IOC send service writes data into a buffer located in a memory area which is shared with the receiving communication partners (This is one possible implementation
+
+example using shared memory). Depending on the hardware architecture and other constraints, different implementation options might be available within the IOC. These options shall be transparent to the client (RTE), however. The IOC ensures data consistency, i.e. there is a protection against concurrent access to the same data from all senders and the receiver for protection against inconsistent behavior and data corruption. The implementation can be hardware dependent. In systems with shared memory, there can be a specific communication buffer for each data item in a memory section which is shared between the sending and receiving OS-Applications. If an IOC communication with event semantics (queued) is configured the length of the queue shall be defined.
+
+=== 7.10.6 IOC configuration and generation
+
+Data element specific interfaces between RTE and IOC require extensive code genera- tion. Instead of generating the IOC together with the RTE, a sequential code generation process is used, to separate generic RTE code generation and hardware dependent IOC code generation as much as possible. The following steps shall be performed:
+....
+    • Step 1: Specify all information about the allocation of Software Components to
+      OS-Applications and cores in the ECU Configuration Description file.
+    • Step 2: Generate the RTE. The RTE generator creates data element specific IOC
+      services calls and the corresponding IOC Configuration Description blocks (XML
+      format) to specify the communication relations for each data element.
+    • Step 3: Generate the IOC code, according to the IOC Configuration Description
+      (Step 2) while considering the hardware description files. Additionally, generate a
+      header file (Ioc.h) for inclusion in RTE.c to provide definitions, function prototypes
+      and macros.
+....
+Each atomic communication has to be specified in the IOC Configuration Description in a standardized XML format. There is one description block per communication op- eration specifying:
+....
+    • Unique identifier
+    • Data type(s)
+    • Sender properties
+    • Receiver properties
+    • Name of callback function on receiver side in case of notification.
+    • Whether communication is queued or unqueued (last is best)
+    • In case of queued communication: Length of the queue
+....
+For details see chapter 10.3 For each inter-OS-Application communication, the RTE generator creates one or more calls to an IOC function to send or receive data, and adds a corresponding description block to the IOC Configuration Description. In ECUs or Software Clusters with only one OS-Application, the IOC Configuration Description can be omitted.
+
+[[SWS_Os_00824]]
+Upstream requirements: SRS_Os_80020
+
+⌈All the data allocated by the OS for the IOC communication shall be wrapped with the memory allocation keywords mechanism
+....
+   1   #define OS_<IE>_START_SEC_<sadm>
+   2   #include "Os_MemMap.h"
+   3
+   4   <IOC buffers>
+   5
+   6   #define OS_<IE>_STOP_SEC_<sadm>
+   7   #include "Os_MemMap.h"
+....
+where <IE> is the shortName of the sending OsApplication configured in Os- IocSendingOsApplicationRef of the respective OsIocCommunication chan- nel, and <sadm> is the shortName of the referred swAddrMethod, if configured in OsMemoryMappingCodeLocationRef of the respective OsIocDataProperties within the OsIocCommunication channel. If the OsMemoryMappingCodeLoca- tionRef is not defined the OS is permitted to select an appropriate swAddrMethod.⌋
+
+=== 7.10.7 IOC integration examples
+
+This section describes two typical use cases that show how the IOC can support com- munication between OS-Applications. In both examples the OS-Applications are lo- cated on different cores of a Multi-Core system.
+
+==== 7.10.7.1 Example 1 - 1:1 sender/receiver communication without notification
+
+One Software Component sends data items in event semantics (queued) to another Software Component located on a different core. A runnable entity on the receiver side is invoked periodically (e.g. by an Alarm) and receives the data via RTE (see figure 7.25). Because the communication crosses core boundaries, the RTE invokes the IOC to transfer the data from core 0 to core 1. On the sending side, the Rte_Send_<port>_<item> (..., <data>)
+
+call is mapped to an IocSend_<Id> (<data>) call.
+
+....
+                          Figure 7.25: IOC without notification
+....
+In this example, the IocSend service writes the data into a buffer, located in a shared memory area which can get read by the receiver via the IOC. On the receiving side, the receiving runnable gets invoked periodically. The Rte_Receive_<port>_<item> (..., <data>) call is mapped to an IocReceive_<Id> (<data>) call to read data from the IOC internal queue. An additional queue within the RTE is not necessary for 1:1 communication. The IOC generator generates all the send and receive functions. The functions might be defined as macros for optimization purposes. This kind of port to port communication without notification is suitable for:
+....
+    • Sender/receiver communication
+    • Queued or unqueued communication
+    • 1:1 communication.
+....
+
+==== 7.10.7.2 Example 2 - N:1 client/server communication with receiver notification
+
+....
+             by RTE
+....
+One Software Component invokes a service operation that is provided by another Soft- ware Component located on a different core. A runnable entity on the receiver side is activated to calculate the result (see figure 7.26). The RTE realizes the service on client side by mapping the client/server call to a sender/receiver communication. Because the communication crosses core bound- aries, the RTE uses the IOC to transfer the data from Core 0 to Core 1. On the sending side, the Rte_Call_<port>_<op> (..., <data>) call is mapped to a IocSend_<Id> (<data>) call to transmit the parameters over the IOC to the core hosting the server runnable.
+
+....
+                        Figure 7.26: IOC with notification by RTE
+....
+After writing the data into the IOC internal queue buffer, the Rte_Call function uses an OS call to notify the receiver by activating the server Task on the receiving core. This Task is provided by the RTE. This Task body is responsible for reading the data from the IOC buffer by calling IocReceive function and for forwarding the data to the server runnable. Depending on the return value of the IOC function, the IocReceive and server runnable calls might be repeated several times to empty the IOC internal queued buffer (if specified).
+
+The result of the service on Core 1 is transferred back to the client on Core 0 in a similar way. The communication path of the result is not displayed in figure 7.26. This kind of port to port communication with notification by the RTE is suitable for:
+....
+    • Sender/receiver communication with notification
+    • Client/server communication. In this case the RTE has to provide services to
+      map the server call into 1:1 sender/receiver communication for the server call
+      and another sender/receiver communication to return the result to the client
+    • Queued or unqueued communication
+    • 1:1 communication, if the receiver does not poll for data periodically (In this case,
+      the solution in example 1 might have been more suitable)
+    • N:1 communication.
+....

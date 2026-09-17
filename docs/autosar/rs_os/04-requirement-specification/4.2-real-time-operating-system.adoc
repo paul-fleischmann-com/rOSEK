@@ -1,0 +1,59 @@
+== 4.2 Real-Time Operating System
+
+=== 4.2.1 Functional description
+
+The real-time operating system in an embedded automotive ECU builds the basis for the dynamic behavior of the software. It manages the scheduling of tasks and events, the data flow between different tasks and provides features for monitoring and error handling. However, in automotive systems the requirements on an operating system are highly domain specific. For instance, in the body, powertrain and chassis domains, the fo- cus is on efficient scheduling of tasks and alarms, handling of shared resources and deadline monitoring. The used operating system has to be very efficient in runtime and small in memory footprint. In multimedia and telematics applications, the feature set provided by the operating system and also the available computing resources are significantly different. Here, on top of pure task management, also complex data handling (e.g. streams, flash file systems, etc.), memory management and often even a graphical user interface are contained in the OS. The classic domain of an automotive OS covers the core features of scheduling and synchronization only. In the AUTOSAR architecture the additional features discussed above are outside the scope of the OS. Such features are covered by the other AU- TOSAR Basic Software Modules. (e.g. COM provides a communication abstraction). Integrating the feature sets of other OSs (e.g. QNX, VxWorks and Windows CE etc.)
+
+into a monolithic OS/communication/drivers structure is not possible under architec- tural constraints of AUTOSAR. Therefore, the AUTOSAR OS shall consider only the core features.
+
+=== 4.2.2 Core Operating System requirements
+
+[[SRS_Os_00097]]
+The OS shall provide an API that is backward compatible to the API of OSEK OS ⌈ The OS shall provide an API that is backward compatible to the API of OSEK Description:    OS [3]. Valid requirements shall be integrated as an extension of the functionality provided by OSEK OS. Rationale:      Guarantee migration progress Use Case:       Existing driver software can be reused as its interface to the OS is not changed. Dependencies:   – Supporting      [STD_OSEK_OS], see [3] Material:
+
+⌋
+
+[[SRS_Os_11001]]
+The OS shall provide partitions which allow for fault isolation capabilities ⌈ The OS shall provide partitions (Fault Containment Regions) which allow for Description: fault isolation capabilities. AUTOSAR permits mutliple logical applications to co-exist on the same processor. The existing specification of OSEK OS [3] is not aware of multiple logical applications residing on a single processor. There is therefore no facility for the containment of faults. A fault in one application could propagate to another application resident on the same processor. For example, an error in one software component or basic software module may result in a fault being detected in another software component and/or basic software module whose only relation to the faulty part is that it is resident on the same processor. OSEK OS has the following rules OS object manipulation: • Tasks and ISRs are the executable objects managed by the OS. • Standard resources can be manipulated by only those task/ISRs that declare this at configuration time. Rationale: • Events can be set by any task or ISR. Events can only be waited on or cleared by those tasks that declare this at configuration time. • Alarms can be manipulated by any task or ISR.
+
+....
+                    In AUTOSAR:
+
+                     • Extending this general scheme to table-based schedules ([SRS_Os_00098])
+                       means that Schedule Tables can be manipulated by any task or ISR.
+
+                    This loose ownership of OS objects (tasks, ISRs, alarms, events, schedule
+                    tables, resources) makes it difficult to contain certain classes of faults at
+                                                            ▽
+                                                 ▽
+
+                                                △
+                                                           △
+                    runtime, for example one software component incorrectly cancelling an alarm
+                    belonging to another software component. It is therefore necessary to define
+                    the relationship between OS objects and the software components or basic
+                    software module to which they belong so that fault containment can be
+                    achieved at runtime.
+                    The OS shall provide a higher-level abstraction to allow the user to group
+                    existing OS objects (tasks, ISRs etc.) so that objects in the group can be
+                    manipulated only by objects in the same group. Such a group is called an
+                    OS-Application.
+                    Furthermore, defining an OS-Application allows a memory protection domain to
+                    be provided (see [SRS_Os_11005]).
+                    Under a failure condition the fault handling mechanism needs to stop all objects
+    Use Case:       associated with a software component from executing.
+    Dependencies:   –
+    Supporting      –
+    Material:
+....
+⌋
+
+[[SRS_Os_11018]]
+The OS shall provide interrupt mask functions ⌈ The OS shall provide interrupt mask functions before calling StartOS() and Description:    after a ShutdownOS() call. These functions are already defined in OSEK OS [3] and the usage is now extended. Rationale:      Needed by SPAL. The SPAL drivers are required to manipulate the interrupt mask before, during Use Case: and after normal OS operation. Dependencies:   C initialization has to be performed before these functions can be used. Supporting Material:
+
+⌋
+
+[[SRS_Os_11019]]
+The AUTOSAR OS generation tool shall create the interrupt vector table ⌈ Description:    The AUTOSAR OS generation tool shall create the interrupt vector table for. Each ECU will need to have an interrupt vector table. The operating system configuration already contains details about all interrupts used by the system. Rationale:      The AUTOSAR OS generation tool shall be the final tool in the development process that generates the interrupt vector table. Use Case:       Integration of other modules. Dependencies:   – Supporting      – Material:
+
+⌋

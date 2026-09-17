@@ -1,0 +1,67 @@
+== 9 Sequence diagrams
+
+=== 9.1 Sequence chart for calling trusted functions
+
+....
+                       Figure 9.1: System Call sequence chart
+....
+The above sequence describes a call to the CallTrustedFunction service. It starts with a user who calls a service which requires itself a call to a trusted function. The service then packs the argument for the trusted function into a structure and calls CallTrustedFunction with the ID and the pointer as arguments. Afterwards the OS checks if the access to the requested service is valid. If no access is granted E_OS_SERVICEID is returned. Otherwise the trusted service itself is called and the function checks the arguments for access right, etc.
+
+=== 9.2 Sequence chart for usage of ErrorHook
+
+....
+                       Figure 9.2: Error Hook sequence chart
+....
+The above sequence chart shows the sequence of error hook calls in case a service does not return with E_OK. Note that in this case the general error hook and the OS- Application specific error hook are called.
+
+=== 9.3 Sequence chart for ProtectionHook
+
+....
+                    Figure 9.3: ProtectionHook sequence chart
+....
+The sequence shows the flow of control if a protection error occurs. Depending on the return values of the ProtectionHook, either the faulty Task/ISR is forcibly terminated or the OS-Application is forcibly terminated or the system is shut down.
+
+=== 9.4 Sequence chart for StartupHook
+
+....
+                       Figure 9.4: StartupHook sequence chart
+....
+The above sequence shows the flow of control during the startup of the OS. Like in OSEK OS the user calls the StartOS service to start the OS. During the startup the startup hooks are called in the above order. The rest of the startup sequence is identi- cal to the defined behaviour of OSEK OS.
+
+=== 9.5 Sequence chart for ShutdownHook
+
+The next sequence shows the behaviour in case of a shut down. The flow is the same as in OSEK OS with the exception that the shut down hooks of the OS-Applications are called before the general ShutdownHook is called. Note that the specific shutdown hooks of the application are not allowed to block, they must return to the caller.
+
+....
+                     Figure 9.5: ShutdownHook sequence chart
+....
+
+=== 9.6 Sequence diagrams of Sender Receiver communication over
+
+....
+        the IOC
+....
+
+==== 9.6.1 Last-is-best communication
+
+The 9.6 shows a sequence of successful and failure cases in the interaction between the IOC and the RTE in case of last-is-best communication ("data" semantic).
+
+....
+                    Figure 9.6: IOC - Last-is-best communication
+....
+
+==== 9.6.2 Queued communication without pull callback
+
+The figure 9.7 shows the interaction between IOC and RTE with a focus on the con- gestion control for a queued communication. The defined communication has no callback functionality for data reception, has an internal buffer size of 2 data elements, no waitpoints are defined and the implicated OS-Applications are located on different cores.
+
+....
+               Figure 9.7: IOC - Queued communication without callback
+....
+
+==== 9.6.3 Queued communication with pull callback
+
+The figure 9.8 shows the interaction between IOC and RTE in case of a queued com- munication with an activated callback functionality. The RTE might handle notification internally and might therefore not provide any callback functions, but a similar scenario will occur in case of communication between CDDs on different cores. The receiving CDD will provide the callback function in this case. The defined communication has no waitpoints and describes a communication impli- cating two OS-Applications located on different cores.
+
+....
+             Figure 9.8: IOC Queued Communication with callback
+....

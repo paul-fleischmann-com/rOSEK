@@ -1,0 +1,30 @@
+== 4.8 Application Error Handling
+
+=== 4.8.1 Functional Overview
+
+Some errors affecting an application may not lead to protection violations that are de- tectable by the OS but nevertheless result in an application entering a state where it cannot itself recover and continue executing. The detection of such errors is the re- sponsibility of the application itself, but recovery from such errors requires interaction with the threads of control managed by the OS. The OS therefore needs to provide a mechanism upon which applications can build internal recovery mechanisms. The core OSEK OS [3] provides some support: tasks can detect internal errors and terminate themselves; the system can use the alarm mechanism to program timeouts, implement threshold-based error detection; internal errors can be detected and the system can be shut down etc. However, the core OS does not provide the means to implement error recovery for logical applications that are defined by OS-Applications (see [SRS_Os_11001]). This section introduces requirements to provide a framework of application-level and system-level control of OS-Applications.
+
+=== 4.8.2 Functional Requirements
+
+[[SRS_Os_11022]]
+The OS shall provide a mechanism to terminate OS-Application ⌈ The OS shall provide a mechanism by which an OS-Application can be terminated as a single unit and all resources held by the OS-Application and managed by the OS are released. Description: Termination shall prevent any task owned by the OS-Application from running and any interrupt handled by an ISR owned by the OS-Application from occuring. ▽
+
+....
+                                                  △
+                      Error handling for AUTOSAR software components requires that the OS can
+                      terminate an OS-Application.
+                      When an application comprises multiple tasks/ISRs it is not possible in the core
+                      OS to stop the application atomically unless the OS itself is shut down.
+    Rationale:
+                      Shutdown is not practical when there are other OS-Applications for which
+                      termination is not required.
+                      Therefore, the OS must provide a mechanism to terminate an OS-Application
+                      that does not affect other OS-Applications.
+                      Error reaction in an OS-Application in response to the detection of an internal
+    Use Case:
+                      error.
+    Dependencies:     –
+    Supporting        –
+    Material:
+....
+⌋

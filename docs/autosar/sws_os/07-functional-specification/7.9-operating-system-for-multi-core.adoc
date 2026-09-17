@@ -1,0 +1,955 @@
+== 7.9 Operating System for Multi-Core
+
+This chapter specifies some extensions that allow to use an AUTOSAR system on Multi-Core micro-processors. It describes the main philosophy as well as additional extensions to the existing OS functionality regarding Multi-Core. The following chap- ter contains a specification of a new mechanism within the OS called IOC (Inter OS- Application Communicator) that supports the communication between OS-Applications located on the same or on different cores
+
+=== 7.9.1 Background & Rationale
+
+The existing AUTOSAR-OS is based on the OSEK/VDX Operating System which is widely used in the automotive industry. The AUTOSAR Multi-Core OS is derived from the existing AUTOSAR OS. The Multi-Core OS in AUTOSAR is not a virtual ECU concept, instead it shall be under- stood as an OS that shares the same configuration and most of the code but operates on different data structures for each core. To reduce the memory footprint all cores should use the same code base. Sometimes it can be beneficial to spend some more ROM/Flash, e.g. to use a local ROM, and "double" parts of the code to get faster ROM/Flash access.
+
+==== 7.9.1.1 Requirements
+
+[[SWS_Os_00567]]
+Upstream requirements: SRS_Os_80008
+
+⌈The generated part of the OS is derived from a single configuration that contains the relevant information for all cores. This implies, that IDs (e.g. TaskID, ResourceID, . . . ) are unique across cores. Every ID shall refer exactly to one entity independent from the core on which the entity is accessed. This applies also to objects that cannot be shared between cores.⌋
+
+=== 7.9.2 Scheduling
+
+The priority of the Tasks drives the scheduling. Since multiple cores run truly parallel, several Tasks can execute at the same time.
+
+Figure 7.16: Priorities are assigned to Tasks. The cores schedule independently from each other. The Tasks T2, T3 and T5 are executed in true parallelism. Tasks with the same priority on the same core will be executed in order of activation; Tasks with the same priority on different cores may not be executed in the order of activation, since the cores schedule independent from each other.
+
+The OS can be entered on each core in parallel. This optimizes scalability towards multiple cores. The cores schedule independently. This implies that the schedule on
+
+one core does not consider the scheduling on the other cores3 . A low priority Task on one core may run in parallel with a high priority Task on another core. Tasks and ISRs cannot dynamically change cores by means of the scheduling algo- rithm.
+
+==== 7.9.2.1 Requirements
+
+[[SWS_Os_00568]]
+Upstream requirements: SRS_Os_80001
+
+⌈Implementations shall be able to independently execute a Task or an ISR on each started AUTOSAR OS core in parallel.⌋
+
+[[SWS_Os_00569]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80013
+
+⌈The scheduling strategy as defined in AUTOSAR OS shall apply for each individual core in a Multi-Core system, for the Tasks and ISR assigned to the core.⌋
+
+=== 7.9.3 Locatable entities (LE)
+
+A locatable entity is an entity that has to be located entirely on one core. The assign- ment of LEs to cores is defined at configuration time (OsAppEcucPartitionRef). In this release of the AUTOSAR standard OS-Applications shall be the LEs. Because every Task has to run on some core, the usage of OS-Applications becomes obligatory in AUTOSAR R4.0 for Multi-Core systems. BSW modules are not allowed to ignore OS- Applications, even if they do not use any protection mechanisms. This is independent from the SC class. As is stated in the AUTOSAR Specification of the Operating System, if OS-Applications are used, all Tasks, ISR etc. must belong to an OS-Application. This implies, that no AUTOSAR software exists outside of an OS-Application in Multi-Core systems. On single-core systems OS-Applications are available only for SC3 and SC4 because the mechanism is used to support memory protection and implies the usage of ex- tended mode. In Multi-core systems OS-Applications are always available independent of memory protection and on SC1 standard mode shall be possible.
+
+....
+   3
+    This also applies to Tasks with the same priority, bound to different cores. It also means that non-
+....
+preemptive Tasks cannot be preempted on the core they are running, but Tasks on other cores can run in parallel.
+
+==== 7.9.3.1 Requirements
+
+[[SWS_Os_00570]]
+Upstream requirements: SRS_Os_80003, SRS_Os_80005
+
+⌈All Tasks that are assigned to the same OS-Application shall execute on the same core.⌋
+
+[[SWS_Os_00571]]
+Upstream requirements: SRS_Os_80003, SRS_Os_80005
+
+⌈All ISRs that are assigned to the same OS-Application shall execute on the same core.⌋
+
+[[SWS_Os_00572]]
+Upstream requirements: SRS_Os_80005, SRS_Os_80006
+
+⌈ISR balancing (if supported by the HW) shall be switched off at boot time by the OS.⌋
+
+[[SWS_Os_00764]]
+Upstream requirements: SRS_Os_11016
+
+⌈The OS module shall support OS-Applications in case of Multi-Core also for SC1 and SC2.⌋
+
+[[SWS_Os_00763]]
+Upstream requirements: SRS_Os_11016
+
+⌈In an SC1 system standard mode shall be possible.⌋
+
+[[SWS_Os_00573]]
+Upstream requirements: SRS_Os_80003, SRS_Os_80005
+
+⌈The binding of OS-Applications to cores shall be derived from the referenced Ecuc- Partition.⌋
+
+The configuration item OsAppEcucPartitionRef within the OS-Application con- tainer shall be used to define the core to which the EcucPartition and hence the OS- Application is bound. The OS generator will map the configuration parameter "CORE" to a certain core, so that all OS-Applications with the same configuration parameter reside on the same core.
+
+=== 7.9.4 Multi-Core start-up concept
+
+The way cores are started depends heavily on the hardware. Typically the hardware only starts one core, referred as the master core, while the other cores (slaves) remain in halt state until they are activated by the software.
+
+In contrast to such a master-slave system other boot concepts with cores that start independently from each other are conceivable. However it is possible to emulate master-slave behavior on such systems by software. The AUTOSAR Multi-Core OS specification requires a system with master-slave start- up behavior, either supported directly by the hardware or emulated in software. The master core is defined to be the core that requires no software activation, whereas a slave core requires activation by software. In Multi-Core configurations, each slave core that is used by AUTOSAR must be acti- vated before StartOS is entered on the core. Depending on the hardware, it may be possible to only activate a subset of the available cores from the master. The slave cores might activate additional cores before calling StartOS. All cores that belong to the AUTOSAR system have to be activated by the designated AUTOSAR API function. Additionally, the StartOS function has to be called on all these cores. If a core is activated it executes some HW and compiler specific operations, before the "main" function is called. In case the same "main" function is executed on each core, the cores have to be differentiated by their specific core Id within the function. Example:
+....
+   1   void main ()
+   2   {
+   3       StatusType rv;
+   4
+   5           /* ... */
+   6
+   7           switch (GetCoreID())
+   8       {
+   9
+
+  10           case OS_CORE_ID_MASTER:
+  11                /* ... */
+....
+12
+....
+  13               StartCore(OS_CORE_ID_0, &rv);
+  14               StartOS(OSDEFAULTAPPMODE);
+  15               break;
+....
+16
+....
+  17           case OS_CORE_ID_0:
+  18               /* ... */
+....
+19
+....
+  20               StartCore(OS_CORE_ID_1, &rv);
+  21               StartOS(DONOTCARE);
+  22               break;
+....
+23
+....
+  24           otherwise:
+....
+25
+....
+  26               StartOS(DONOTCARE);
+....
+27
+....
+  28           }
+  29   }
+....
+StartOS synchronizes all cores twice. The first synchronization point is located before the StartupHooks are executed, the second after the OS-Application specific Star- tupHooks have finished and before the scheduler is started. The exact point where the second synchronization occurs depends on the implementation, but it shall be before the scheduling is started. This release of the AUTOSAR specification does not support timeouts during the synchronization phase. Cores that are activated with StartCore but do not call StartOS may cause the system to hang. It is in the responsibility of the integrator to avoid such behavior. As shown in figure 7.17, the StartupHook is called on every core right after the first synchronization. However, there is only one StartupHook in the system. If, for exam- ple, core-individual functionality must be executed during StartupHook the GetCor- eID function can be used to discriminate the individual cores. After the global Star- tupHook has finished each core performs the StartupHooks of its OS-Applications . Since OS-Applications are bound to cores the OS-Application specific StartupHooks are executed only on the core to which the corresponding OS-Application is bound.
+
+....
+   Figure 7.17: This figure shows an example of an initialization process with 4 cores
+....
+
+==== 7.9.4.1 Requirements
+
+[[SWS_Os_00574]]
+Upstream requirements: SRS_Os_80006
+
+⌈The master core shall be able to activate cores.⌋
+
+[[SWS_Os_00575]]
+Upstream requirements: SRS_Os_80006
+
+⌈Any slave core shall be able to activate cores.⌋
+
+[[SWS_Os_00576]]
+Upstream requirements: SRS_Os_80006
+
+⌈It shall be allowed to use only a subset of the cores available on a µC for the AUTOSAR system.⌋
+
+[[SWS_Os_00577]]
+Upstream requirements: SRS_Os_80006
+
+⌈The cores shall boot in master-slave mode. If this is not supported by the hardware, it shall be that the cores boot in parallel and emulate the behavior of a master-slave system.⌋
+
+[[SWS_Os_00578]]
+Upstream requirements: SRS_Os_80006
+
+⌈In case of an emulation a slave core (CoreS), which is controlled by the AUTOSAR OS (AUTOSAR core), shall not enter the main function before another core has activated the slave core by means of StartCore(CoreS).⌋
+
+[[SWS_Os_00579]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80006
+
+⌈All cores that belong to the AUTOSAR system shall be synchronized within the Star- tOS function before the scheduling is started and after the global StartupHook is called.⌋
+
+[[SWS_Os_00580]]
+Upstream requirements: SRS_Os_80006
+
+⌈All cores that belong to the AUTOSAR system shall be synchronized within the Star- tOS before the global StartupHook is called.⌋
+
+[[SWS_Os_00581]]
+Upstream requirements: SRS_Os_80006
+
+⌈The global StartupHook shall be called on all cores immediately after the first syn- chronization point.⌋
+
+[[SWS_Os_00582]]
+Upstream requirements: SRS_Os_80006, SRS_Os_80008
+
+⌈The OS-Application-specific StartupHooks shall be called after the global Star- tupHook but only on the cores to which the OS-Application is bound.⌋
+
+=== 7.9.5 Cores under control of the AUTOSAR OS
+
+The AUTOSAR OS controls several cores as stated above. It need not control all cores of a µC, however. The maximum number of controlled cores shall be configured within the OsOS section of the configuration. The AUTOSAR OS API provides a StartCore function to start the cores under its control. The StartCore function takes a scalar value parameter of type CoreIdType, specifying the core that shall be started. StartCore can be called more than once on the master core and also on slave cores. Each core can only be started once, however. For example:
+....
+   1    StartusType rv1, rv2;
+   2    StartCore(OS_CORE_ID_1, &rv1);
+   3    StartCore(OS_CORE_ID_2, &rv2);
+   4    if (rv1 != E_OK) || (rv2 != E_OK)
+   5        EnterPanicMode();
+   6    StartOS(OSDEFAULTAPPMODE);
+....
+The StartOS function shall be called on all cores that have been activated by Start- Core. It is not allowed to call StartCore from a core that has already called StartOS. Cores that belong to the AUTOSAR system shall be started by the designated AUTOSAR OS API service StartCore.
+
+==== 7.9.5.1 Requirements
+
+[[SWS_Os_00583]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80011
+
+⌈The number of cores that can be controlled by the AUTOSAR OS shall be configured offline. A new configuration item (OsNumberOfCores) within the OsOS container is used to specify the maximum number of cores that are controlled by the AUTOSAR OS. If no value for OsNumberOfCores has been specified the number of cores shall be one.⌋
+
+=== 7.9.6 Multi-Core shutdown concept
+
+AUTOSAR supports two shutdown concepts, the synchronized shutdown and the in- dividual shutdown concept. While the synchronized shutdown is triggered by the new API function ShutdownAllCores, the individual shutdown is invoked by the existing API function ShutdownOS.
+
+==== 7.9.6.1 Synchronized shutdown concept
+
+If a Task with the proper rights calls ShutdownAllCores, a signal is sent to all other cores to induce the shutdown procedure. Once the shutdown procedure has started on a core, interrupts and Tasks are not further processed, and no scheduling will take place, therefore it makes no sense to activate any Task, however no error will be generated. It is in the responsibility of the application developer/system integrator to make sure that any preparations for shutdown on application and basic software level are completed before calling ShutdownAllCores (e.g. by means of the ECU state manager). During the shutdown procedure every core executes its OS-Application specific Shut- downHook functions, followed by a synchronization point. After all cores have reached the synchronization point the global ShutdownHook function is executed by all cores in parallel.
+
+....
+                    Figure 7.18: Example of a shutdown procedure
+....
+[[SWS_Os_00586]]
+Upstream requirements: SRS_Os_80007
+
+⌈During the shutdown, the OS-Application specific ShutdownHook shall be called on the core on which the corresponding OS-Application is bound.⌋
+
+[[SWS_Os_00587]]
+Upstream requirements: SRS_Os_80007
+
+⌈Before calling the global ShutdownHook, all cores shall be synchronized.⌋
+
+[[SWS_Os_00588]]
+Upstream requirements: SRS_Os_80007
+
+⌈The global ShutdownHook shall be called on all cores.⌋
+
+==== 7.9.6.2 Individual shutdown concept
+
+If a Task calls ShutdownOS the OS will be shut down on the core on which Shut- downOS has been called. Every core shall be able to invoke ShutdownOS . Similar to StartOS this function will shutdown the individual core. To shutdown the whole ECU ShutdownOS has to be called on every core. The function will not return. Individual shutdown is not supported in AUTOSAR R4.x (AUTOSAR mode manage- ment will not use it).
+
+==== 7.9.6.3 Shutdown in case of fatal internal errors
+
+In multicore systems it can happen that a fatal internal OS error is detected only on one core. In such cases a local shutdown of that core does not make sense.
+
+[[SWS_Os_00762]]
+Upstream requirements: SRS_Os_80007
+
+⌈In cases where the OS detects a fatal internal error all cores shall be shut down.⌋
+
+=== 7.9.7 OS service functionality (overview)
+
+Within this chapter we describe which existing single core AUTOSAR OS functionality has been extended. The following table gives an overview of all standard OS API functions. The column "Multi-Core support" contains one of the following values:
+....
+    • Extended: The function that has been extended substantially to support special
+      Multi-Core functionality.
+    • Adapted: the function required some minor changes but basically remains un-
+      changed.
+    • Unchanged: the behavior of the function has not changed.
+    • New: the function is a new AUTOSAR OS API-function.
+ Service                    Multi-Core support   Annotation
+ ActivateTask               Extended             Cross core use shall be supported.
+ CallTrustedFunction        Adapted              Function must be bound to the same core.
+ CancelAlarm                Extended             Cross core use shall be supported.
+ ChainTask                  Extended             Cross core use shall be supported.
+ CheckISRMemoryAccess       Unchanged
+ CheckObjectAccess          Unchanged
+ CheckObjectOwnership       Unchanged
+ CheckTASKMemoryAccess      Unchanged
+                                                 ▽
+
+                                                   △
+ Service                      Multi-Core support   Annotation
+ ClearEvent                   Unchanged
+ DisableAllInterrupts         Unchanged            Works only on the same core.
+ EnableAllInterrupts          Unchanged            Works only on the same core.
+ GetActiveApplicationMode     Unchanged
+ GetAlarm                     Extended             Cross core use shall be supported.
+ GetAlarmBase                 Extended             Cross core use shall be supported.
+ GetApplicationID             Unchanged
+ GetApplicationState          Extended             Cross core use shall be supported.
+ GetCoreID                    New                  ID of the current core.
+ GetCounterValue              Adapted              Cross core is not allowed.
+ GetElapsedValue              Adapted              Cross core is not allowed.
+ GetEvent                     Unchanged
+ GetISRID                     Unchanged
+ GetNumberOfActivatedCores    New                  Number of cores running the AUTOSAR OS.
+ GetResource                  Adapted              Nestable with spinlocks.
+ GetScheduleTableStatus       Extended             Cross core use shall be supported.
+ GetSpinlock                  New                  Occupy a spinlock.
+ GetTaskID                    Unchanged            Works only on the same core.
+ GetTaskState                 Extended             Cross core use shall be supported.
+ IncrementCounter             Adapted              Cross core is not allowed.
+ NextScheduleTable            Unchanged
+ ReleaseResource              Adapted              Nestable with spinlocks.
+ ReleaseSpinlock              New                  Release a spinlock.
+ ResumeAllInterrupts          Unchanged            Works only on the same core.
+ ResumeOSInterrupts           Unchanged            Works only on the same core.
+ Schedule                     Adapted              Check for unreleased spinlocks
+ SetAbsAlarm                  Extended             Cross core use shall be supported
+ SetEvent                     Extended             Cross core use shall be supported.
+ SetRelAlarm                  Extended             Cross core use shall be supported
+ SetScheduleTableAsync        Unchanged
+ ShutdownAllCores             New                  Synchronized shutdown.
+ ShutdownOS                   Extended             Support for MC systems
+ StartCore                    New                  Start additional core
+ StartOS                      Extended             Support for MC systems
+ StartScheduleTableAbs        Extended             Cross core use shall be supported.
+ StartScheduleTableRel        Extended             Cross core use shall be supported.
+ StartScheduleTableSynchron   Unchanged
+ StopScheduleTable            Extended             Cross core use shall be supported.
+ SuspendAllInterrupts         Unchanged            Works only on the same core
+ SuspendOSInterrupts          Unchanged            Works only on the same core
+ SyncScheduleTable            Unchanged
+ TerminateApplication         Extended             Check for unreleased spinlocks. Cross core use shall be
+                                                   supported.
+ TerminateTask                Adapted              Check for unreleased spinlocks
+                                                   ▽
+
+                                                    △
+ Service                      Multi-Core support      Annotation
+ TryToGetSpinlock             New                     Try to occupy a spinlock
+ WaitEvent                    Adapted                 Check for unreleased spinlocks
+ isOsStarted                  Adapted                 In case of multi-core it returns just the value for the core
+                                                      which called the service
+ BudgetReplenish              Unchanged               Works only on the same core
+
+               Table 7.2: Gives an overview of changes to the OS Service Calles
+
+ Service                     Task     Cat1     Cat2        Error     Pre/-    Startup      Shut-     Alarm      Pro-    inside
+                                      ISR      ISR         Hook      Post-    Hook         down      Call-      tec-    trusted
+                                                                     TaskHook              Hook      back       tion-   func-
+                                                                                                                Hook    tion
+ GetNumberOfActivated-       Ok                Ok                                                                       Ok
+....
+Cores
+....
+ GetCoreID                   Ok       Ok       Ok          Ok        Ok          Ok        Ok        Ok         Ok      Ok
+....
+StartCore
+....
+ GetSpinlock                 Ok                Ok                                                                       Ok
+ ReleaseSpinlock             Ok                Ok                                                                       Ok
+ TryToGetSpinlock            Ok                Ok                                                                       Ok
+ GetNumberOfActivated-       Ok                Ok                                                                       Ok
+....
+Cores
+....
+ ShutdownAllCores            Ok                Ok          Ok                    Ok                                     Ok
+
+                       Table 7.3: Allowed Calling Context for OS Service Calls
+....
+[[SWS_Os_00589]]
+Upstream requirements: SRS_Os_80013, SRS_BSW_00459
+
+⌈All functions that are not allowed to operate cross core shall return E_OS_CORE in extended status if called with parameters that require a cross core operation.⌋
+
+=== 7.9.8 GetTaskID
+
+GetTaskID can be called both from Task and Category 2 ISR level. When called from an interrupt routine, on Single-Core systems, GetTaskID returns either the interrupted Task or indicates that no Task is running. On Multi-Core systems it
+....
+    • indicates that no Task is running on the core or,
+    • returns the ID of the interrupted Task on the core.
+....
+
+=== 7.9.9 Interrupt disabling
+
+Note: All types of interrupts can only be disabled on the local core. This implies that the interrupt flags on other cores remain in their current state. Scheduling continues on the other cores. Running ISRs on other cores continue executing.
+
+==== 7.9.9.1 Requirements
+
+[[SWS_Os_00590]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service DisableAllInterrupts shall only affect the core on which it is called.⌋
+
+[[SWS_Os_00591]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service EnableAllInterrupts shall only affect the core on which it is called.⌋
+
+[[SWS_Os_00592]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service SuspendAllInterrupts shall only affect the core on which it is called.⌋
+
+[[SWS_Os_00593]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service ResumeAllInterrupts shall only affect the core on which it is called.⌋
+
+[[SWS_Os_00594]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service SuspendOSInterrupts shall only affect the core on which it is called.⌋
+
+[[SWS_Os_00595]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS service ResumeOSInterrupts shall only affect the core on which it is called.⌋
+
+=== 7.9.10 Task activation
+
+Task activation shall be extended to work across cores. This document will not specify any implementation details. This functions timing behavior can be slower when working across cores. If a Task has to be activated on another core, a scheduling decision is necessary on that core. If the core has not been started an error is generated.
+
+==== 7.9.10.1 Requirements
+
+[[SWS_Os_00596]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80015
+
+⌈It shall be possible to activate a Task that is part of an OS-Application located on another core, as long as the assigned access rights allow it.⌋
+
+[[SWS_Os_00598]]
+Upstream requirements: SRS_Os_80015
+
+⌈The call of ActivateTask across cores shall behave synchronously, i.e. a call re- turns after the Task has been activated or an error has been detected. It shall not be possible to continue execution on the calling core before ActivateTask is accom- plished on the remote core.⌋
+
+[[SWS_Os_00599]]
+Upstream requirements: SRS_Os_80015
+
+⌈In case of an error when calling ActivateTask across cores, the error handler shall be called on the core on which ActivateTask was originally called.⌋
+
+[[SWS_Os_00816]]
+Upstream requirements: SRS_Os_80015
+
+⌈The operating system shall provide an asynchronous version of ActivateTask which does not return errors to the caller, but only calls the (global) error hook (if configured). The function name shall be ActivateTaskAsyn.⌋
+
+=== 7.9.11 Task Chaining
+
+Task chaining shall be extended to work across cores. This document will not specify any implementation details. This function’s timing behavior can be slower when work- ing across cores. If a Task has to be activated on another core, a scheduling decision is necessary on that core. If the core has not been activated, an error is generated.
+
+==== 7.9.11.1 Requirements
+
+[[SWS_Os_00600]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80015
+
+⌈It shall be possible to chain a Task that is part of an OS-Application located on an- other core, as long as the assigned access rights allow it.⌋
+
+=== 7.9.12 Event setting
+
+SetEvent shall be extended to work across cores. This document will not specify any implementation details. This function’s timing behavior can be slower when working across cores. If the core has not been activated, an error is generated.
+
+==== 7.9.12.1 Requirements
+
+[[SWS_Os_00602]]
+Upstream requirements: SRS_Os_80016
+
+⌈It shall be possible to set an Event that is part of an OS-Application located on an- other core, as long as the assigned access rights allow it.⌋
+
+[[SWS_Os_00604]]
+Upstream requirements: SRS_Os_80016
+
+⌈The call of SetEvent across cores shall behave synchronously, i.e. a call returns after the Event has been set or an error has been detected. It shall not be possible to continue execution on the calling core before SetEvent is accomplished on the remote core.⌋
+
+[[SWS_Os_00605]]
+Upstream requirements: SRS_Os_80016
+
+⌈In case of an error when calling SetEvent across cores, the error handler shall be called on the core on which SetEvent was originally called.⌋
+
+[[SWS_Os_00817]]
+Upstream requirements: SRS_Os_80016
+
+⌈The operating system shall provide an asynchronous version of SetEvent which does not return errors to the caller, but only calls the (global) error hook (if configured). The function name shall be SetEventAsyn.⌋
+
+=== 7.9.13 Activating additional cores
+
+The mechanism by which additional cores can be activated as described in section 7.9.5
+
+=== 7.9.14 Start of the OS
+
+It is necessary to extend the functionality of StartOS. This is because StartOS is called once on each core. The user provides the so called application mode 4 to the Operating System through the call parameter of StartOS(AppMode).The application mode defines which of the configured (startup) objects (Tasks, Alarms, Schedule Tables) the OS automatically starts. On a Multi-Core system all cores shall run in the same application mode. If StartOS is called with the Appmode DONOTCARE, the AppMode of the other cores is used. At least one core has to define an AppMode other than DONOTCARE. If the application mode is the same on all cores, StartOS will proceed its task. More details can be found in chapter 7.9.4.
+
+==== 7.9.14.1 Requirements
+
+[[SWS_Os_00606]]
+Upstream requirements: SRS_Os_80001
+
+⌈The AUTOSAR specification does not support the activation of AUTOSAR cores after calling StartOS on that core. If StartCore is called after StartOS it shall return with E_OS_ACCESS in extended status.⌋
+
+[[SWS_Os_00607]]
+Upstream requirements: SRS_Os_80006, SRS_Os_80013
+
+⌈StartOS shall start the OS on the core on which it is called.⌋
+
+[[SWS_Os_00608]]
+Upstream requirements: SRS_Os_80006
+
+⌈If more than one core calls StartOS with an AppMode other than DONOTCARE, the AppModes shall be the same. StartOS shall check this at the first synchronization point. In case of violation, StartOS shall not start the scheduling, shall not call any StartupHooks, and shall enter an endless loop on every core.⌋
+
+[[SWS_Os_00609]]
+Upstream requirements: SRS_Os_80006
+
+⌈If StartOS is called with the AppMode DONOTCARE the application mode of the other core(s) (differing from DONOTCARE) shall be used.⌋
+
+[[SWS_Os_00610]]
+Upstream requirements: SRS_Os_80006
+
+⌈At least one core shall define an AppMode other than DONOTCARE.⌋
+....
+   4
+   This is the application mode of the Operating System and shall not be confused by other application
+....
+modes defined in the AUTOSAR mode management.
+
+[[SWS_Os_00611]]
+Upstream requirements: SRS_Os_80020
+
+⌈If the IOC is configured, StartOS shall initialize the data structures of the IOC.⌋
+
+[[SWS_Os_00830]]
+DRAFT Upstream requirements: SRS_Os_80020
+
+⌈If the IOC is configured and the OS Generator is invoked in "Default mode", StartOS shall invoke the IocInit (See [SWS_Os_00835]) to initialize the data structures of the IOC.⌋
+
+=== 7.9.15 Task termination
+
+The termination of Tasks requires an additional check: It is not allowed to terminate a Task while a spinlock is occupied. If TerminateTask / ChainTask is called with an occupied spinlock an error is returned.
+
+==== 7.9.15.1 Requirements
+
+If TerminateTask (or ChainTask) is called while the calling Task holds a spinlock, the behavior is undefined in standard status.
+
+[[SWS_Os_00612]]
+Upstream requirements: SRS_Os_80021
+
+⌈In extended status TerminateTask / ChainTask shall return with an error ( E_OS_SPINLOCK), which can be evaluated in the application.⌋
+
+[[SWS_Os_00613]]
+Upstream requirements: SRS_Os_80021
+
+⌈Spinlocks occupied by Tasks that are terminated in response to a protection hook shall be automatically released. This applies also to the case in which an OS- Application is terminated.⌋
+
+=== 7.9.16 Termination of OS-Applications
+
+Similar to Tasks an OS-Application cannot be terminated while any of its Tasks occupy a spinlock. In such cases, the lock is automatically released. To avoid an avalanche of error handling, no calls to the ErrorHook are made. It might be possible that TerminateApplication(A) is called in parallel from differ- ent cores. The implementation has to support such a call pattern by executing the first
+
+arriving call of TerminateApplication(A)and ignoring any subsequent calls until the termination is completed.
+
+==== 7.9.16.1 Requirements
+
+[[SWS_Os_00614]]
+Upstream requirements: SRS_Os_80021
+
+⌈TerminateApplication shall check if any of the Tasks in the OS-Application have occupied a spinlock. If so, the spinlocks shall be released.⌋
+
+[[SWS_Os_00615]]
+Upstream requirements: SRS_Os_80021
+
+⌈If TerminateApplication(A) is called in parallel from different cores, the OsAp- plication A is terminated by the first call, any subsequent calls will return with E_OK in standard and extended status without doing anything, until the termination is com- pleted.⌋
+
+=== 7.9.17 Shutdown of the OS
+
+Every core shall be able to invoke shutdown by using the ShutdownOS function. By calling ShutdownOS only the calling core will enter the shutdown procedure. If the user wants to shutdown all cores (more or less in parallel) ShutdownAllCores shall be used. ShutdownOS and ShutdownAllCores will not return. The OS service ShutdownOS is not used by the AUTOSAR mode management in AUTOSAR R4.0. The function is offered for users that run the OS on cores without RTE and without mode management.
+
+==== 7.9.17.1 Requirements
+
+[[SWS_Os_00616]]
+Upstream requirements: SRS_Os_80001, SRS_Os_80007
+
+⌈ShutdownOS shall be callable from each core running an AUTOSAR OS.⌋
+
+[[SWS_Os_00617]]
+Upstream requirements: SRS_Os_80007
+
+⌈ShutdownOS shall shutdown the core on which it was called.⌋
+
+[[SWS_Os_00618]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS shall not start Tasks of an OS-Application once the shutdown procedure has been entered on a particular core.⌋
+
+[[SWS_Os_00619]]
+Upstream requirements: SRS_Os_80013
+
+⌈The AUTOSAR OS function ShutdownOS shall be callable in parallel on multiple cores.⌋
+
+[[SWS_Os_00620]]
+Upstream requirements: SRS_Os_80021
+
+⌈ShutdownOS shall release all spinlocks which are occupied by the calling core.⌋
+
+[[SWS_Os_00621]]
+Upstream requirements: SRS_Os_80007
+
+⌈ShutdownAllCores shall be callable from each core running an AUTOSAR OS.⌋
+
+=== 7.9.18 Waiting for Events
+
+The Event waiting mechanism must be adapted to the new Multi-Core spinlock func- tionality: A Task might be de-scheduled when calling WaitEvent, in which case it would not be able to release the spinlock. WaitEvent must therefore check if the calling Task holds a spinlock. As with Resources, spinlocks cannot be occupied by Tasks in wait state.
+
+==== 7.9.18.1 Requirements
+
+[[SWS_Os_00622]]
+Upstream requirements: SRS_Os_80021
+
+⌈The AUTOSAR Operating System WaitEvent API service shall check if it has been called while the calling Task has occupied a spinlock. In extended status an error E_OS_SPINLOCK shall be returned and the Task shall not enter the wait state.⌋
+
+=== 7.9.19 Calling trusted functions
+
+Functions can be declared as trusted as part of an OS-Application. They can then only be executed through the CallTrustedFunction API function. Assuming that
+
+the access rights are configured accordingly, a Task from OS-Application A can call a trusted function from OS-Application B. On a Multi-Core system, these trusted function calls from one OS-Application to an- other are limited to the same core.
+
+==== 7.9.19.1 Requirements
+
+[[SWS_Os_00623]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS API function CallTrustedFunction shall return E_OS_ACCESS in ex- tended status if the target trusted function is part of an OS-Application on another core.⌋
+
+=== 7.9.20 Invoking reschedule
+
+The Schedule API service must be adapted to the new Multi-Core spinlock function- ality in the same manner as WaitEvent. A Task shall not actively force a de-scheduling while it occupies spinlocks.
+
+==== 7.9.20.1 Requirements
+
+[[SWS_Os_00624]]
+Upstream requirements: SRS_Os_80021
+
+⌈The AUTOSAR Operating System Schedule API service shall check if it has been called while the calling Task has occupied a spinlock. In extended status an error E_OS_SPINLOCK shall be returned and the scheduler shall not be called.⌋
+
+=== 7.9.21 Resource handling
+
+The GetResource function allows mutual exclusion between Tasks on the same core. The OS generator shall check offline that the Tasks are not on different cores.(see 7.9.29) and the GetResource function will check this requirement online. The priority ceiling protocol (used by GetResource) temporarily changes the priority of a Task. Such an approach fails on Multi-Core systems as the priorities are local to each core. Therefore the ceiling protocol is not sufficient to protect a critical section against access from different cores.
+
+[[SWS_Os_00801]]
+Upstream requirements: SRS_Os_80021
+
+⌈If Spinlocks and Resources are locked by a Task/ISR they have to be unlocked in strict LIFO order. ReleaseResource shall return E_OS_NOFUNC if the unlock order is violated. No other functionality shall be performed.⌋
+
+[[SWS_Os_00851]]
+Upstream requirements: SRS_Os_80008
+
+⌈If OsUseResScheduler is TRUE, the OS generation tool shall create a virtual in- stance of RES_SCHEDULER for each configured core.⌋
+
+[[SWS_Os_00852]]
+Upstream requirements: SRS_Os_80008
+
+⌈It shall be possible for tasks running on different cores to occupy their own instance of RES_SCHEDULER at the same time.⌋
+
+[[SWS_Os_00853]]
+Upstream requirements: SRS_Os_80008
+
+⌈The ceiling priority of each instance of RES_SCHEDULER shall prevent the execution of any other task on the core on which it is occupied but shall have no effect on the scheduling on any other core.⌋
+
+[[SWS_Os_00854]]
+Upstream requirements: SRS_Os_00097
+
+⌈If OsUseResScheduler is FALSE AND the configuration contains a resource called RES_SCHEDULER, the configured resource shall behave the same as any other config- ured resource.⌋
+
+[[SWS_Os_00855]]
+Upstream requirements: SRS_Os_00097
+
+⌈It shall be possible to configure a LINKED resource that links to RES_SCHEDULER. In a multi-core configuration with OsUseResScheduler=TRUE, the linkage shall be to the instance of RES_SCHEDULER on the core to which the LINKED resource is assigned.⌋
+
+=== 7.9.22 The CoreID
+
+Every HW assigns a unique physical Id to a core. The physical core Id is the only way to distinguish between cores. The physical core Ids of a µC are not necessarily consecutive and do not necessarily start with zero. The SW requires a mechanism to identify a core, e.g. to use core specific variables. Because the physical core Id usually cannot be used as a direct array index for core specific variables, a logical CoreID is necessary to map physical core Ids to array
+
+indexes. In the SW it is not necessary to know the physical core Id, the logical CoreID is sufficient. The mapping of OS-Applications and other SW objects to cores is specified in the configuration files. All such mappings shall be HW independent and therefore shall not be based on the physical core Id but on the logical CoreID. The function GetCoreID internally maps the physical core Id to the logical CoreID. The value is defined in the configuration parameter EcucCoreId. GetCoreID can be either a C function or a macro.
+
+==== 7.9.22.1 Requirements
+
+[[SWS_Os_00625]]
+Upstream requirements: SRS_Os_80006
+
+⌈The AUTOSAR Operating System API function GetCoreID shall be callable before StartOS.⌋
+
+[[SWS_Os_00627]]
+Upstream requirements: SRS_Os_80001
+
+⌈An implementation shall define a set of constants OS_CORE_ID_<No> of the type CoreIdType with <No> a value from 0 to OsNumberOfCores-1.⌋
+
+[[SWS_Os_00628]]
+Upstream requirements: SRS_Os_80001
+
+⌈An implementation shall offer a constant OS_CORE_ID_MASTER of the type CoreI- dType that refers to the master core.⌋
+
+=== 7.9.23 Counters, background & rationale
+
+A Counter is represented by a counter value, measured in "ticks", and some counter specific constants. Similarly to Single-Core situation, each operating system (on each core) offers at least one Counter that is derived from a timer. Therefore, it is possible to define several Counters which belong to different OS-Applications and either resides on the same or different cores.
+
+Figure 7.19: Examples of allowed configurations for Counters, Alarms, Schedule-tables and ISRs
+
+=== 7.9.24 Multi-Core restrictions on Counters
+
+The AUTOSAR OS can only increment Counters on the core on which it resides. A Counter which is assigned to an OS-Application X cannot be incremented by an OS-Application Y if X and Y are assigned to different cores.
+
+==== 7.9.24.1 Requirements
+
+[[SWS_Os_00629]]
+Upstream requirements: SRS_Os_80013
+
+⌈A Counter belonging to an OS-Application shall be incremented by the core on which the OS-Application resides. The Counter shall not be incremented by other cores.⌋
+
+[[SWS_Os_00630]]
+Upstream requirements: SRS_Os_80013
+
+⌈It shall not be allowed to drive a ScheduleTable from a Counter, which is assigned to a different core.⌋
+
+[[SWS_Os_00631]]
+Upstream requirements: SRS_Os_80013
+
+⌈It shall not be allowed to drive an Alarm from a Counter, which is assigned to a different core.⌋
+
+There are two different reasons for these restrictions:
+....
+    • Race conditions can occur when cross-core modification of Counter is allowed
+      (one core waits for a Counter to be modified by another core).
+    • The core which is incrementing the Counter has to check if Alarms which are
+      based on the Counter have expired. Handling of expired Alarms is more com-
+      plex when different cores manipulate the same Alarms, because mutual exclu-
+      sion becomes necessary.
+....
+Figure 7.20: Example of disallowed configurations for Counters, Alarms, Schedule- tables and Call-backs
+
+=== 7.9.25 Synchronization of Counters
+
+Counters are used to drive Alarms and ScheduleTables. To synchronize Alarms and ScheduleTables that reside on different cores, the corresponding Counters have to be synchronized. For example, if the hardware supports this, it is possible that corresponding free running hardware counters on different cores use the same timer (same counter value maintained by the peripheral) and therefor provide the same timebase on different cores. Software Counters can then get advanced by alarms at- tached to these core local corresponding hardware counters, e.g. to drive synchronized ScheduleTables on different cores. The quality of the synchronicity depends on the hardware architecture and on the system configuration. .
+
+=== 7.9.26 Alarms
+
+The Alarm mechanism of the AUTOSAR Operating System provides services to acti- vate Tasks, set Events, increment Counters, or call an Alarm call-back (OsAlarm- CallbackName). As stated above, Alarms can only be bound to a Counter which resides on the same core. Tasks can be activated and Events can be set with an Alarm action regardless of the core to which the Task is bound. The access rights defined by OS-Applications have to be respected, however. Additionally it shall be allowed to manipulate Alarms when they are bound to other cores. The API-services SetRelAlarm, SetAbsAlarm, and CancelAlarm can be used to manipulate parameters of Alarms on other cores.
+
+==== 7.9.26.1 Requirements
+
+[[SWS_Os_00632]]
+Upstream requirements: SRS_Os_80018
+
+⌈If an Alarm expires, it shall be allowed to activate a Task on a different core.⌋
+
+[[SWS_Os_00633]]
+Upstream requirements: SRS_Os_80018
+
+⌈If an Alarm expires, it shall be allowed to set an Event on a different core.⌋
+
+[[SWS_Os_00634]]
+Upstream requirements: SRS_Os_80018
+
+⌈The AUTOSAR Operating System shall process an Alarm on the core on which its corresponding OS-Application resides.⌋
+
+[[SWS_Os_00635]]
+Upstream requirements: SRS_Os_80013
+
+⌈Alarm callbacks shall be executed on the core to which the Alarm is bound. This is only applicable to SC1 systems, because otherwise Alarm Callback are not allowed ([SWS_Os_00242]).⌋
+
+[[SWS_Os_00636]]
+Upstream requirements: SRS_Os_80013
+
+⌈SetRelAlarm shall also work on an Alarm that is bound to another core.⌋
+
+[[SWS_Os_00637]]
+Upstream requirements: SRS_Os_80013
+
+⌈SetAbsAlarm shall also work on an Alarm that is bound to another core.⌋
+
+[[SWS_Os_00638]]
+Upstream requirements: SRS_Os_80013
+
+⌈CancelAlarm shall also work on an Alarm that is bound to another core.⌋
+
+[[SWS_Os_00639]]
+Upstream requirements: SRS_Os_80013
+
+⌈GetAlarmBase shall also work on an Alarm that is bound to another core.⌋
+
+[[SWS_Os_00640]]
+Upstream requirements: SRS_Os_80013
+
+⌈GetAlarm shall also work on an Alarm that is bound to another core.⌋
+
+=== 7.9.27 ScheduleTables
+
+Similarly to Alarms, ScheduleTables can be used to activate Tasks and set Events. As with Alarms, a ScheduleTable can only be bound to a Counter which resides on the same core. To simplify system startup, it should be possible to start ScheduleTables on other cores. The system designer is responsible for the correct handling of ScheduleTa- bles. For example, ScheduleTables can be controlled from one core.
+
+==== 7.9.27.1 Requirements
+
+[[SWS_Os_00641]]
+Upstream requirements: SRS_Os_80018
+
+⌈A ScheduleTable shall be able to activate a Task bound on a core other than the one upon which the ScheduleTables resides.⌋
+
+[[SWS_Os_00642]]
+Upstream requirements: SRS_Os_80018
+
+⌈A ScheduleTable shall be able to set an Event on a core other than the one upon which the ScheduleTables resides⌋
+
+[[SWS_Os_00643]]
+Upstream requirements: SRS_Os_80013
+
+⌈The AUTOSAR Operating System shall process a ScheduleTable on the core on which its corresponding OS-Application resides.⌋
+
+[[SWS_Os_00644]]
+Upstream requirements: SRS_Os_80018
+
+⌈The API call StartScheduleTableAbs shall be able to start ScheduleTables of OS-Applications residing on other cores.⌋
+
+[[SWS_Os_00645]]
+Upstream requirements: SRS_Os_80013
+
+⌈The API call StartScheduleTableRel shall be able to start ScheduleTables of OS-Applications residing on other cores.⌋
+
+[[SWS_Os_00646]]
+Upstream requirements: SRS_Os_80013
+
+⌈The API call StopScheduleTable shall be able to stop ScheduleTables of OS- Applications residing on other cores.⌋
+
+[[SWS_Os_00647]]
+Upstream requirements: SRS_Os_80013
+
+⌈The API service GetScheduleTableStatus shall be able to get the status of a ScheduleTable that is part of an OS-Application residing on a different core.⌋
+
+=== 7.9.28 The spinlock mechanism
+
+With the Multi-Core concept, a new mechanism is needed to support mutual exclusion for Tasks on different cores. This new mechanism shall not be used between Tasks
+
+on the same core because it makes no sense. In such cases the AUTOSAR Operating System returns an error. A SpinlockType, which is similar to OSEK’s ResourceType, shall be used. Spinlocks are configured offline. A spinlock is a busy waiting mechanism that polls a (lock) variable until it becomes available. Typically, this requires an atomic test and set functionality, the details of which are implementation specific. Once a lock variable is occupied by a Task/Category 2 ISR, other Tasks/Category 2 ISRs on other cores shall be unable to occupy the lock variable. The spinlock mecha- nism will not de-schedule these other Tasks while they poll the lock variable. However it might happen that a Task/ISR with a higher priority becomes ready while the lock variable is being polled. In such cases the spinning Task will be interfered. This is illustrated in figure 7.21.
+
+Figure 7.21: A deadlock situation caused by interference, the high priority Task spins indefinitely because the low priority Task has occupied the spinlock. In such cases the second GetSpinlock call will return with an error.
+
+A user can protect a Task against such a situation by, for example, rapping the spinlock with SuspendAllInterrupts, so that it cannot be interfered by other Tasks. The OS can do this automatically for the caller - see OsSpinlockLockMethod. A second deadlock situation can be created by nested spinlocks calls, as illustrated in figure 7.22.
+
+Figure 7.22: This figure shows a typical deadlock caused by two spinlocks taken in different order by Tasks on two different cores
+
+To avoid deadlocks it is not allowed to nest different spinlocks. Optionally if spinlocks shall be nested, a unique order has to be defined. Spinlocks can only be taken in this order whereas it is allowed to skip individual spinlocks. Cycles are not allowed within the defined order. This is illustrated in figure 7.23.
+
+....
+                            Figure 7.23: Usage of spinlocks
+....
+This figure 7.23 shows an example in which two Tasks have access to a set of spin- locks S1 – S6. It is allowed to occupy the spinlocks in the predefined order and it is allowed to skip spinlocks. If multiple spinlocks are occupied at the same time, locking and unlocking has to occur in strict LIFO order The spinlock mechanism is not deadlock free by itself. The order in which spinlocks from Tasks/ISRs are requested has to be mentioned in the configuration description. If a Task occupies a spinlock, scheduling shall be restricted. Note: AUTOSAR does not prescribe which algorithms are used to implement spinlocks. Since users may want to analyze the timing behavior (e.g. lock times) an implementa- tion shall document the real behavior.
+
+==== 7.9.28.1 Requirements
+
+[[SWS_Os_00648]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall provide a spinlock mechanism that works across cores.⌋
+
+[[SWS_Os_00649]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall provide a GetSpinlock function which oc- cupies a spinlock. If the spinlock is already occupied, GetSpinlock shall keep on trying to occupy the spinlock until it succeeds.⌋
+
+[[SWS_Os_00650]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈GetSpinlock shall be callable from Task level.⌋
+
+[[SWS_Os_00651]]
+Upstream requirements: SRS_Os_80021
+
+⌈GetSpinlock shall be callable from Category 2 ISR level.⌋
+
+The behavior of GetSpinlock is undefined if called from a category 1 ISR
+
+[[SWS_Os_00652]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall provide a TryToGetSpinlock function which occupies a spinlock. If the spinlock is already occupied by a Task, TryTo- GetSpinlock shall return.⌋
+
+[[SWS_Os_00653]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈TryToGetSpinlock shall be callable from Task level.⌋
+
+[[SWS_Os_00654]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈TryToGetSpinlock shall be callable from Category 2 ISR level.⌋
+
+[[SWS_Os_00655]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall provide a ReleaseSpinlock function which releases an occupied spinlock. If the spinlock is not occupied an error shall be re- turned.⌋
+
+[[SWS_Os_00656]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈ReleaseSpinlock shall be callable from Task level.⌋
+
+[[SWS_Os_00657]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈ReleaseSpinlock shall be callable from Category 2 ISR level.⌋
+
+[[SWS_Os_00658]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall generate an error if a Task tries to occupy a spinlock that is assigned to a Task/Category 2 ISR on the same core (including itself).⌋
+
+[[SWS_Os_00659]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall generate an error if an Category 2 ISR tries to occupy a spinlock that is assigned to a Task/Category 2 ISR on the same core.⌋
+
+[[SWS_Os_00660]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈A unique order in which multiple spinlocks can be occupied by a Task/Category 2 ISR on one core should be configurable in the AUTOSAR Operating System. This might be realized by the configuration item (OsSpinlockSuccessor{NEXT_SPINLOCK}) where NEXT_SPINLOCK refers to the consecutive spinlock. (See OsSpinlockSuc- cessor)⌋
+
+[[SWS_Os_00661]]
+Upstream requirements: SRS_Os_80018, SRS_Os_80021
+
+⌈The AUTOSAR Operating System shall generate an error if a Task/Category 2 ISR on a core, where the same or a different Task/ISR already holds a spinlock, tries to seize another spinlock that has not been configured as a direct or indirect successor of the latest acquired spinlock (by means of the OsSpinlockSuccessor configuration parameter) or if no successor is configured.⌋
+
+=== 7.9.29 Offline checks
+
+AUTOSAR Resources cannot be shared between Tasks/ISRs on different cores. The OS generator has to check if a user tries to assign a Resource to Tasks on different cores and stop the generation process with an error. Counters cannot be accessed from OS-Applications on different cores. The OS gen- erator has to reject configurations that violate this rule.
+
+The linked list of spinlocks must be free of cycles to allow correct nesting of spinlocks in order to prevent deadlocks. The OS generator tool must check that an OS-Application does not get assigned to a non-existing core. Additional checks at configuration time, e.g. by an AUTOSAR description editor are recommended.
+
+==== 7.9.29.1 Requirements
+
+[[SWS_Os_00662]]
+Upstream requirements: SRS_Os_80021
+
+⌈The OS generator tool shall return with an error if it detects a Resource referred to by any Tasks or ISRs assigned to different cores.⌋
+
+[[SWS_Os_00663]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS generator tool shall return with an error if an Alarm is assigned to a Counter on a different core.⌋
+
+[[SWS_Os_00664]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS generator tool shall return with an error if a Counter on a different core shall be incremented as an Alarm action.⌋
+
+[[SWS_Os_00665]]
+Upstream requirements: SRS_Os_80013
+
+⌈The OS generator tool shall return with an error if a ScheduleTable is assigned to a Counter on a different core.⌋
+
+[[SWS_Os_00666]]
+Upstream requirements: SRS_Os_80021
+
+⌈The OS generator tool shall return with an error if the linked list of spinlocks is not free of cycles.⌋
+
+[[SWS_Os_00667]]
+Upstream requirements: SRS_Os_80005
+
+⌈The OS generator tool shall check the assignment of OsApplications (including the Tasks assigned to the OsApplication) to cores and return an error in case any of these cores does not exist.⌋
+
+=== 7.9.30 Auto start Objects
+
+Before scheduling starts the AUTOSAR Operating System5 activates all auto-start ob- jects that are configured. This mechanism shall work similar on a Multi-Core system. Before scheduling starts, the Multi-Core OS shall activate all configured auto-start ob- jects on the respective core. Due to the fact that OS-Applications are defined as the locatable entity no further configuration container is required. Auto-start objects are already configured as part of an OS-Application.
+
+==== 7.9.30.1 Requirements
+
+[[SWS_Os_00668]]
+Upstream requirements: SRS_Os_80006
+
+⌈The AUTOSAR Operating System shall automatically activate all auto-start Tasks configured for the current AppMode, with respect to the core, before the initial start of the scheduling.⌋
+
+[[SWS_Os_00669]]
+Upstream requirements: SRS_Os_80006
+
+⌈The AUTOSAR Operating System shall automatically activate all auto-start Alarms configured for the current AppMode, with respect to the core, before the initial start of the scheduling.⌋
+
+[[SWS_Os_00670]]
+Upstream requirements: SRS_Os_80006
+
+⌈The AUTOSAR Operating System shall automatically activate all auto-start Sched- uleTables configured for the current AppMode, with respect to the core, before the initial start of the scheduling.⌋

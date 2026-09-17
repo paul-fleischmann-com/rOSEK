@@ -1,0 +1,24 @@
+== 4.7 Scalability
+
+=== 4.7.1 Functional Overview
+
+For a particular application, the operating system can be configured such that it only comprises the services required for this application. Thus the resource requirements of the operating system are as small as possible. Scalability for the core OS is provided by OSEK OS’s [3] conformance classes. Scala- bility with regard to AUTOSAR OS features is defined here.
+
+=== 4.7.2 Functional Requirements
+
+[[SRS_Os_11016]]
+The OS implementation shall offer scalability which is config- urable by a generation tool ⌈ The OS shall provide the following configurations with at least the specified features (additional features may be included): Class1 : OSEK OS [3] + Planned Schedules Description: Class2 : Class1 + Timing Protection Class3 : Class1 + Memory Protection Class4 : Class1+ Class2 + Class3 ▽
+
+....
+                                                △
+                    Hardware support is required for Classes 3 and 4. Mandating this functionality
+                    would prevent AUTOSAR OS from being implemented on many commonly
+    Rationale:      used microcontrollers.
+                    Implementations may choose different strategies for implementation, with a
+                    corresponding increase in performance, if some features are not required.
+    Use Case:       –
+    Dependencies:   [SRS_Os_11012]
+    Supporting      –
+    Material:
+....
+⌋

@@ -1,0 +1,200 @@
+== 7.3 ScheduleTables
+
+=== 7.3.1 Background & Rationale
+
+It is possible to implement a statically defined Task activation mechanism using an OSEK Counter and a series of auto started alarms. In the simple case, this can be achieved by specifying that the Alarms are not modified once started. Run-time modifications can only be made if relative synchronization between alarms can be
+
+guaranteed. This typically means modifying the alarms while associated Counter tick interrupts are disabled. ScheduleTables address the synchronization issue by providing an encapsulation of a statically defined set of expiry points. Each expiry point defines:
+....
+    • one or more actions that must occur when it is processed where an action is the
+      activation of a Task or the setting of an event.
+    • An offset in ticks from the start of the ScheduleTable
+....
+Each ScheduleTable has a duration in ticks. The duration is measured from zero and defines the modulus of the ScheduleTable. At runtime, the Operating System module will iterate over the ScheduleTable, pro- cessing each expiry point in turn. The iteration is driven by an OSEK Counter. It therefore follows that the properties of the Counter have an impact on what is possi- ble to configure on the ScheduleTable.
+
+=== 7.3.2 Requirements
+
+==== 7.3.2.1 Structure of a ScheduleTable
+
+....
+                         Figure 7.1: Anatomy of a ScheduleTable
+....
+[[SWS_Os_00401]]
+Upstream requirements: SRS_Os_00098
+
+⌈A ScheduleTable shall have at least one expiry point.⌋
+
+[[SWS_Os_00402]]
+Upstream requirements: SRS_Os_00098
+
+⌈An expiry point shall contain a (possibly empty) set of Tasks to activate.⌋
+
+[[SWS_Os_00403]]
+Upstream requirements: SRS_Os_00098
+
+⌈An expiry point shall contain a (possibly empty) set of Events to set.⌋
+
+[[SWS_Os_00876]]
+Replenish of execution budget by expiry point Upstream requirements: SRS_Os_00098
+
+⌈An expiry point shall contain a (possibly empty) set of Taskss to replenish their exe- cution budget. The replenishment is allowed only for tasks with OsTaskTimingPro- tectionDeferrableServer=TRUE and is done by means of BudgetReplenish (see
+[[SWS_Os_91035]]
+)⌋
+
+Note: For details about the background of [SWS_Os_00876] see 7.7.2.1.1.
+
+[[SWS_Os_00404]]
+Upstream requirements: SRS_Os_00098
+
+⌈An expiry point shall contain an offset in ticks from the start of the ScheduleTable.⌋
+
+==== 7.3.2.2 Constraints on Expiry Points
+
+There is no use case for an empty expiry point, so each one must define at least one action.
+
+[[SWS_Os_00407]]
+Upstream requirements: SRS_Os_00098
+
+⌈An expiry point shall activate at least one Task OR set at least one event OR replenish a Tasks execution budget.⌋
+
+The OS needs to know the order in which expiry points are processed. It is therefore necessary to ensure that the expiry points on a ScheduleTable can be totally or- dered. This is guaranteed by forcing each expiry point on a ScheduleTable to have a unique offset.
+
+[[SWS_Os_00442]]
+Upstream requirements: SRS_Os_00098
+
+⌈Each expiry point on a given ScheduleTable shall have a unique offset.⌋
+
+Iteration over expiry points on a ScheduleTable is driven by an OSEK Counter. The characteristics of the Counter - OsCounterMinCycle and OsCounterMaxAl- lowedValue - place constraints on expiry point offsets.
+
+[[SWS_Os_00443]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Initial Offset shall be zero OR in the range OsCounterMinCycle .. OsCoun- terMaxAllowedValue of the underlying Counter.⌋
+
+Similarly, constraints apply to the delays between of adjacent expiry points and the delay to the logical end of the ScheduleTable.
+
+[[SWS_Os_00408]]
+Upstream requirements: SRS_Os_00098
+
+⌈The delay between adjacent expiry points shall be in the range OsCounterMinCycle .. OsCounterMaxAllowedValue of the underlying Counter.⌋
+
+==== 7.3.2.3 Processing ScheduleTables
+
+[[SWS_Os_00002]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Operating System module shall process each expiry point on a ScheduleTable from the Initial Expiry Point to the Final Expiry Point in order of increasing offset.⌋
+
+[[SWS_Os_00007]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Operating System module shall permit multiple ScheduleTables to be pro- cessed concurrently.⌋
+
+[[SWS_Os_00409]]
+Upstream requirements: SRS_Os_00098
+
+⌈A ScheduleTable of the Operating System module shall be driven by exactly one Counter.⌋
+
+[[SWS_Os_00410]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Operating System module shall be able to process at least one ScheduleTable per Counter at any given time.⌋
+
+[[SWS_Os_00411]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Operating System module shall make use of ticks so that one tick on the Counter corresponds to one tick on the ScheduleTable.⌋
+
+It is possible to activate a Task and set (one or more unique) Events for the same Task at the same expiry point. The ordering of Task activations and event settings
+
+performed from the expiry point could lead to different implementations exhibiting differ- ent behaviour (for example, activating a suspended Task and then setting and event on the Task would succeed but if the ordering was reversed then the event setting would fail). To prevent such non-determinism, it is necessary to enforce a strict ordering of actions on the expiry point.
+
+[[SWS_Os_00412]]
+Upstream requirements: SRS_Os_00098
+
+⌈If an expiry point contains actions to activate a Task and to set one or several Event(s) of the same Task, then the Operating System module shall process this Task activation before the related Event(s) are set. No further assumptions about the order for the processing of expiry points can be made.⌋
+
+A ScheduleTable always has a defined state and the following figure illustrates the different states (for a non-synchronized ScheduleTable) and the transitions between them.
+
+....
+                        Figure 7.2: States of a ScheduleTable
+....
+If a ScheduleTable is not active - this means that is not processed by the Operat- ing System - the state is SCHEDULETABLE_STOPPED. After starting a ScheduleTa- bles enters the SCHEDULETABLE_RUNNING state where the OS processes the expiry points. If the service to switch a ScheduleTable is called a ScheduleTable enters the SCHEDULETABLE_NEXT state and waits until the "current" ScheduleTable ends.
+
+==== 7.3.2.4 Repeated ScheduleTable Processing
+
+A ScheduleTable may or may not repeat after the final expiry point is processed. This allows two types of behaviour: 1. single-shot - the ScheduleTable processes each expiry point in sequence and
+....
+     then stops at the end. This is useful for triggering a phased sequence of actions
+     in response to some trigger
+....
+2. repeating - the ScheduleTable processes each expiry point in turn, after pro-
+....
+     cessing the final expiry point, it loops back to the initial expire point. This is useful
+     for building applications that perform repeated processing or system which need
+     to synchronize processing to a driver source.
+....
+A repeating ScheduleTable means that each expiry point is repeated at a period equal to the ScheduleTable duration.
+
+[[SWS_Os_00413]]
+Upstream requirements: SRS_Os_00098
+
+⌈The ScheduleTable shall be configurable as either single-shot or repeating.⌋
+
+[[SWS_Os_00009]]
+Upstream requirements: SRS_Os_00098
+
+⌈If the ScheduleTable is single-shot, the Operating System module shall stop the processing of the ScheduleTable Final Delay ticks after the Final Expiry Point is processed.⌋
+
+[[SWS_Os_00427]]
+Upstream requirements: SRS_Os_00098
+
+⌈If the ScheduleTable is single-shot, the Operating System module shall allow a Final Delay between 0 .. OsCounterMaxAllowedValue of the underlying Counter.⌋
+
+[[SWS_Os_00444]]
+Upstream requirements: SRS_Os_00098
+
+⌈For periodic ScheduleTables the value of Final Delay shall be in the range Os- CounterMinCycle .. OsCounterMaxAllowedValue of the underlying Counter.⌋
+
+[[SWS_Os_00194]]
+Upstream requirements: SRS_Os_00098
+
+⌈After processing the Final Expiry Point, and if the ScheduleTable is repeating, the Operating System shall process the next Initial Expiry Point, after Final Delay plus Initial Offset ticks have elapsed.⌋
+
+==== 7.3.2.5 Controlling ScheduleTable Processing
+
+The application is responsible for starting and stopping the processing of a Schedule Table. The Operating System module provides the service StartScheduleTableAbs (see
+[[SWS_Os_00358]]
+) to start the processing of a ScheduleTable at an absolute value "Start" on the underlying Counter. (The Initial Expiry Point has to be processed when the value of the underlying Counter equals Start + InitialOffset). The Operating System module provides the service StartScheduleTableRel (see
+[[SWS_Os_00347]]
+) to start the processing of a ScheduleTable at "Offset" relative to the "Now" value on the underlying Counter (The Initial Expiry Point shall be processed when the value of the underlying Counter equals Now + Offset + InitialOffset). The figure below illustrates the two different methods for a ScheduleTable driven by a Counter with a modulus of 65536 (i.e. an OsCounterMaxAllowedValue = 65535).
+
+....
+       Figure 7.3: Starting a ScheduleTable at an Absolute and a Relative Count
+....
+The Operating System module provides the service StopScheduleTable (see
+[[SWS_Os_00006]]
+) to cancel the processing of a ScheduleTable immediately at any point while the ScheduleTable is running.
+
+[[SWS_Os_00428]]
+Upstream requirements: SRS_Os_00098
+
+⌈If ScheduleTable processing has been cancelled before reaching the Final Expiry Point and is subsequently restarted then [SWS_Os_00358]/[SWS_Os_00347] means that the re-start occurs from the start of the ScheduleTable.⌋
+
+The Operating System module provides the service NextScheduleTable (see
+[[SWS_Os_00191]]
+) to switch the processing from one ScheduleTable to another ScheduleTable.
+
+[[SWS_Os_00414]]
+Upstream requirements: SRS_Os_00099
+
+⌈When a ScheduleTable switch is requested, the OS shall continue to process expiry points on the current ScheduleTable. After the Final Expiry Point there will be a delay equivalent to Final Delay ticks before processing the switched-to ScheduleTable. The initial expiry point will be processed after initial offset.⌋
+
+The Operating System module provides the service GetScheduleTableStatus (see
+[[SWS_Os_00227]]
+) to query the state of a ScheduleTable. ScheduleTables can be configured (see chapter 10) to start automatically during start of the Operating System module (like Tasks and Alarms in OSEK OS). OSEK OS defines a specific order: Autostart of Tasks is performed before autostart of alarms. AUTOSAR OS extends this with ScheduleTables.
+
+[[SWS_Os_00510]]
+Upstream requirements: SRS_Os_00098
+
+⌈The Operating System module shall perform the autostart of ScheduleTables dur- ing startup after the autostart of Tasks and Alarms.⌋

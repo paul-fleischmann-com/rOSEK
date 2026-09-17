@@ -1,0 +1,716 @@
+== 7.17 ARTI Hook Macros
+
+[[SWS_Os_00836]]
+Upstream requirements: RS_ARTIFO_00014, SRS_Os_12002
+
+⌈The OS shall incorporate special macros that can be used by an ARTI trace tool to insert tracing functionality of any kind. These macros shall be active only if the Boolean configuration parameter OsUseArti is set to true, thereby enabling tracing support globally within the OS.⌋
+
+[[SWS_Os_00837]]
+Upstream requirements: RS_ARTIFO_00014, SRS_Os_12002
+
+⌈The hooks for an AUTOSAR CP OS shall follow the general structure of ARTI macros: ARTI_TRACE(_contextName, _className, _instanceName, instanceParameter, _eventName, eventParameter);⌋
+
+Some of the parameters are using literal text (Token) rather than a symbolic identi- fier. This allows a macro definition concatenating these parameters to more specific macros. Passing and evaluating all parameters at run-time would be very costly es- pecially by means of run-time consumption. Here is a possible implementation of the generic ARTI_TRACE macro as it could be defined by a ARTI trace tool vendor to match the interface of his trace tool:
+....
+   1    #define ARTI_TRACE(_contextName, _className, _instanceName,
+           instanceParameter, _eventName, eventParameter) \
+   2    ARTI_TRACE##_##_className##_##_eventName##_##_instanceName##_##
+           _contextName((instanceParameter), (eventParameter))
+....
+Such an implementation will generate one hook for all the possible combinations of _className, _eventName and _contextName and pass only parameters instance_id and event_value at run-time. The parameters’ meanings are described in the following.
+....
+       • _contextName Token, literal text, name of the context. One of the following:
+           – NOSUSP indicating that the hook gets called in a context where interrupts
+             are disabled
+           – SPRVSR indicating that the called hook may disable interrupts
+           – USER indicating the called hook cannot disable interrupts
+       • _className Token, literal text, name of the class of macros. Predefined classes
+         for an AUTOSAR OS are:
+           – AR_CP_OS_APPLICATION starts and stops the application
+           – AR_CP_OS_TASK schedules Tasks
+           – AR_CP_OS_CAT2ISR dispatches Category 2 interrupts
+
+             – AR_CP_OS_SERVICECALLS calls service routines
+             – AR_CP_OS_SPINLOCK calls spinlocks
+             – AR_CP_OS_HOOK calls OS hooks
+        • _instanceName Short name of the OS instance as defined in the ARXML.
+        • instanceParameter Index [uint32] 0..4294967295 of the CPU core as seen by the
+          OS (<Core Index>). Should always start with 0 and count up consecutively. This
+          might be equal to the index of the physical core, but doesn’t have to be.
+        • _eventName Token, literal text, name of the event as defined for a particular class.
+        • eventParameter A [uint32] 0..4294967295 value as an argument to an event.
+....
+Therefore all ARTI macros for an AUTOSAR OS do compile the following template:
+....
+    1      ARTI_TRACE(_contextName, <AR OS Class Name>, <OS Short Name>, <Core
+              Index>, <Event Name>, <Event Parameter>)
+....
+Example of hook call in OS:
+....
+    1      ARTI_TRACE(NOSUSP, AR_CP_OS_TASK, OS1, (uint32)GetCoreID(),
+              OsTask_Activation, (uint32)GetTaskID());
+....
+Example of preprocessed output:
+....
+    1      ARTI_TRACE_NOSUSP_AR_CP_OS_TASK_OS1_OsTask_Activation((uint32)GetCoreID
+              (), (uint32)GetTaskID());
+....
+
+=== 7.17.1 Class AR_CP_OS_APPLICATION
+
+[[SWS_Os_00838]]
+Upstream requirements: RS_Arti_00029
+
+⌈The OS shall create events of class AR_CP_OS_APPLICATION to allow tracing of OS applications [as defined for the AUTOSAR Classic Platform]⌋
+
+The states used by ARTI are based on the states of OS-Applications, see figure 7.10 in chapter Background & Rationale 7.6.1 for details. States used by ARTI:
+....
+ ARTI                                             OS
+ Initial                                          -
+ Accessible                                       APPLICATION_ACCESSIBLE
+ Terminated                                       APPLICATION_TERMINATED
+
+                         Table 7.5: OS-Application states used by ARTI
+....
+Transitions used by ARTI:
+
+....
+    Name                          Transition                         Event Name
+    Start                         Initial -> Accessible              OsApplication_Start
+    Terminate                     Accessible -> Terminated           OsApplication_Terminate
+
+                       Table 7.6: OS-Application transitions used by ARTI
+....
+[[SWS_Os_00839]]
+....
+     Upstream requirements: RS_ARTIFO_00015
+....
+⌈ARTI macros of the class AR_CP_OS_APPLICATION shall compile the following tem- plate:
+....
+      1     ARTI_TRACE(_contextName, AR_CP_OS_APPLICATION, <OS Short Name>, <Core
+               ID>, <Event Name>, <Application ID>)
+....
+⌋
+
+The <Core ID> for any event shall represent the core id where the corresponding ap- plication is running on. The <Event Name> should follow the transition table above. The <Application ID> shall be a numeric identifier of the OS Application.
+
+=== 7.17.2 Class AR_CP_OS_TASK
+
+ARTI needs to trace all Task states and all state transitions within the OS. For some timing parameters (e.g. the "runtime" of a Task, which goes from started to termi- nated), the simple "ready" state of the OS is not enough. Tools evaluating the timings need to reconstruct a more complex state diagram by calculating the transitions from history. To be compatible to the pure OS state diagram, AR_CP_OS_TASK refers to this state model, knowing that tools need to postprocess the event flow to get all rele- vant information. However, if an OS implementation can provide a more detailed state diagram, ARTI allows to define more events that won’t need postprocessing and allow earlier synchronization of the trace if it is truncated (limited trace buffers). This state di- agram is then handled with the class "AR_CP_OSARTI_TASK". If possible, the second state machine is to be preferred.
+
+[[SWS_Os_00840]]
+....
+     Upstream requirements: RS_Arti_00030
+....
+⌈The OS shall create events that follow the state machine defined in the classes AR_CP_OSARTI_TASK or AR_CP_OS_TASK. Both classes may be used for task- level tracing, with AR_CP_OSARTI_TASK being preferred due to its extended tracing capabilities.⌋
+
+[[SWS_Os_00864]]
+Task State Order Upstream requirements: RS_Arti_00030
+
+⌈The OS shall invoke ARTI hooks for tasks following the order specified in ISO 17356-3 "Task state model".⌋
+
+[[SWS_Os_00865]]
+Task Running State Upstream requirements: RS_Arti_00030
+
+⌈Only one task shall be in the "Running" state for each core at a time.⌋
+
+AR_CP_OS_TASK The following state diagram shows the states and transitions as defined by the OS:
+
+....
+                             Figure 7.27: ARTI Task states
+....
+Transitions used by ARTI:
+....
+ Name                          Transition                     Event Name
+ Activate                      Suspended -> Ready             OsTask_Activate
+ Start                         Ready -> Running               OsTask_Start
+ Preempt                       Running -> Ready               OsTask_Preempt
+ Wait                          Running -> Waiting             OsTask_Wait
+ Release                       Waiting -> Ready               OsTask_Release
+ Terminate                     Running -> Suspended           OsTask_Terminate
+
+                        Table 7.7: Task transitions used by ARTI
+....
+AR_CP_OSARTI_TASK The class AR_CP_OSARTI_TASK contains events allowing the tracing of OS Tasks with an enhanced state model. The following states diagram shows the state machine as used by ARTI:
+
+....
+                       Figure 7.28: ARTI enhanced Task states
+....
+States used by ARTI:
+....
+ ARTI                                               OS
+ Suspended                                          SUSPENDED
+ Activated                                          READY
+ Running                                            RUNNING
+ Preempted                                          READY
+ Waiting                                            WAITING
+ Released                                           READY
+                         Table 7.8: Task states used by ARTI
+....
+Transitions used by ARTI:
+....
+ Name                        Transition                             Event Name
+ Activate                    Suspended -> Activated                 OsTask_Activate
+ Start                       Activated -> Running                   OsTask_Start
+ Preempt                     Running -> Preempted                   OsTask_Preempt
+ Resume                      Preempted -> Running                   OsTask_Resume
+ Wait                        Running -> Waiting                     OsTask_Wait
+                                              ▽
+
+                                                 △
+    Name                         Transition                     Event Name
+    Release                      Waiting -> Released            OsTask_Release
+    Continue                     Released -> Running            OsTask_Continue
+    Terminate                    Running -> Suspended           OsTask_Terminate
+
+                      Table 7.9: Enhanced task transitions used by ARTI
+....
+[[SWS_Os_00841]]
+....
+    Upstream requirements: RS_ARTIFO_00015
+....
+⌈ARTI macros of the classes AR_CP_OS_TASK and AR_CP_OSARTI_TASK shall compile the following templates:
+....
+      1    ARTI_TRACE(_contextName, AR_CP_OS_TASK, <OS Short Name>, <Core ID>, <
+              Event Name>, <Task ID>)
+      2    ARTI_TRACE(_contextName, AR_CP_OSARTI_TASK, <OS Short Name>, <Core ID>,
+               <Event Name>, <Task ID>)
+....
+⌋
+
+The <Core ID> for any event shall represent the core id where the corresponding Task is scheduled on. The <Event Name> should follow the transition table above. The <Task ID> shall be a numeric identifier of the OS Task.
+
+[[SWS_Os_00866]]
+ARTI Hook Sequence Task Termination Upstream requirements: RS_Arti_00030
+
+⌈If a task is in the Ready, Activated, Released, or Preempted state when another task terminates, the OS shall invoke the OsTask_Terminate event for the terminating task, followed by the OsTask_Start, OsTask_Resume, or OsTask_Continue event for the task transitioning to the Running state.⌋
+
+[[SWS_Os_00867]]
+ARTI Hook Sequence Task Preemption Upstream requirements: RS_Arti_00030
+
+⌈If a task (B) is transitioning to Running state while another task (A) is in the Running state, the OS shall first invoke the OsTask_Preempt event for the already running task (A), followed by the OsTask_Start or OsTask_Resume event for the task (B).⌋
+
+[[SWS_Os_00868]]
+ARTI Hook Sequence Task Chaining Upstream requirements: RS_Arti_00030
+
+⌈In the case of task chaining, the OS shall first invoke the OsTask_Terminate event for the task that called the ChainTask() service. Followed by an OsTask_Activate event for the task which got chained to it. The same is true if the task chains to itself.⌋
+
+Example 7.1 Single Basic Task: The following diagram shows the life cycle of a single terminating basic task.
+....
+                                                                        Single Basic Task
+                                                                                     Task A
+
+                                                               Suspended             Activated             Running
+
+                                                                     1 OsTask_Activate
+
+                                                                                          2 OsTask_Start
+
+                                                                                                       TerminateTask()
+
+                                                                       3 OsTask_Terminate
+
+                                                               Suspended             Activated             Running
+
+                                                    Task A 0
+                                                     Suspended         Activated          Running             Suspended
+
+                                                                 1                   2                    3                   4
+
+                                               Figure 7.29: Single Basic Task
+....
+The diagram illustrates the order of events; however, it does not depict the timing. The OS shall call the corresponding ARTI hooks for the events shown in the diagram. Therefore, two events cannot happen at the same point in time. Even if no other task is running, as shown in the diagram, it is expected that the OS calls both ARTI hooks (Activate and Start). It will take the CPU some time to call the two ARTI hooks and therefore the two events will be spaced apart in time.
+
+Example 7.2 Two Basic Tasks Without Preemption: The following diagram shows the life cycle of two terminating basic tasks. Task A starts first, Task B which has a lower priority than Task A gets activated and will therefore run after Task A.
+....
+                                 Task B Activated While Higher Priority Task A is Running
+                                            Task B (Low Priority)                                             Task A (High Priority)
+
+                           Suspended                 Activated             Running            Suspended               Activated              Running
+
+                                                                                                     1 OsTask_Activate
+
+                                                                                                                           2 OsTask_Start
+
+                                     3 OsTask_Activate
+
+                                                                                                                                       TerminateTask()
+
+                                                                                                       4 OsTask_Terminate
+
+                                                           5 OsTask_Start
+
+                                                                      TerminateTask()
+
+                                       6 OsTask_Terminate
+
+                           Suspended                 Activated             Running            Suspended               Activated              Running
+
+                   Task A 1(High Priority)
+                     Suspended          Activated                      Running                      Suspended
+
+                   Task B 0(Low Priority)
+                     Suspended                                                            Activated                        Running           Suspended
+
+                                 1                     2                   3                    4                    5                   6               7
+
+                     Figure 7.30: Two Basic Tasks Without Preemption
+....
+Example 7.3 Two Basic Tasks With Preemption: The following diagram shows the life cycle of a two terminating basic task. Task A starts first, Task B which has a higher priority than Task A gets activated and will therefore preempt it.
+....
+                                                          Task B Gets Activated While Task A is Running
+                                                          Task A (Low Priority)                                                      Task B (High Priority)
+
+                              Suspended               Activated              Running                 Preempted         Suspended                Activated             Running
+
+                                      1 OsTask_Activate
+
+                                                            2 OsTask_Start
+
+                                                                                                                              3 OsTask_Activate
+
+                                                                                  4 OsTask_Preempt
+
+                                                                                                                                                     5 OsTask_Start
+
+                                                                                                                                                               TerminateTask()
+
+                                                                                                                                6 OsTask_Terminate
+
+                                                                                       7 OsTask_Resume
+
+                                                                         TerminateTask()
+
+                                        8 OsTask_Terminate
+
+                              Suspended               Activated              Running                 Preempted         Suspended                Activated             Running
+
+             Task B 1(High Priority)
+              Suspended                                                                Activated                   Running          Suspended
+
+             Task A 0(Low Priority)
+              Suspended         Activated                         Running                                         Preempted                                 Running           Suspended
+
+                          1                    2                     3                     4                 5                  6                    7                    8               9
+
+                                       Figure 7.31: Two Basic Tasks With Preemption
+....
+Example 7.4 Two Basic Tasks Chained: The following diagram shows the life cycle of task A chaining to task B.
+....
+                                                                                 Task A chains to Task B
+                                                                   Task A                                                       Task B
+
+                                            Suspended              Activated               Running         Suspended             Activated               Running
+
+                                                   1 OsTask_Activate
+
+                                                                            2 OsTask_Start
+
+                                                                                   ChainTask(Task B)
+
+                                                     3 OsTask_Terminate
+
+                                                                                                                 4 OsTask_Activate
+
+                                                                                                                                        5 OsTask_Start
+
+                                                                                                                                                   TerminateTask()
+
+                                                                                                                   6 OsTask_Terminate
+
+                                            Suspended              Activated               Running         Suspended             Activated               Running
+
+                                Task B 1
+                                  Suspended                                                                       Activated            Running           Suspended
+
+                                Task A 0
+                                  Suspended           Activated              Running           Suspended
+
+                                               1                     2                     3                 4                  5                    6                    7
+
+                                                   Figure 7.32: Two Basic Tasks Chained
+....
+Example 7.5 Single Basic Task Chains to Itself: The following diagram shows the life cycle of a single terminating basic task which uses task chaining to activate itself one more time, therefore runs a second time before it finally terminates.
+....
+                                                           Task Chained to Itself
+                                                                           Task A
+
+                                                     Suspended              Activated             Running
+
+                                                           1 OsTask_Activate
+
+                                                                                     2 OsTask_Start
+
+                                                                                            ChainTask(Task A)
+
+                                                                3 OsTask_Terminate
+
+                                                           4 OsTask_Activate
+
+                                                                                     5 OsTask_Start
+
+                                                                                             TerminateTask()
+
+                                                                6 OsTask_Terminate
+
+                                                     Suspended              Activated             Running
+
+                    Task A 0
+                     Suspended       Activated        Running            Suspended            Activated         Running       Suspended
+
+                                 1               2                  3                   4                   5             6               7
+
+                                       Figure 7.33: Task Chained to Itself
+....
+There will be a rescheduling between step (3) and (4), if a task with a higher or same priority is in ready state during the ChainTask call.
+
+=== 7.17.3 Class AR_CP_OS_CAT2ISR
+
+[[SWS_Os_00849]]
+Upstream requirements: RS_Arti_00031
+
+⌈The OS shall create events to trace all states of Cat2Isrs and all state transitions within the OS ("Cat2Isr" refers to a category 2 interrupt service routine).⌋
+
+For some timing parameters (e.g. the interrupt pending time), the simple Category 2 interrupt start/stop of the OS is not enough. Tools evaluating the timings need to reconstruct a more complex state diagram by calculating the transitions from history. To be compatible to the OS, AR_CP_OS_CAT2ISR refers to this state model, knowing that tools need to postprocess the event flow to get all relevant information. However, if an OS implementation can provide a more detailed state diagram, ARTI allows to define more events that won’t need postprocessing and allow earlier synchronization of the trace if it is truncated (limited trace buffers). This state diagram is then handled with the class "AR_CP_OSARTI_CAT2ISR". If possible, the second state machine is to be preferred. AR_CP_OS_CAT2ISR
+
+The class AR_CP_OS_CAT2ISR contains events allowing the tracing of Category 2 interrupts as defined for the AUTOSAR Classic Platform. The following state diagram shows the states and transitions as defined by the OS:
+
+....
+                       Figure 7.34: ARTI category 2 ISR states
+....
+Transitions used by ARTI:
+....
+ Name                        Transition                    Event Name
+ Start                       Inactive -> Running           OsCat2Isr_Start
+ Stop                        Running -> Inactive           OsCat2Isr_Stop
+
+                      Table 7.10: ISR transitions used by ARTI
+....
+AR_CP_OSARTI_CAT2ISR The class AR_CP_OSARTI_CAT2ISR contains events allowing the tracing of Category 2 interrupts with an enhanced state model. The following state diagram shows the state machine as used by ARTI:
+
+....
+                    Figure 7.35: ARTI enhanced category 2 ISR states
+....
+States used by ARTI:
+....
+ ARTI                                                 OS
+ Inactive                                             Inactive
+ Activated                                            Inactive
+ Running                                              Running
+ Preempted                                            Running
+
+                           Table 7.11: ISR states used by ARTI
+....
+Transitions used by ARTI:
+....
+ Name                          Transition                                Event Name
+ Activate                      Inactive-> Activated                      OsCat2Isr_Activate
+ Start                         Activated -> Running                      OsCat2Isr_Start
+ Preempt                       Running -> Preempted                      OsCat2Isr_Preempt
+ Resume                        Preempted -> Running                      OsCat2Isr_Resume
+ Stop                          Running -> Inactive                       OsCat2Isr_Stop
+
+                    Table 7.12: Enhanced ISR transitions used by ARTI
+....
+[[SWS_Os_00842]]
+Upstream requirements: RS_ARTIFO_00015
+
+⌈ARTI macros of the classes AR_CP_OS_CAT2ISR and AR_CP_OSARTI_CAT2ISR shall compile the following template:
+....
+   1     ARTI_TRACE(_contextName, AR_CP_OS_CAT2ISR, <OS Short Name>, <Core Index
+            >, <Event Name>, <Cat2Isr Index>)
+   2     ARTI_TRACE(_contextName, AR_CP_OSARTI_CAT2ISR, <OS Short Name>, <Core
+            Index>, <Event Name>, <Cat2Isr Index>)
+....
+⌋
+
+The <Core Index> for any event shall represent the core index where the corresponding Category 2 interrupt is scheduled on. The <Event Name> should follow the transition table above. The <Cat2Isr Index> shall be a numeric identifier of the Category 2 interrupt. Example 7.6 Category 2 ISR interrupting a task without rescheduling: The following diagram shows a category 2 ISR interrupting a task. Depending on the implementation of the OS, a category 2 ISR may cause a preemption of a task. The state transition to the Preempted state is optional, as there is no state model in the OS that refers to ISRs and tasks. If the task state does not change to Preempted, the task stays in the Running state during the whole ISR run.
+....
+                                                                           Task Gets Preempted by ISR
+                                                                 Task                                                                               ISR
+
+                                Suspended           Activated              Running                  Preempted           Inactive                   Activated              Running
+
+                                     1 OsTask_Activate
+
+                                                         2 OsTask_Start
+
+                                                                                                                               3 OsCat2Isr_Activate
+
+                                                                                4 OsTask_Preempt
+
+                                                                                                 State is optional
+
+                                                                                                                                                          5 OsCat2Isr_Start
+
+                                                                                                                                 6 OsCat2Isr_Stop
+
+                                                                                  7 OsTask_Resume
+
+                                                                       TerminateTask()
+
+                                        8 OsTask_Terminate
+
+                                Suspended           Activated              Running                  Preempted           Inactive                   Activated              Running
+
+             ISR 1
+                 Inactive                                                            Activated                       Running            Inactive
+
+             Task 0
+              Suspended            Activated                    Running                                              Preempted                                  Running           Suspended
+
+                            1                  2                   3                     4                     5                    6                     7                   8               9
+
+                                                     Figure 7.36: ISR2 Interrupting Task
+....
+Example 7.7 Category 2 ISR causing a rescheduling of tasks: The following diagram shows a category 2 ISR interrupting Task A and activating the higher priority task B. Task B gets scheduled and preempts Task A. Depending on the implementation of the OS, the preemption of Task A may already happen at the activation of the ISR (between 3 and 4), or after the activation of Task B (between 5 and 8).
+
+....
+                                                                                      Tasks and ISR With Rescheduling
+                                           Task A (Low Priority)                                               Task B (High Priority)                                                         ISR
+
+               Suspended                Activated          Running             Preempted           Suspended                  Activated         Running         Inactive                     Activated              Running
+
+                       1 OsTask_Activate
+
+                                             2 OsTask_Start
+
+                                                                                                                                                                     3 OsCat2Isr_Activate
+
+                                                                                                                                                                                                    4 OsCat2Isr_Start
+
+                                                                                                                                                                                                             ActivateTask(Task B)
+
+                                                                                                        5 OsTask_Activate
+
+                                                                                                                                                                          6 OsCat2Isr_Stop
+
+                                                                7 OsTask_Preempt
+
+                                                                                                                                   8 OsTask_Start
+
+                                                                                                                                           TerminateTask()
+
+                                                                                                          9 OsTask_Terminate
+
+                                                                   10 OsTask_Resume
+
+                                                     TerminateTask()
+
+                         11 OsTask_Terminate
+
+               Suspended                Activated          Running             Preempted           Suspended                  Activated         Running         Inactive                     Activated              Running
+....
+ISR 2
+....
+        Inactive                                              Activated                  Running                   Inactive
+....
+Task B 1(High Priority)
+....
+   Suspended                                                                                                           Activated                              Running            Suspended
+....
+Task A 0(Low Priority)
+....
+   Suspended            Activated                                              Running                                                                        Preempted                                   Running            Suspended
+
+                   1                2                  3                  4                 5                  6                      7                   8                  9                      10                  11               12
+
+                                                                 Figure 7.37: ISR2 Rescheduling Tasks
+....
+
+=== 7.17.4 Class AR_CP_OS_SERVICECALLS
+
+[[SWS_Os_00843]]
+Upstream requirements: RS_Arti_00032
+
+⌈The OS shall create events of class AR_CP_OS_SERVICECALLS when entering and exiting the service call from an application context.⌋
+
+These hooks shall only be called, if the service call is called from an application context. It shall not be called, if the service call is used within the OS context. The events apply only to the entries and exits of the service calls, not to the objects (and their states) handled by the service call.
+
+[[SWS_Os_00844]]
+Upstream requirements: RS_ARTIFO_00015
+
+⌈ARTI macros of the class AR_CP_OS_SERVICECALLS shall compile the following template:
+....
+    1       ARTI_TRACE(_contextName, AR_CP_OS_SERVICECALLS, <OS Short Name>, <Core
+               Index>, <eventName>, <eventParameter>)
+....
+⌋
+
+The <Core Index> for any event in the following table shall represent the core id where the corresponding service call is called. The <eventName> is a string literal composed of a prefix "OsServiceCall", the ser- vice call name and "_Start" or "_Return" for the entry or exit of the service call. E.g. when ActivateTask is called, the event names on entry and exit are OsServiceCall_ ActivateTask_Start rsp. OsServiceCall_ActivateTask_Return. The <eventParamter> is an uint32 representation of either one of the function param- eters or the return value. It depends on the service call and is listed in the following table:
+....
+    OS Service Call         From              eventParameter on Start   on Return
+    ActivateTask            OSEK              TaskID                    (StatusType) returnValue
+    TerminateTask           OSEK              TaskID                    (StatusType) returnValue
+    ChainTask               OSEK              TaskID                    (StatusType) returnValue
+    Schedule                OSEK              0                         (StatusType) returnValue
+    GetTaskID               OSEK              0                         (TaskType) *TaskID
+    GetTaskState            OSEK              TaskID                    (TaskStateType) *State
+    EnableAllInterrupts     OSEK              0                         0
+    DisableAllInterrupts    OSEK              0                         0
+    ResumeAllInterrupts     OSEK              0                         0
+    SuspendAllInterrupts    OSEK              0                         0
+    ResumeOSInterrupts      OSEK              0                         0
+    SuspendOSInterrupts     OSEK              0                         0
+    GetResource             OSEK              ResID                     (StatusType) returnValue
+    ReleaseResource         OSEK              ResID                     (StatusType) returnValue
+    SetEvent                OSEK              TaskID                    (StatusType) returnValue
+    ClearEvent              OSEK              Mask                      (StatusType) returnValue
+    GetEvent                OSEK              TaskID                    (EventMaskType) * Event
+    WaitEvent               OSEK              Mask                      (StatusType) returnValue
+    GetAlarmBase            OSEK              AlarmID                   (AlarmBaseRefType) Info
+    GetAlarm                OSEK              AlarmID                   (TickType) *Tick
+    SetRelAlarm             OSEK              AlarmID                   (StatusType) returnValue
+    SetAbsAlarm             OSEK              AlarmID                   (StatusType) returnValue
+    CancelAlarm             OSEK              AlarmID                   (StatusType) returnValue
+    GetActiveApplication-   OSEK              0                         (AppModeType) returnValue
+    Mode
+    StartOS                 OSEK              Mode                      not applicable
+    ShutdownOS              OSEK              Error                     not applicable
+    GetApplicationID        AUTOSAR           0                         (ApplicationType) return
+                                                                        Value
+    GetCurrentApplica-      AUTOSAR           0                         (ApplicationType) return
+    tionID                                                              Value
+    GetISRID                AUTOSAR           0                         (ISRType) returnValue
+    CallTrustedFunction     AUTOSAR           FunctionIndex             (StatusType) returnValue
+                                          ▽
+
+                                   △
+ OS Service Call         From          eventParameter on Start    on Return
+ CheckISRMemoryAccess    AUTOSAR       ISRID                      (AccessType) returnValue
+ CheckTaskMemoryAccess   AUTOSAR       TaskID                     (AccessType) returnValue
+ CheckObjectAccess       AUTOSAR       ApplID                     (ObjectAccessType) return
+                                                                  Value
+ CheckObjectOwnership    AUTOSAR       ObjectTypeType             (ApplicationType) return
+                                                                  Value
+ StartScheduleTableRel   AUTOSAR       ScheduleTableID            (StatusType) returnValue
+ StartScheduleTableAbs   AUTOSAR       ScheduleTableID            (StatusType) returnValue
+ StopScheduleTable       AUTOSAR       ScheduleTableID            (StatusType) returnValue
+ NextScheduleTable       AUTOSAR       ScheduleTableID_To         (StatusType) returnValue
+ StartScheduleTa-        AUTOSAR       ScheduleTableID            (StatusType) returnValue
+....
+bleSynchron
+....
+ SyncScheduleTable       AUTOSAR       ScheduleTableID            (StatusType) returnValue
+ SetScheduleTableAsync   AUTOSAR       ScheduleTableID            (StatusType) returnValue
+ GetScheduleTableSta-    AUTOSAR       ScheduleTableID            (ScheduleTableSta-
+ tus                                                              tusType) *ScheduleStatus
+ IncrementCounter        AUTOSAR       CounterID                  (StatusType) returnValue
+ GetCounterValue         AUTOSAR       CounterID                  (TickType) *Value
+ GetElapsedValue         AUTOSAR       CounterID                  (TickType) *ElapsedValue
+ TerminateApplication    AUTOSAR       Application                (StatusType) returnValue
+ GetApplicationState     AUTOSAR       Application                (
+                                                                  ApplicationStateType)
+                                                                  *Value
+ GetNumberOfActivated-   AUTOSAR       0                          (uint32) returnValue
+....
+Cores
+....
+ GetCoreID               AUTOSAR       0                          (CoreIdType) returnValue
+ StartCore               AUTOSAR       CoreID                     (StatusType) *Status
+ GetSpinlock             AUTOSAR       SpinlockId                 (StatusType) returnValue
+ ReleaseSpinlock         AUTOSAR       SpinlockId                 (StatusType) returnValue
+ TryToGetSpinlock        AUTOSAR       SpinlockId                 (
+                                                                  TryToGetSpinlockType)
+                                                                  *Success
+ ShutdownAllCores        AUTOSAR       Error                      0
+ ReadPeripheral8         AUTOSAR       Address                    (uint8) *ReadValue
+ ReadPeripheral16        AUTOSAR       Address                    (uint16) *ReadValue
+ ReadPeripheral32        AUTOSAR       Address                    (uint32) *ReadValue
+ WritePeripheral8        AUTOSAR       Address                    (StatusType) returnValue
+ WritePeripheral16       AUTOSAR       Address                    (StatusType) returnValue
+ WritePeripheral32       AUTOSAR       Address                    (StatusType) returnValue
+ ModifyPeripheral8       AUTOSAR       Address                    (StatusType) returnValue
+ ModifyPeripheral16      AUTOSAR       Address                    (StatusType) returnValue
+ ModifyPeripheral32      AUTOSAR       Address                    (StatusType) returnValue
+ EnableInterruptSource   AUTOSAR       ISRID                      (StatusType) returnValue
+ DisableInterrupt-       AUTOSAR       ISRID                      (StatusType) returnValue
+....
+Source
+....
+ ClearPendingInterrupt   AUTOSAR       ISRID                      (StatusType) returnValue
+ ActivateTaskAsyn        AUTOSAR       id                         0
+                                   ▽
+
+                                                     △
+    OS Service Call            From                      eventParameter on Start   on Return
+    SetEventAsyn               AUTOSAR                   id                        0
+    isOsStarted                AUTOSAR                   0                         (boolean) returnValue
+
+                      Table 7.13: Parameter details for AR_CP_OS_SERVICECALLS
+....
+If the eventParameter of a returning service call is not of type StatusType, and if the service call does not return E_OK, the hook shall be called with a non-valid value as eventParameter, to give the hook consuming tool the possibility to detect the failure of the call.
+
+=== 7.17.5 Class AR_CP_OS_SPINLOCK
+
+[[SWS_Os_00845]]
+....
+    Upstream requirements: RS_Arti_00033
+....
+⌈The OS shall create events of class AR_CP_OS_SPINLOCK to allow tracing of OS spinlocks and all state transistions within the OS.⌋
+
+These macros mark an event of an actual state change, not the OS service call. (E.g. getting a spinlock may happen later than requesting it; a request to release may not cause a release if it is already released.)
+
+....
+                                      Figure 7.38: ARTI spin lock states
+....
+[[SWS_Os_00846]]
+....
+    Upstream requirements: RS_ARTIFO_00015
+....
+⌈ARTI macros of the class AR_CP_OS_SPINLOCK shall compile the following tem- plate:
+....
+      1   ARTI_TRACE(_contextName, AR_CP_OS_SPINLOCK, <OS Short Name>, <Core
+             Index>, <_eventName>, <eventParameter>)
+....
+⌋
+
+The <Core Index> for any event in the following table shall represent the core id where the corresponding service call is called. The following events are part of the class AR_CP_OS_SPINLOCK:
+....
+    Event description    State transition           _eventName                eventParameter
+    Locking Spinlock     Released -> Locked         OsSpinlock_Locked         SpinlockId
+    Releasing Spinlock   Locked -> Released         OsSpinlock_Released       SpinlockId
+
+                                  Table 7.14: Events for spinlocks
+....
+
+=== 7.17.6 Class AR_CP_OS_HOOK
+
+[[SWS_Os_00856]]
+....
+    Upstream requirements: RS_Arti_00034
+....
+⌈The OS shall create events of class AR_CP_OS_HOOK when entering and exiting the hook function.⌋
+
+[[SWS_Os_00857]]
+....
+    Upstream requirements: RS_Arti_00034, RS_ARTIFO_00015
+....
+⌈ARTI macros of the class AR_CP_OS_HOOK shall compile the following template:
+....
+      1   ARTI_TRACE(_contextName, AR_CP_OS_HOOK, <OS Short Name>, <Core Index>,
+             <eventName>, <eventParameter>)
+....
+⌋
+
+The <Core Index> for any event in the following table shall represent the core id on which the corresponding hook function is executed. The <eventName> is a string literal composed of the prefix OsHook, the hook function name and _Start or _Return for the entry or exit of the hook function. E.g. when the ErrorHook is called, the event names on entry and exit are Os- Hook_ErrorHook_Start respectively OsHook_ErrorHook_Return. The <eventParamter> is an uint32 representation of either the function parameter or the return value. It depends on the hook function and is listed in the following table:
+
+....
+ OS hook function        Origin                     eventParameter on Start   eventParameter on Return
+ ErrorHook               OSEK                       Error                     0
+ ErrorHook_<App>         AUTOSAR                    Error                     0
+ PostTaskHook            OSEK                       0                         0
+ PreTaskHook             OSEK                       0                         0
+ ProtectionHook          AUTOSAR                    Fatalerror                ReturnValue
+ StartupHook             OSEK                       0                         0
+ StartupHook_<App>       AUTOSAR                    0                         0
+                                                ▽
+
+                                          △
+ OS hook function      Origin                 eventParameter on Start   eventParameter on Return
+ ShutdownHook          OSEK                   Error                     0
+ ShurtdownHook_<App>   AUTOSAR                Fatalerror                0
+
+                       Table 7.15: Parameters for hook functions
+....
+The ARTI hook which indicates the exit of the ProtectionHook (e.g. eventName is OsHook_ProtectionHook_Return) shall be invoked after the OS has checked the ReturnValue of the ProtectionHook (based on the requirements described in chapter 7.8.2., for example [SWS_Os_00506] or [SWS_Os_00475]). The eventPa- rameter of this ARTI hook shall reflect the action which is taken by the OS as a result of the return value of the ProtectionHook.

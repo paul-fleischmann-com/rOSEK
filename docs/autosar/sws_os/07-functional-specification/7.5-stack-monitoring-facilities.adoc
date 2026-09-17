@@ -1,0 +1,22 @@
+== 7.5 Stack Monitoring Facilities
+
+=== 7.5.1 Background & Rationale
+
+On processors that do not provide any memory protection hardware it may still be necessary to provide a "best effort with available resources" scheme for detectable classes of memory faults. Stack monitoring will identify where a Task or ISR has exceeded a specified stack usage at context switch time. This may mean that there is considerable time between the system being in error and that fault being detected. Similarly, the error may have been cleared at the point the fault is notified (the stack may be less than the specified size when the context switch occurs). It is not usually sufficient to simply monitor the entire stack space for the system be- cause it is not necessarily the Task/ISR that was executing that used more than stack space than required - it could be a lower priority object that was pre-empted. Significant debugging time can be saved by letting the Operating System correctly identify the Task/Category 2 ISR in error. Note that for systems using an MPU and scalability class 3 or 4 a stack overflow may cause a memory exception before the stack monitoring is able to detect the fault.
+
+=== 7.5.2 Requirements
+
+[[SWS_Os_00067]]
+Upstream requirements: SRS_Os_11003
+
+⌈The Operating System module shall provide a stack monitoring which detects possible stack faults of Task(s)/Category 2 ISR(s).⌋
+
+[[SWS_Os_00068]]
+Upstream requirements: SRS_Os_11003, SRS_Os_11013
+
+⌈If a stack fault is detected by stack monitoring AND no ProtectionHook is config- ured, the Operating System module shall call the ShutdownOS service with the status E_OS_STACKFAULT.⌋
+
+[[SWS_Os_00396]]
+Upstream requirements: SRS_Os_11003
+
+⌈If a stack fault is detected by stack monitoring AND a ProtectionHook is config- ured the Operating System module shall call the ProtectionHook with the status E_OS_STACKFAULT.⌋

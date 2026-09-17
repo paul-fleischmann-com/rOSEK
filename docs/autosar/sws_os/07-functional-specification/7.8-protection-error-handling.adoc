@@ -1,0 +1,104 @@
+== 7.8 Protection Error Handling
+
+=== 7.8.1 Background & Rationale
+
+The Operating System can detect protection errors based on statically configured in- formation on what the constituent parts of an OS-Application can do at runtime. See section 7.7. Unlike monitoring, protection facilities will trap the erroneous state at the point the error occurs, resulting in the shortest possible time between transition into an erroneous state and detection of the fault. The different kinds of protection errors are described in the glossary. If a protection error occurs before the Operating System module is started the behaviour is not defined. If a protection error happens during shutdown, e.g. in the application-specific shutdown hook, an endless loop between the shutdown service and the protection hook may occur. In the case of a protection error, the Operating System module calls a user provided ProtectionHook for the notification of protection errors at runtime. The Protec- tionHook runs in the context of the Operating System module and must therefore be trusted code. The Operating System module itself needs only to detect an error and provide the abil- ity to act. The ProtectionHook can select the right action, which will be performed after returning from the ProtectionHook, depending on the return value of the Pro- tectionHook. The options are: 1. do nothing 2. for arrival rate errors: do not perform the requested action (task activation / ISR
+....
+     2 call / event setting)
+....
+3. forcibly terminate the faulty Task/Category 2 ISR 4. forcibly terminate all Tasks and ISRs in the faulty OS-Application 5. shutdown the Operating System module.
+
+Requirements [SWS_Os_00243] and [SWS_Os_00244] define the order of the default reaction if no faulty Task/Category 2 ISR or OS-Application can be found, e.g. in the system specific hook routines. Also OS-Applications are only mandatory in Scalability Classes 3 and 4, therefore in other Scalability Classes OS-Applications need not be defined. Note that forcibly terminating interrupts is handled differently in "forcibly terminate the faulty ISR" and "forcibly terminate the OS-Application". If a faulty ISR is forcibly ter- minated, the current invocation of the ISR is terminated. A subsequent invocation is allowed. If the OS-Application is forcibly terminated, then the interrupt source is also disabled, preventing subsequent interrupts. Notes regarding the return value PRO_IGNORE: The meaning of "do nothing" (PRO_IGNORE) means that the error reaction is ignored. The PRO_IGNORE is only allowed in specific situations (currently: arrival rate errors). After the error is detected (e.g. as specified in [SWS_Os_00466] or [SWS_Os_00467]) the protection hook is called. If the hook returns with PRO_IGNORE the OS does con- tinue its normal operation. If a service call was the root cause of the violation (e.g. an ActivateTask) and protection hook returns PRO_IGNORE the service call shall continue its operation (e.g. to activate a Task) and return E_OK (if successful and possible). Example 1: A Task calls ActivateTask(B) and causes an arrival rate violation. The activation is not performed ([SWS_Os_00466]) and protection hook is called. When returning PRO_IGNORE the OS continues and the ActivateTask service activates B and returns E_OK. Example 2: A Task A calls SetEvent for Task B (which currently waits for the event). The OS detects ([SWS_Os_00467]) an arrival rate violation and performs a call of the protection hook. When the call returns with PRO_IGNORE, the SetEvent service continues and sets the event. Task B changes to READY state and a rescheduling might happen. The SetEvent service call will return E_OK to Task A. Notes regarding the return value PRO_PREVENT_ARRIVAL_RATE: The PRO_PREVENT_ARRIVAL_RATE is used to prevent arrival rate errors. Example 1 : A Task calls ActivateTask(B) and causes an arrival rate violation. The activation is not performed ([SWS_Os_00466]) and protection hook is called. When returning PRO_PREVENT_ARRIVAL_RATE the OS will not perform the task activation (it prevents the arrival rate error). The ActivateTask service will return in such cases E_OK, so no error hooks are called. Example 2: A Task A calls SetEvent for Task B (which currently waits for the event). The OS detects ([SWS_Os_00467]) an arrival rate violation and performs a call of the protection hook. When the call returns with PRO_PREVENT_ARRIVAL_RATE, the event setting will not be performed and the SetEvent service call will return E_OK. Also here no additional error hooks will be called.
+
+=== 7.8.2 Requirements
+
+[[SWS_Os_00211]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall execute the ProtectionHook with the same permissions as the Operating System module.⌋
+
+[[SWS_Os_00107]]
+Upstream requirements: SRS_Os_11014
+
+⌈If no ProtectionHook is configured and a protection error occurs, the Operating System module shall call ShutdownOS.⌋
+
+[[SWS_Os_00106]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook returns PRO_IGNORE and was called with E_OS_PROTECTION_ARRIVAL the Operating System module shall perfom the requested action.⌋
+
+[[SWS_Os_00863]]
+Prevent arrival rate errors Upstream requirements: SRS_Os_11014, SRS_Os_11008
+
+⌈If the ProtectionHook returns PRO_PREVENT_ARRIVAL_RATE and was called with E_OS_PROTECTION_ARRIVAL the Operating System module shall not perform the action which caused the arrival rate error.⌋
+
+[[SWS_Os_00553]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook returns PRO_TERMINATETASKISR the Operating System module shall forcibly terminate the faulty Task/Category 2 ISR.⌋
+
+[[SWS_Os_00554]]
+Upstream requirements: SRS_Os_11022
+
+⌈If the ProtectionHook returns PRO_TERMINATEAPPL the Operating System mod- ule shall forcibly terminate the faulty OS-Application.⌋
+
+[[SWS_Os_00556]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook returns PRO_SHUTDOWN the Operating System module shall call the ShutdownOS.⌋
+
+[[SWS_Os_00506]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook is called with E_OS_PROTECTION_ARRIVAL the only valid return values are PRO_IGNORE or PRO_PREVENT_ARRIVAL_RATE or
+
+PRO_SHUTDOWN2 . Returning other values will result in a call to ShutdownOS.⌋
+
+[[SWS_Os_00475]]
+Upstream requirements: SRS_Os_11008
+
+⌈If the ProtectionHook returns PRO_IGNORE and the ProtectionHook was not called with E_OS_PROTECTION_ARRIVAL then the Operating System module shall call ShutdownOS.⌋
+
+[[SWS_Os_00243]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook returns PRO_TERMINATETASKISR and no Task or ISR can be associated with the error, the running OS-Application is forcibly terminated by the Operating System module. If even no OS-Application can be assigned, ShutdownOS is called.⌋
+
+[[SWS_Os_00244]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the ProtectionHook returns PRO_TERMINATEAPPL and no OS-Application can be assigned, ShutdownOS is called.⌋
+
+[[SWS_Os_00108]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the Operating System module forcibly terminates a Task, it terminates the Task, releases all allocated OSEK resources and calls EnableAllInter- rupts/ ResumeOSInterrupts / ResumeAllInterrupts if the Task called Dis- ableAllInterrupts / SuspendOSInterrupts / SuspendAllInterrupts be- fore without the corresponding EnableAllInterrupts/ ResumeOSInterrupts / ResumeAllInterrupts call.⌋
+
+[[SWS_Os_00109]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the Operating System module forcibly terminates an interrupt service routine, it clears the interrupt request, aborts the interrupt service routine (The interrupt source stays in the current state.) and releases all OSEK resources the interrupt service routine has allocated and calls EnableAllInterrupts / ResumeOSInterrupts / ResumeAllInterrupts if the interrupt called DisableAllInterrupts / Sus- pendOSInterrupts / SuspendAllInterrupts before without the corresponding EnableAllInterrupts/ ResumeOSInterrupts / ResumeAllInterrupts call.⌋
+
+[[SWS_Os_00110]]
+Upstream requirements: SRS_Os_11014
+
+⌈If the Operating System module shall forcibly terminate an OS-Application, it: shall
+....
+   2
+    The reason for this case is that the Task which is supervised is not necessary active (and can not
+....
+be e.g. terminated) and it can be that the caller of the activation is the real problem.
+
+....
+     • forcibly terminate all Tasks/ISRs of the OS-Application AND
+     • cancel all alarms of the OS-Application AND
+     • stop ScheduleTables of the OS-Application AND
+     • disable interrupt sources of Category 2 ISRs belonging to the OS-Application
+....
+⌋
+
+[[SWS_Os_00860]]
+....
+    Upstream requirements: SRS_Os_11013
+....
+⌈If the call to the ProtectionHook is caused by a trusted function which causes a E_OS_PROTECTION_EXCEPTION or E_OS_PROTECTION_MEMORY, the only valid re- turn value shall be PRO_SHUTDOWN. Returning other values shall also result in a shut- down of the OS.⌋

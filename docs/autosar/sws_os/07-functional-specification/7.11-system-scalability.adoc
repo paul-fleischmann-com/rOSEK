@@ -1,0 +1,71 @@
+== 7.11 System Scalability
+
+=== 7.11.1 Background & Rationale
+
+In order to customize the operating system to the needs of the user and to take full advantage of the processor features the operating system can be scaled accordingly with scalability classes, see [SWS_Os_00241].
+....
+ Feature                      Scalability   Scalability    Scalability   Scalability
+                              Class 1       Class 2        Class 3       Class 4
+ Minimum number of Schedule   2             8              2             8
+....
+Tables supported
+....
+ Minimum number of            0             0              2             2
+....
+OS-Applications supported
+....
+ Minimum number of software   8             8              8             8
+....
+Counters supported
+
+....
+              Table 7.4: Minimum requirements of scalability classes
+....
+
+=== 7.11.2 Requirements
+
+[[SWS_Os_00240]]
+Upstream requirements: SRS_Os_11012, SRS_Os_11016
+
+⌈If an implementation of a lower scalability class supports features of higher classes then the interfaces for the features must comply with this Operating System software specification.⌋
+
+[[SWS_Os_00241]]
+Scalability classes Upstream requirements: SRS_Os_11012, SRS_Os_11016
+
+⌈
+....
+    Feature                Described in     Scala-    Scala-     Scala-    Scala-    Hardware requirements
+                           Section          bility    bility     bility    bility
+                                            Class 1   Class 2    Class 3   Class 4
+    OSEK OS (all           Chapter 7.1      Yes       Yes        Yes       Yes
+    conformance classes)
+    Counter Interface      Increment-       Yes       Yes        Yes       Yes
+                           Counter
+    SWFRT Interface        GetCounter-      Yes       Yes        Yes       Yes
+                           Value,
+                           GetElapsed-
+                           Value
+    ScheduleTables         Chapter 7.3      Yes       Yes        Yes       Yes
+    Stack Monitoring       Chapter 7.5      Yes       Yes        Yes       Yes
+    ProtectionHook         Chapter 7.8                Yes        Yes       Yes
+    Timing Protection      Chapter 7.7.2              Yes                  Yes       Timer(s) with high priority interrupt
+    Global                 Chapter 7.4                Yes                  Yes       Global time source
+    Time/Synchronization
+    Support
+    Memory Protection      Chapter 7.7.1,                        Yes       Yes       MPU
+                           Chapter 7.7.4
+    OS-Applications        Chapter 7.6,     ⋆6        ⋆7         Yes       Yes
+                           Chapter 7.12
+    Service Protection     Chapter 7.7.3                         Yes       Yes
+    CallTrustedFunc-       Chapter 7.7.5                         Yes       Yes       (Non-)privileged Modes
+    tion
+
+      The Operating System module shall support the features according to this given table.
+....
+⌋
+
+[[SWS_Os_00327]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈The Operating System module shall always use extended status in Scalability Class 3 and 4.⌋

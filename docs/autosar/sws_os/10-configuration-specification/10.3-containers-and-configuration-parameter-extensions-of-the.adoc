@@ -1,0 +1,296 @@
+== 10.3 Containers and configuration parameter extensions of the
+
+....
+              IOC
+....
+This section describes the content of the IOC Configuration Description that is needed for the generation of the IOC API.
+
+....
+                       Os: EcucModuleDef                                                                                               OsIocSenderId:
+                                                                                                                                    EcucIntegerParamDef
+                        upperMultiplicity = 1
+                        lowerMultiplicity = 0                                                                                     min = 0
+                                                                                                              +parameter          max = 255
+                                                                        OsIocSenderProperties:
+                                                                      EcucParamConfContainerDef                                   lowerMultiplicity = 0
+                      +container                                                                                                  upperMultiplicity = 1
+                                                                        lowerMultiplicity = 1
+                               OsIoc:             +subContainer         upperMultiplicity = *
+                      EcucParamConfContainerDef                                                                   +reference    OsIocSendingOsApplicationRef:
+                         lowerMultiplicity = 0                                                                                        EcucReferenceDef
+                         upperMultiplicity = 1                                                                                    lowerMultiplicity = 1
+                                                                                                                                  upperMultiplicity = 1
+                                                                          +parameter
+                    +subContainer
+                                                                     OsIocFunctionImplementationKind:      +literal          MACRO:
+                         OsIocCommunication:                            EcucEnumerationParamDef                       EcucEnumerationLiteralDef
+                      EcucParamConfContainerDef
+                                                                        lowerMultiplicity = 0
+                         lowerMultiplicity = 0                          upperMultiplicity = 1                                                   +literal       DO_NOT_CARE:
+                         upperMultiplicity = *                          defaultValue = DO_NOT_CARE                                                         EcucEnumerationLiteralDef
+                                                                                                           +literal
+                                                                                                                            FUNCTION:
+                                                                                                                      EcucEnumerationLiteralDef
+
+                                                                                        +parameter
+
+                                                                                                                                      OsApplication:
+                                                                                                                  +container    EcucParamConfContainerDef           +destination
+                                                                                                                                  upperMultiplicity = *
+                                                                                                                                  lowerMultiplicity = 0
+                                                                        OsIocBufferLength:
+                                                      +parameter       EcucIntegerParamDef
+                                                                                                                                 +destination
+                                                                        min = 1
+                                                                        max = 4294967295
+                                                                        lowerMultiplicity = 0                                  OsIocReceivingOsApplicationRef:
+                                                                        upperMultiplicity = 1                                        EcucReferenceDef
+
+                                                                                                                                 lowerMultiplicity = 1
+                                                                                                               +reference
+                                                                        OsIocReceiverProperties:                                 upperMultiplicity = 1
+                                                                      EcucParamConfContainerDef
+
+                                                                        lowerMultiplicity = 1
+                                                                        upperMultiplicity = *                                              +parameter          OsIocReceiverPullCB:
+                                                                                                                                                               EcucFunctionNameDef
+                                                   +subContainer
+                                                                                                                                                                lowerMultiplicity = 0
+                                                                                                                           OsIocReceiverId:                     upperMultiplicity = 1
+                                                                                                                         EcucIntegerParamDef
+
+                                                                                                                          min = 0
+                                                                                                                          max = 255
+                                                                                                      +parameter          lowerMultiplicity = 0
+                                                                                                                          upperMultiplicity = 1
+
+                      +subContainer
+                                                                                                         +reference       OsMemoryMappingCodeLocationRef:
+                         OsIocDataProperties:                                                                                 EcucForeignReferenceDef
+                      EcucParamConfContainerDef
+                                                                                                                            destinationType = SW-ADDR-METHOD
+                        lowerMultiplicity = 1                                                                               lowerMultiplicity = 0
+                        upperMultiplicity = *                                                                               upperMultiplicity = 1
+                                                                        OsIocInitValue:
+                                                       +parameter     EcucStringParamDef
+
+                                                                         lowerMultiplicity = 0
+                                                                         upperMultiplicity = 1                         OsIocDataTypeRef: EcucForeignReferenceDef
+                                                                                                     +reference
+                                                                                                                       destinationType = IMPLEMENTATION-DATA-TYPE
+                                                                                                                       lowerMultiplicity = 1
+                                                                     OsIocDataPropertyIndex:
+                                                                                                                       upperMultiplicity = 1
+                                                                      EcucIntegerParamDef
+                                                      +parameter
+                                                                       max = 255
+                                                                       upperMultiplicity = 1
+                                                                       lowerMultiplicity = 0
+
+                                                                              OsMemoryMappingCodeLocationRef:
+                                                        +reference                EcucForeignReferenceDef
+
+                                                                         destinationType = SW-ADDR-METHOD
+                                                                         lowerMultiplicity = 0
+                                                                         upperMultiplicity = 1
+
+                                    Figure 10.15: OsIoc configuration overview
+....
+
+=== 10.3.1 OsIoc
+
+[[ECUC_Os_01000]]
+Definition of EcucParamConfContainerDef OsIoc ⌈ Container Name                                  OsIoc Parent Container                                Os Description                                     Configuration of the IOC (Inter OS Application Communicator). Multiplicity                                    0..1 Configuration Parameters
+
+No Included Parameters
+
+....
+    Included Containers
+    Container Name              Multiplicity         Dependency
+    OsIocCommunication          0..*                 Representation of a 1:1 or N:1 or N:M (unqueued only)
+                                                     communication between software parts located in different
+                                                     OS-Applications that are bound to the same or to different cores.
+                                                     The name shall begin with the name of the sending software
+                                                     service and be followed by a unique identifier delivered by the
+                                                     sending software service. In the case of RTE as user attention
+                                                     shall be paid on the fact that uniqueness for identifier names has
+                                                     to be reached over ports, data elements, object instances and
+                                                     maybe additional identification properties (E.g. Case 1:N
+                                                     mapping to 1:1). Example:
+                                                      • <NameSpace>_UniqueID
+....
+⌋
+
+=== 10.3.2 OsIocCommunication
+
+[[ECUC_Os_01003]]
+Definition of EcucParamConfContainerDef OsIocCommunica- tion ⌈ Container Name             OsIocCommunication Parent Container           OsIoc Description                Representation of a 1:1 or N:1 or N:M (unqueued only) communication between software parts located in different OS-Applications that are bound to the same or to different cores. The name shall begin with the name of the sending software service and be followed by a unique identifier delivered by the sending software service. In the case of RTE as user attention shall be paid on the fact that uniqueness for identifier names has to be reached over ports, data elements, object instances and maybe additional identification properties (E.g. Case 1:N mapping to 1:1). Example: • <NameSpace>_UniqueID Multiplicity               0..* Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                      Multiplicity            ECUC ID
+    OsIocBufferLength                                   0..1                    [ECUC_Os_01001]
+
+    Included Containers
+    Container Name              Multiplicity         Dependency
+    OsIocDataProperties         1..*                 Data properties of the data to be transferred on the IOC
+                                                     communication channel.
+    OsIocReceiverProperties     1..*                 Representation of receiver properties for one communication.
+                                                     For each OsIocCommunication one (1:1) or many receivers
+                                                     (N:M) have to be defined. This container should be instantiated
+                                                     within an OsIocCommunication.
+    OsIocSenderProperties       1..*                 Representation of sender properties for one communication. For
+                                                     each OsIocCommunication one (1:1) or many senders (N:1 or
+                                                     N:M) have to be defined. Multiplicity > 1 (N:1 or N:M
+                                                     communication) is only allowed for Multiplicity of OsIocDataType
+                                                     Ref = 1.
+                                                     This container should be instantiated within an OsIoc
+                                                     Communication.
+....
+⌋
+
+[[ECUC_Os_01001]]
+Definition of EcucIntegerParamDef OsIocBufferLength ⌈ Parameter Name                     OsIocBufferLength Parent Container                   OsIocCommunication Description                        This attribute defines the size of the IOC internal queue to be allocated for a queued communication. This configuration information shall allow the optimization of the needed memory for communications requiring buffers within the RTE and within the IOC. Multiplicity                       0..1 Type                               EcucIntegerParamDef Range                              1 .. 4294967295 Default value                      – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X       All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X       All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+=== 10.3.3 OsIocSenderProperties
+
+[[ECUC_Os_01015]]
+Definition of EcucParamConfContainerDef OsIocSenderProp- erties ⌈ Container Name                     OsIocSenderProperties Parent Container                   OsIocCommunication Description                        Representation of sender properties for one communication. For each OsIoc Communication one (1:1) or many senders (N:1 or N:M) have to be defined. Multiplicity > 1 (N:1 or N:M communication) is only allowed for Multiplicity of OsIocDataTypeRef = 1. This container should be instantiated within an OsIocCommunication. Multiplicity                       1..* Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity            ECUC ID
+    OsIocFunctionImplementationKind                             0..1                    [ECUC_Os_01036]
+    OsIocSenderId                                               0..1                    [ECUC_Os_01016]
+    OsIocSendingOsApplicationRef                                1                       [ECUC_Os_01014]
+
+    No Included Containers
+....
+⌋
+
+For parameter table [ECUC_Os_01036] OsIocFunctionImplementationKind, see defi- nition below container OsIocReceiverProperties.
+
+[[ECUC_Os_01016]]
+Definition of EcucIntegerParamDef OsIocSenderId ⌈ Parameter Name                     OsIocSenderId Parent Container                   OsIocSenderProperties Description                        Representation of a sender in a N:1 or N:M communication to distinguish between senders. This parameter does not exist in 1:1 communication. Multiplicity                       0..1 Type                               EcucIntegerParamDef Range                              0 .. 255 Default value                      – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Os_01014]]
+Definition of EcucReferenceDef OsIocSendingOsApplication Ref ⌈ Parameter Name                     OsIocSendingOsApplicationRef Parent Container                   OsIocSenderProperties Description                        This attribute is a reference to the sending OS-Application instance defined in the configuration file of the OS. This information shall allows the generator to get additional information necessary for the code generation like: • The protection properties of the communicating OS-Applications to find out which protection boundaries have to be crossed. • The core identifiers to find out if an intra or an inter core communication has to be realized • Interrupt details in case of cross core notification to realize over IRQs Multiplicity                       1 Type                               Reference to OsApplication Post-Build Variant Value           false Value Configuration Class          Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+=== 10.3.4 OsIocReceiverProperties
+
+[[ECUC_Os_01017]]
+Definition of EcucParamConfContainerDef OsIocReceiver Properties ⌈
+
+....
+    Container Name                     OsIocReceiverProperties
+    Parent Container                   OsIocCommunication
+    Description                        Representation of receiver properties for one communication. For each OsIoc
+                                       Communication one (1:1) or many receivers (N:M) have to be defined. This container
+                                       should be instantiated within an OsIocCommunication.
+    Multiplicity                       1..*
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                            Multiplicity             ECUC ID
+    OsIocFunctionImplementationKind                           0..1                     [ECUC_Os_01036]
+    OsIocReceiverId                                           0..1                     [ECUC_Os_00407]
+    OsIocReceiverPullCB                                       0..1                     [ECUC_Os_01010]
+    OsIocReceivingOsApplicationRef                            1                        [ECUC_Os_01012]
+    OsMemoryMappingCodeLocationRef                            0..1                     [ECUC_Os_00411]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Os_01036]]
+Definition of EcucEnumerationParamDef OsIocFunctionIm- plementationKind ⌈ Parameter Name                     OsIocFunctionImplementationKind Parent Container                   OsIocReceiverProperties, OsIocSenderProperties Description                        This parameter is used to select whether this communication is implemented as a macro or as a function. Multiplicity                       0..1 Type                               EcucEnumerationParamDef Range                              DO_NOT_CARE                           It is not defined whether a macro or a function is used. FUNCTION                              Communication is implemented as a function MACRO                                 Communication is implemented as a macro Default value                      DO_NOT_CARE Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Os_00407]]
+Definition of EcucIntegerParamDef OsIocReceiverId ⌈ Parameter Name                     OsIocReceiverId Parent Container                   OsIocReceiverProperties Description                        Representation of a receiver in a N:M communication to distinguish between receivers. This parameter does not exist in 1:1 or N:1 communication. Multiplicity                       0..1 Type                               EcucIntegerParamDef Range                              0 .. 255 Default value                      – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X         All Variants Link time                              – Post-build time                        – Value Configuration Class          Pre-compile time                       X         All Variants Link time                              – Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Os_01010]]
+Definition of EcucFunctionNameDef OsIocReceiverPullCB ⌈ Parameter Name                     OsIocReceiverPullCB Parent Container                   OsIocReceiverProperties Description                        This attribute defines the name of a callback function that the IOC shall call on the receiving core for each data reception. In case of non existence of this attribute no ReceiverPullCB notification shall be applied by the IOC. The name of the function shall begin with the name of the receiving module, followed with a callback name and followed by the IocId. Example: void RTE_ReceiverPullCB_RTE25 (void). If this attribute does not exist, it means that no ReceiverPullCB shall be called (No notification from IOC is required). If this attribute exists the IOC shall call the callback function on the receiving core. Multiplicity                       0..1 Type                               EcucFunctionNameDef Default value                      – Regular Expression                 – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X         All Variants Link time                              – Post-build time                        – Value Configuration Class          Pre-compile time                       X         All Variants Link time                              – Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Os_01012]]
+Definition of EcucReferenceDef OsIocReceivingOsApplica- tionRef ⌈ Parameter Name                    OsIocReceivingOsApplicationRef Parent Container                  OsIocReceiverProperties Description                       This attribute is a reference to the receiving OsApplication instance defined in the configuration file of the OS. This information allows for the generator to get additional information necessary for the code generation like: • The protection properties of the communicating OsApplications to find out which protections have to be crossed • The core identifiers to find out if an intra or an inter core communication has to be realized • Interrupt details in case of cross core notification to realize over IRQs Multiplicity                      1 Type                              Reference to OsApplication Post-Build Variant Value          false Value Configuration Class         Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Os_00411]]
+Definition of EcucForeignReferenceDef OsMemoryMapping CodeLocationRef ⌈ Parameter Name                    OsMemoryMappingCodeLocationRef Parent Container                  OsIocReceiverProperties Description                       Reference to the memory mapping containing details about the section where the code of OsIocReceiverPullCB is placed. Multiplicity                      0..1 Type                              Foreign reference to SW-ADDR-METHOD Post-Build Variant Multiplicity   false Post-Build Variant Value          false Value Configuration Class         Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+=== 10.3.5 OsIocDataProperties
+
+[[ECUC_Os_01023]]
+Definition of EcucParamConfContainerDef OsIocDataProper- ties ⌈
+
+....
+    Container Name                     OsIocDataProperties
+    Parent Container                   OsIocCommunication
+    Description                        Data properties of the data to be transferred on the IOC communication channel.
+    Multiplicity                       1..*
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                             Multiplicity            ECUC ID
+    OsIocDataPropertyIndex                                     0..1                    [ECUC_Os_01035]
+    OsIocInitValue                                             0..1                    [ECUC_Os_01024]
+    OsIocDataTypeRef                                           1                       [ECUC_Os_01005]
+    OsMemoryMappingCodeLocationRef                             0..1                    [ECUC_Os_00405]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Os_01035]]
+Definition of EcucIntegerParamDef OsIocDataPropertyIndex ⌈ Parameter Name                     OsIocDataPropertyIndex Parent Container                   OsIocDataProperties Description                        This parameter is used to define in which order the data is send, e.g. whether IocSend Group(A,B) or IocSendGroup(B,A) shall be used. Multiplicity                       0..1 Type                               EcucIntegerParamDef Range                              0 .. 255 Default value                      – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X       All Variants Link time                              – Post-build time                        – Value Configuration Class          Pre-compile time                       X       All Variants Link time                              – Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Os_01024]]
+Definition of EcucStringParamDef OsIocInitValue ⌈ Parameter Name                     OsIocInitValue Parent Container                   OsIocDataProperties Description                        Initial Value for the data to be transferred on the IOC communication channel. Multiplicity                       0..1 Type                               EcucStringParamDef Default value                      – ▽
+
+....
+                                                              △
+    Regular Expression                 –
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                      X         All Variants
+                                       Link time                             –
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X         All Variants
+                                       Link time                             –
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Os_01005]]
+Definition of EcucForeignReferenceDef OsIocDataTypeRef ⌈ Parameter Name                     OsIocDataTypeRef Parent Container                   OsIocDataProperties Description                        This is the type of the data to be transferred on the IOC communication channel. This attribute is necessary to generate the parameter type of the Ioc functions. Additionally this information should be used to compute the data size for necessary data copy operations within the Ioc module. If more than one attribute is defined, the IOC generator should generate an IocXxx Group function (Xxx= CHOICE [Send, Receive, Write, Read]). N:1 or N:M communication (Multiplicity of OsIocSenderProperties > 1) is only allowed for multiplicity of OsIocDataTypeRef = 1 Multiplicity                       1 Type                               Foreign reference to IMPLEMENTATION-DATA-TYPE Post-Build Variant Value           false Value Configuration Class          Pre-compile time                      X         All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Os_00405]]
+Definition of EcucForeignReferenceDef OsMemoryMapping CodeLocationRef ⌈ Parameter Name                     OsMemoryMappingCodeLocationRef Parent Container                   OsIocDataProperties Description                        Reference to the memory mapping containing details about the section where the IOC buffer is placed. Multiplicity                       0..1 Type                               Foreign reference to SW-ADDR-METHOD Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X         All Variants ▽
+
+....
+                                                            △
+                                       Link time                          –
+                                       Post-build time                    –
+    Dependency
+....
+⌋

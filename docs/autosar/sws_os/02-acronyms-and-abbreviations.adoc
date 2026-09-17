@@ -1,0 +1,191 @@
+== 2 Acronyms and Abbreviations
+
+The glossary below includes acronyms and abbreviations relevant to the AUTOSAR Operating System module that are not included in the [3, AUTOSAR glossary].
+....
+ Abbreviation                      Description
+ AR                                AUTOSAR
+ IOC                               Inter OS-Application communicator
+ LE                                A locatable entity is a distinct piece of software that has the same effect
+                                   regardless of which core it is located.
+ MC                                Multi-Core
+ NMI                               Non maskable interrupt
+ RTOS                              Real Time Operating System
+ SLA                               Software Layered Architecture
+ SWC                               Software Component
+ SWFRT                             Software FreeRunningTimer
+
+                        Table 2.1: Acronyms and abbreviations
+....
+
+=== 2.1 Glossary of Terms
+
+....
+ Term             Definition
+ Access Right     An indication that an object (e.g. Task, ISR, hook function) of an OS-Application has the permission
+                  of access or manipulation with respect to memory, OS services or (set of) OS objects.
+ Cardinality      The number of items in a set.
+ Counter          An operating system object that registers a count in ticks. There are two types of counters:
+                  Hardware            A Counter that is advanced by hardware (e.g. timer). The count value is
+                  Counter             maintained by the peripheral "in hardware".
+                  Software            A Counter which is incremented by making the IncrementCounter API call
+                  Counter             (see [SWS_Os_00399]). The count value is maintained by the operating system
+                                      "in software".
+ Deadline         The time at which a Task/Category 2 ISR must reach a certain point during its execution defined by
+                  system design relative to the stimulus that triggered activation. See figure 2.1
+ Delay            The number of ticks between two adjacent expiry points on a ScheduleTable.
+                  A pair of expiry points X and Y are said to be adjacent when:
+                   • There is no expiry point Z such that X.Offset < Z.Offset < Y.Offset. In this case the Delay =
+                     Y.Offset-X.Offset
+                   • X and Y are the Final Expiry Point and the Initial Expiry Point respectively. In this case Delay =
+                     (Duration-X.Offset)+Y.Offset
+                  When used in the text, Delay is a relative number of ticks measured from a specified expiry point.
+                  For example: X.Delay is the delay from X to the next expiry point.
+ Deviation        The minimum number of ticks between the current position on an explicitly synchronized Schedule
+                  Table and the value of the synchronization count modulo the duration of the ScheduleTable.
+ Duration         The number of ticks from a notional zero at which a ScheduleTable wraps.
+                                                      ▽
+
+                                                                △
+ Term                      Definition
+ Execution Time            Tasks: The net time a Task spends in the RUNNING state without entering the SUSPENDED or
+                           WAITING state excluding all preemptions due to ISRs which preempt the Task. An extended Task
+                           executing the WaitEvent API call to wait on an Event which is already set notionally enters the
+                           WAITING state. For multiple activated basic Tasks the net time is per activation of a Task.
+                           ISRs: The net time from the first to the last instruction of the user provided Category 2 interrupt
+                           handler excluding all preemptions due to higher priority ISRs executing in preference.
+                           Execution time includes the time spent in the error, pretask and posttask hooks and the time spent
+                           making OS service calls.
+ Execution Budget          Maximum permitted execution time for a Task/ISR.
+ Expiry Point              The offset on a ScheduleTable, measured from zero, at which the OS activates Tasks and/or
+                           sets Events.
+                           Initial Expiry      The expiry point with the smallest offset
+                           Point
+                           Final Expiry        The expiry point with the largest offset
+                           Point
+ Hook Function             A Hook function is implemented by the user and invoked by the operating system in the case of
+                           certain incidents. In order to react to these on system or application level, there are two kinds of
+                           hook functions
+                           Application-        Hook functions within the scope of an individual OS-Application.
+                           specific
+                           System-specific     Hook functions within the scope of the complete system (in general provided by
+                                               the integrator).
+ Initial Offset            The smallest expiry point offset on a ScheduleTable. This can be zero.
+ Interarrival Time         Basic Tasks: The time between successively entering the READY state from the SUSPENDED state.
+                           Activation of a Task always represents a new arrival. This applies in the case of multiple activations,
+                           even if an existing instance of the Task is in the RUNNING or READY state.
+                           Extended Tasks: The time between successively entering the READY state from the SUSPENDED or
+                           WAITING states. Setting an Event for a Task in the WAITING state represents a new arrival if the
+                           Task is waiting on the Event. Waiting for an Event in the RUNNING state which is already set
+                           represents a new arrival.
+                           ISRs: The time between successive occurrences of an interrupt.
+                           See figure 2.1
+ Interrupt Lock Time       The time for which a Task/ISR executes with Category 1 interrupts disabled/suspended and/or
+                           Category 2 interrupts disabled/suspended .
+ Interrupt Source Enable   The switch which enables a specific interrupt source in the hardware.
+ Interrupt Vector Table    Conceptually, the interrupt vector table contains the mapping from hardware interrupt requests to
+                           (software) interrupt service routines. The real content of the Interrupt Vector Table is very hardware
+                           specific, e.g. it can contain the start addresses of the interrupt service routines.
+ Final Delay               The difference between the Final Expiry Point offset and the duration on a ScheduleTable in ticks.
+                           This value defines the delay from the Final Expiry Point to the logical end of the ScheduleTable
+                           for single-shot and "nexted" ScheduleTables.
+ Forced OS-Application     The operating system frees all system objects, e.g. forcibly terminates Tasks, disables interrupts,
+ Termination               etc., which are associated to the OS-Application. OS-Application and internal variables are
+                           potentially left in an undefined state.
+ Forced Termination        The OS terminates the Task/Category 2 ISR and does "unlock" it’s held resources. For details see
+                           [SWS_Os_00108] and [SWS_Os_00109].
+ Linker File               File containing linking settings for the linker. The syntax of the linker file depends on the specific
+                           linker and, consequently, definitions are stored "linker-specific" in the linker file.
+ Lock Budget               Maximum permitted Interrupt Lock Time or Resource Lock Time.
+ Master core               A master core is a core from which the AUTOSAR system is bootstrapped.
+ Memory Protection Unit    A Memory Protection Unit (MPU) enables memory partitioning with individual protection attributes.
+                           This is distinct from a Memory Management Unit (MMU) that provides a mapping between virtual
+                           addresses and physical memory locations at runtime.
+                           Note that some devices may realize the functionality of an MPU in an MMU.
+ Mode                      Describes the permissions available on a processor.
+                                                                ▽
+
+                                                           △
+ Term                  Definition
+                       Privileged          In general, in "privileged mode" unrestricted access is available to memory as
+                                           well as the underlying hardware.
+                       Non-privileged      In "non-privileged mode" access is restricted.
+ Modulus               The number of ticks required to complete a full wrap of an OSEK Counter. This is equal to
+                       OsCounterMaxAllowedValue +1 ticks of the Counter.
+ OS-Application        A collection of OS objects
+                       Trusted             An OS-Application that may be executed in privileged mode and may have
+                                           unrestricted access to the API and hardware resources. Only trusted
+                                           applications can provide trusted functions.
+                       Non-trusted         An OS-Application that is executed in non-privileged mode has restricted access
+                                           to the API and hardware resources.
+ OS object             Object that belongs to a single OS-Application: Task, ISR, Alarm, Event, ScheduleTable,
+                       Resource, Trustedfunction, Counter, application-specific hook.
+ OS Service            OS services are the API of the operating system.
+ Protection Error      Systematic error in the software of an OS-Application.
+                       Memory access       A protection error caused by access to an address in a manner for which no
+                       violation           access right exists.
+                       Timing fault        A protection error that violates the timing protection.
+                       Illegal service     A protection error that violates the service protection, e.g. unauthorized call to
+                                           OS service.
+                       Hardware            division by zero, illegal instruction etc.
+                       exception
+ Resource Lock Time    The time an OSEK Resource is held by a Task/ISR (excluding the preemptions of the Task/ISR
+                       by higher prior Tasks/ISRs).
+ Response Time         The time between a Task/ISR being made ready to execute and generating a specified response.
+                       The time includes all preemptions. See figure 2.1
+ Scalability Class     The features of the OS (e.g. Memory Protection or Timing Protection), described by this document,
+                       can be grouped together to customize the operating system to the needs of the application. There
+                       are 4 defined groups of features which are named scalability classes. For details see Chapter 7.11
+ ScheduleTable         Encapsulation of a statically defined set of expiry points.
+ Section               Part of an object file in which instructions or data are combined to form a unit (contiguous address
+                       space in memory allocated for data or code). A section in an object file (object file format) has a
+                       name and a size.
+                       From the linker perspective, two different sides can be distinguished:
+                       Input section       memory section in an input object file of the linker.
+                       Output section      memory section in an output object file of the linker.
+ Set (of OS objects)   This document uses the term set, indicating a collection of the same type of OS objects, in the strict
+                       mathematical sense, i.e.:
+                       - a set contains zero or more OS objects (this means a set can be empty)
+                       - the OS objects in the set are unique (this means there cannot be duplicate OS objects in the set)
+ Spinlock              A spinlock is a locking mechanism where the Task waits in a loop (spins) repeatedly checking for a
+                       shared variable to become a certain value.
+                       The value indicates whether the lock is free or not. In Multi-Core systems the comparison and
+                       changing of the variable typically requires an atomic operation.
+                       As the Task remains active but is not doing anything useful, a spinlock is a busy waiting mechanism
+ Spinlock variable     A spinlock variable is a shared variable used by a spinlock to indicate whether a spinlock is free or
+                       occupied.
+ Symbol                Address label that can be imported/used by software modules and resolved by the linker. The
+                       precise syntax of the labels is linker-specific. Here, these address labels are used to identify the
+                       start and end of memory sections.
+                       Start symbol        Tags the start of a memory section
+                       End symbol          Tags the end of a memory section
+                                                           ▽
+
+                                                            △
+ Term                   Definition
+ Synchronization of     Synchronization with a synchronization Counter is achieved, if the expiry points of the Schedule
+ ScheduleTables with    Table are processed within an absolute deviation from the synchronization Counter that is smaller
+ a synchronization      than or equal to a precision threshold.
+....
+Counter
+....
+ Synchronization        The "Synchronization Counter", distinct from an OS Counter object, is an external Counter,
+ Counter                external to the OS, against which expiry points of a ScheduleTable are synchronized
+ Task                   A Task is the object which executes (user) code and which is managed by the OS. E.g. the OS
+                        switches between different Tasks (schedules). There are 2 types of Tasks; for more details see [2].
+                        Basic Task          A Task which cannot block by itself. This means that it cannot wait for (OS)
+                                            Event(s).
+                        Extended Task       A Task which can block by itself and wait for (OS) Event(s).
+ Time Frame             The minimum inter-arrival time for a Task/ISR.
+ Trustedfunction        A service provided by a trusted OS-Application that can be used by other OS-Applications (trusted
+                        or non-trusted).
+ Worst case execution   The longest possible execution time.
+....
+time (WCET)
+....
+ Write access           Storing a value in a register or memory location. All memory accesses that have the consequence
+                        of writing (e.g. reads that have the side effect of writing to a memory location) are treated as write
+                        accesses.
+                                        Table 2.2: Glossary of terms
+
+                          Figure 2.1: Definition of Timing Terminology
+....

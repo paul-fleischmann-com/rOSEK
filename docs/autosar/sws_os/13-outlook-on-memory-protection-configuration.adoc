@@ -1,0 +1,16 @@
+== 13 Outlook on Memory Protection Configuration
+
+As stated before, memory protection configuration is not standardized yet. Neverthe- less it seems helpful to contribute a recommendation in this chapter, how the configu- ration might work.
+
+=== 13.1 Configuration Approach
+
+Both, SW-Components and BSW modules, map code and variables to dedicated, dis- joined memory sections (see [12] Chapter 8 “Implementation” , and Specification of Memory Mapping [13]). This essential precondition (avoid an inseparable conglomeration of variables in the default section) can be used to support configuration of memory protection domains:
+....
+     • The generator can save for each OS-Application a (processor-specific) maximum
+       number of output sections for data in a file (to be used in the linker file).
+     • The generator can uniquely identify the address spaces of the data output sec-
+       tions with symbols using the naming convention (see memory allocation key-
+       words _STOP_SEC_VAR and _START_SEC_VAR for start and stop symbols) in
+       the specification mentioned above.
+....
+The input data sections in the object files of an OS-Application can then be assigned to the output sections (with potential tool support). Usually, this is one segment for global data, and one segment for code. To archieve portability, the user shall group all variables belonging to a private data section (Task/ISR or OS-Application) in separate files.

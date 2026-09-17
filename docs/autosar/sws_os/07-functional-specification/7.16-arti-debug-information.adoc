@@ -1,0 +1,35 @@
+== 7.16 ARTI Debug Information
+
+[[SWS_Os_00858]]
+....
+     Upstream requirements: SRS_Os_12001
+....
+⌈The OS shall create an ARTI module description file.⌋
+
+[[SWS_Os_00829]]
+....
+     Upstream requirements: SRS_Os_12003
+....
+⌈ARTI module description file shall support all ORTI containers.⌋
+
+The ARTI Debug Information intends to enable the attached tool to evaluate and display information about the operating system, its state, its performance, the different Task states, the different operating system objects etc.
+
+Additionally the ARTI Debug Information contains dynamic information as a set of at- tributes that are represented by formulas to access corresponding dynamic values. Formulas for dynamic data access are comprised of constants, operations, and sym- bolic names within the target file. To obtain internal values of the required OS objects, the debug tool can then evaluate the given formula.
+
+=== 7.16.1 OS ARTI Objects
+
+It describes a set of attributes for system objects and a method for interpreting the data obtained. The types defined in the section are specified to allow the debugger to determine the target memory access method as well as the best way of displaying the retrieved data. In most cases the information that the user will require to see is a textual description of an attribute rather than the actual value read from the variable. An example of this is as follows; when a user requests the current state of a Task he will expect to see something like RUNNING, WAITING, READY or SUSPENDED, instead of the actual numeric value that is used by the OS to represent this information inter- nally. For this reason a mapping is specified, which allows a kernel manufacturer to describe how an internal OS value must be mapped to a descriptive value.
+....
+    • ArtiOs
+    • ArtiHwCore
+    • ArtiOsAlarm
+    • ArtiOsContext
+    • ArtiOsIsr
+    • ArtiOsResource
+    • ArtiOsMessageContainer
+    • ArtiOsScheduleTable
+    • ArtiOsSpinlock
+    • ArtiOsStack
+    • ArtiOsTask
+....
+These objects are declared in Arti containers with definitions named "*Class". The instances of these objects are placed in the same Arti container with definitions named "*Instance".

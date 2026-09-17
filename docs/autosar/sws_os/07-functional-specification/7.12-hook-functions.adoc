@@ -1,0 +1,70 @@
+== 7.12 Hook Functions
+
+=== 7.12.1 Background & Rationale
+
+Hook routines as defined in OSEK OS run at the level of the Operating System module and therefore can only belong to the trusted environment. Furthermore, these hook routines are global to the system (system-specific) and will probably be supplied by the ECU integrator.
+....
+     6
+         see [SWS_Os_00764]
+     7
+         see [SWS_Os_00764]
+....
+In AUTOSAR however, each OS-Application may have the need to execute application specific code e.g. initialize some hardware in its own additional (application-specific) startup hook. These are called application specific hook routines. In general the appli- cation specific hooks have the same properties as the hook routines described in the OSEK OS specification. Differences are described below.
+
+=== 7.12.2 Requirements
+
+[[SWS_Os_00439]]
+Upstream requirements: SRS_Os_00097
+
+⌈The Operating System module shall provide the OSEK error macros (OSEr- ror...()) to all configured error hooks AND there shall be two (like in OIL) global configuration parameters to switch these macros on or off.⌋
+
+StartupHook
+
+[[SWS_Os_00060]]
+Upstream requirements: SRS_Os_11001
+
+⌈If an application-specific startup hook is configured for an OS-Application <App>, the Operating System module shall call StartupHook_<App> on startup of the Operating System module.⌋
+
+[[SWS_Os_00226]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall execute an application-specific startup hook with the access rights of the associated OS-Application.⌋
+
+[[SWS_Os_00236]]
+Upstream requirements: SRS_Os_11001
+
+⌈If both a system-specific and one (or more) application specific startup hook(s) are configured, the Operating System module shall call the system-specific startup hook before the application-specific startup hook(s).⌋
+
+ShutdownHook
+
+[[SWS_Os_00112]]
+Upstream requirements: SRS_Os_11001
+
+⌈If an application-specific shutdown hook is configured for an OS-Application <App>, the Operating System module shall call ShutdownHook_<App> on shutdown of the OS.⌋
+
+[[SWS_Os_00225]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall execute an application-specific shutdown hook with the access rights of the associated OS-Application.⌋
+
+[[SWS_Os_00237]]
+Upstream requirements: SRS_Os_11001
+
+⌈If both a system-specific and one (or more) application specific shutdown hook(s) are configured, the Operating System module shall call the system-specific shutdown hook after the application-specific shutdown hook(s).⌋
+
+ErrorHook
+
+[[SWS_Os_00246]]
+Upstream requirements: SRS_Os_11013
+
+⌈When an error occurs AND an application-specific error hook is configured for the faulty OS-Application <App>, the Operating System module shall call that application- specific error hook ErrorHook_<App> after the system specific error hook is called (if configured).⌋
+
+[[SWS_Os_00085]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall execute an application-specific error hook with the access rights of the associated OS-Application.⌋
+
+[[SWS_Os_00367]]
+Upstream requirements: SRS_Os_00097
+
+⌈Operating System module’s services which do not return a StatusType - except ActivateTaskAsyn and SetEventAsyn - shall not raise the error hook(s).⌋

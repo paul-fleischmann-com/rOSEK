@@ -1,0 +1,52 @@
+= AUTOSAR SWS_OS (Specification of Operating System)
+:toc:
+
+AUTOSAR-Release:: AUTOSAR CP R25-11
+Document ID:: 34
+Document-Datum:: 2025-11-27
+Quelle:: https://www.autosar.org/fileadmin/standards/R25-11/CP/AUTOSAR_CP_SWS_OS.pdf
+Heruntergeladen am:: 2026-09-17
+
+Diese Dateien sind eine Referenzkopie der öffentlichen AUTOSAR Classic-Platform-Spezifikation,
+gegliedert nach Kapiteln, als Grundlage für die Requirements-Ableitung in Issue #28. Sie dienen
+ausschließlich der internen Referenz beim Clean-Room-Entwurf von rOSEK, siehe PLAN.md.
+
+== Disclaimer (AUTOSAR)
+
+Disclaimer
+
+This work (specification and/or software implementation) and the material contained in it, as released by AUTOSAR, is for the purpose of information only. AUTOSAR and the companies that have contributed to it shall not be liable for any use of the work. The material contained in this work is protected by copyright and other types of intel- lectual property rights. The commercial exploitation of the material contained in this work requires a license to such intellectual property rights. This work may be utilized or reproduced without any modification, in any form or by any means, for informational purposes only. For any other purpose, no part of the work may be utilized or reproduced, in any form or by any means, without permission in writing from the publisher. The work has been developed for automotive applications only. It has neither been developed, nor tested for non-automotive applications. The word AUTOSAR and the AUTOSAR logo are registered trademarks.
+
+== Inhalt
+
+include::00-document-change-history.adoc[]
+
+include::01-introduction-and-functional-overview.adoc[]
+
+include::02-acronyms-and-abbreviations.adoc[]
+
+include::03-related-documentation.adoc[]
+
+include::04-constraints-and-assumptions.adoc[]
+
+include::05-dependencies-to-other-modules.adoc[]
+
+include::06-requirements-tracing.adoc[]
+
+include::07-functional-specification.adoc[]
+
+include::08-api-specification.adoc[]
+
+include::09-sequence-diagrams.adoc[]
+
+include::10-configuration-specification.adoc[]
+
+include::11-generation-of-the-os.adoc[]
+
+include::12-application-notes.adoc[]
+
+include::13-outlook-on-memory-protection-configuration.adoc[]
+
+include::appendix-a-not-applicable-requirements.adoc[]
+
+include::appendix-b-history-of-constraints-and-specification-items.adoc[]

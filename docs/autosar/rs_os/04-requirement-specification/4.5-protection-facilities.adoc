@@ -1,0 +1,173 @@
+== 4.5 Protection Facilities
+
+=== 4.5.1 Functional Overview
+
+The AUTOSAR concept requires multiply-sourced OS-Applications to co-exist on the same processor. To prevent unexpected interaction between these OS-Applications it is necessary to provide mechanisms that protect them from one another. There are two major use-cases:
+....
+     1. For a safety-critical system, the development of a safety-case is made much
+        easier if individual OS-Application safety cases can be integrated into an over-
+        all safety case. This is only feasible if it can be demonstrated that at least a fault
+        in one OS-Application cannot propagate beyond its own boundary and cause a
+        fault in another, unrelated, OS-Application.
+     2. Suppliers can only be expected to take responsibility (and some liability) for their
+        software components and/or basic software modules if they can be assured that
+        their software cannot be incorrectly blamed for a processor-wide failure.
+....
+Both of these use-cases can be satisfied by the addition of protection mechanisms to OSEK OS [3]. The following sections outline the areas of protection.
+
+=== 4.5.2 Memory Protection requirements
+
+[[SRS_Os_11005]]
+The operating system shall prevent an OS-Application from modifying the memory of other OS-Applications Upstream requirements: RS_SAF_31201
+
+⌈
+....
+                     The operating system shall provide the ability of partitioning OS-Applications
+    Description:     with respect to memory and prevent an OS-Application from modifying the
+                     memory of other OS-Applications.
+                                                 ▽
+
+                                                 △
+                    Where multiple OS-Applications (of different software integrity) are resident on
+                    the same processor, their memory will be globally writable by any code. This
+                    means that the data of one OS-Application could be corrupted by another
+                    unrelated OS-Application (i.e. there is fault propagation between
+                    OS-Applications). For example a task of an OS-Application may overflow its
+    Rationale:      stack, causing static data of an unrelated OS-Application to be corrupted,
+                    causing it to fail.
+                    To permit reasoning about adequate independence between the functions of
+                    different integrity levels, it is essential that this is prevented at runtime.
+                    Note that [SRS_Os_11003] is different: It only detects fault rather than
+                    preventing a memory access error from generating a fault.
+    Use Case:       –
+                    Note that satisfying this requirement implies the satisfaction of the stack
+                    monitoring requirement as a stack overflow cannot occur if the stack is
+    Dependencies:
+                    bounded by memory write access control.
+                    The write access protection needs appropriate hardware support.
+    Supporting
+    Material:
+....
+⌋
+
+[[SRS_Os_11006]]
+The operating system shall allow tasks and ISRs within an OS- Application to exchange data ⌈ The operating system shall allow tasks and ISRs within an OS-Application to Description: exchange data using direct access to shared memory. It is common to exchange data using shared memory for performance reasons at runtime (e.g. using global variables). However, in AUTOSAR multiple OS-Applications will share a processor and therefore any data communication that happens through shared memory breaks the memory protection scheme. Rationale: Therefore, it is necessary to provide OS-Applications with the ability to share data using memory which is globally accessible to tasks and ISRs within the application but which is not accessible to other OS-Applications i.e. shared memory local to scope of an OS-Application. An OS-Application implements communication and uses an ISR to handle the Use Case:       reception of CAN frames from the vehicle network but uses a task to process the contents of the CAN frame to reduce ISR level blocking. Dependencies:   – Supporting      [DOC_WP112_REQ], see [4] Material:
+
+⌋
+
+[[SRS_Os_11007]]
+The operating system shall allow OS-Applications to execute shared code ⌈ Description:    The operating system shall allow OS-Applications to execute shared code. If code cannot be shared then any piece of software that is common to a number of software components/basic software modules will have to be included multiple times in a software build. This has two implications: Rationale:      1. a large increase in code space 2. a problem is introduced for software maintenance as a modification to logically shared code will have to be made to every instance of the code in a build of an ECU (a single change has become multiple changes) Use Case:       Using shared libraries. Dependencies:   – Supporting Material:
+
+⌋
+
+[[SRS_Os_11000]]
+The OS may offer support to protect the memory sections of an OS-Application against read accesses by all other OS-Applications ⌈ The OS may offer support to protect the memory sections of an OS-Application Description: against read accesses by all other OS-Applications. If a task/ISR can read from any memory then it may operate on incorrect data. This could result in failures at runtime. Preventing read accesses provides a way of trapping such faults as soon as they occur. Rationale: A secondary issue is security. While it is not anticipated that there are any security implications between OS-Applications on the same processor, read accesses does provide protection if required Use Case:       Security: protect secret keys; Debugging support Dependencies:   – Supporting      – Material:
+
+⌋
+
+=== 4.5.3 Timing Protection requirements
+
+[[SRS_Os_11008]]
+Timing Fault Detection and Prevention of Propagation Upstream requirements: RS_SAF_31202
+
+⌈
+....
+                    The OS shall provide a mechanism to detect timing faults in OS-Applications
+                    and prevent propagation to a different OS-Application resident on the same
+                    processor to ensure freedom from interference.
+    Description:    Additional information: A timing fault is defined as:
+                     • exceeding a specified execution time
+                     • exceeding a specified arrival rate
+                    When these parameters are specified for every task/Category 2 ISR in the
+                    system it is possible to determine whether or not each task/ Category 2 ISR
+                    always meets its deadline.
+                    Timing correctness on an ECU running any fixed-priority pre-emptive OS,
+                    including OSEK OS [3], can only be guaranteed using schedulability analysis.
+                    This uses information about the tasks and interrupts (how often they run, how
+                    long they run for, which resources they access, how long they hold them for)
+                    and then calculates that the system will meet its real-time performance
+                    deadlines.
+                    The scope of timing protection is to ensure that an AUTOSAR system that has
+                    been shown to meet its deadlines does not violate the model used for analysis
+    Rationale:      at runtime due to failures in the functional behavior of applications (or their
+                    constituent parts).
+                    Strict enforcement of the assumptions of the real-time performance analysis
+                    means two important things:
+                    1. A timing fault is detected early, and hence can be picked up earlier in the
+                       software life cycle. For example, a faulty software component from a supplier
+                       can be rejected prior to full integration test. The costs of remedying a fault
+                       are therefore reduced.
+                    2. A timing fault is not propagated. By detecting the fault as it occurs the effects
+                       of the fault are confined to the OS-Application where the fault occurred. Thus
+                       the problems of real-time failures induced in the wrong sub-system (or even
+                       the wrong ECU in a network) are eliminated.
+                    An object in one OS-Application executing for too long, causes an object in
+    Use Case:
+                    another OS-Application to miss its deadline as a result.
+    Dependencies:   –
+    Supporting      –
+    Material:
+....
+⌋
+
+[[SRS_Os_13000]]
+Deferrable Server ⌈ When a task exhausts its execution budget, then the OS shall provide an additional possible error reaction consisting in quietly de-scheduling the task Description:    and placing it in a state where it cannot be scheduled until its budget is replenished again. Additional information: This approach is also known as "Deferrable Server". ▽
+
+....
+                                                  △
+                    Applying the usual destructive error reactions such as terminating the task or
+    Rationale:      shutting down the entire OS may have an unwanted impact on overall system
+                    behaviour.
+    Use Case:       Retain high system availability with soft real time aperiodic requests.
+    Dependencies:   –
+    Supporting      See [5], [6], [7].
+    Material:
+....
+⌋
+
+=== 4.5.4 Service Protection requirements
+
+The OS must preserve both its own integrity and the integrity of the OS-Applications that it schedules at runtime.
+
+[[SRS_Os_11009]]
+The operating system shall prevent the corruption of the OS by any call of a system service ⌈ The operating system shall prevent the corruption of the OS by any call of a Description: system service. If it was possible to place the OS into an unknown state, or corrupt OS data structures at runtime then this would damage every OS-Application resident on the same processor. This means that either: • every OS service call must have defined behavior in all cases; or Rationale: • the OS must not allow service calls to be made from contexts that would potentially result in the OS being placed into an undefined state.
+
+....
+                    This increases the integrity of the OS itself.
+    Use Case:       Avoid undefined behavior from e.g. calling services from wrong context.
+                    In case the current specification of OSEK OS allows configurations which do
+    Dependencies:   not protect the OS the AUTOSAR configuration has to make sure that these
+                    configurations can not be selected.
+    Supporting      –
+    Material:
+....
+⌋
+
+[[SRS_Os_11010]]
+The operating system shall prevent an OS-Application modify- ing OS objects that are not owned by that OS-Application ⌈ The operating system shall prevent an OS-Application modifying OS objects Description: that are not owned by that OS-Application. An OS-Application could manipulate objects in another OS-Application that cause it to behave outside the scope of its design at runtime. Protecting the integrity of OS-Applications means that one OS-Application cannot manipulate an object owned by another OS-Application, for example through OS service Rationale: calls, causing potential failure in another OS-Application, unless access to the object expressly granted at configuration time. This increases the ability to trace faults arising from OS-Application coupling by restricting the possible sources of the fault. Use Case:       Canceling an alarm that activates a task in another OS-Application In the case where the current specification of OSEK OS allows configurations Dependencies:   which do not protect OS-Applications, the AUTOSAR configuration has to make sure that these configurations can not be selected. Supporting      – Material:
+
+⌋
+
+[[SRS_Os_11011]]
+The OS shall protect itself against OS-Applications attempting to modify control registers directly which are managed by the OS ⌈ The OS shall protect itself against OS-Applications attempting to modify control Description: registers directly which are managed by the OS. The OS must be protected against OS-Applications attempting (directly or indirectly) to circumvent the protection mechanisms. Typically this means that Rationale:      OS-Applications should be prevented from accessing the MCU status registers and memory protection registers that might be in use. OS uses the processor status word for managing interrupts and the register is Use Case:       written by a rogue OS-Application at runtime, corrupting the internal data structures of the OS. The target hardware must support privileged/non-privileged modes and a MPU Dependencies:   for this protection to be possible. This feature will therefore not be available on those targets that do not provide sufficient hardware support. Supporting      – Material:
+
+⌋
+
+[[SRS_Os_11012]]
+The OS shall provide scalability for its protection features ⌈ Description:    The OS shall provide scalability for its protection features. Take full advantage of the processor’s hardware features: The key protection features may not be available on all hardware (e.g. some types of memory protection are not possible when the processor has no MPU), but this should not prevent users for using the other protection features that can be supported. Rationale: Customize to specific user’s needs: Protection may only be necessary around some applications (ones where we cannot be sure of their run-time behavior) and protection can be applied selectively based on assessment of the risk of failure. Implementing an AUTOSAR compliant OS on a microcontroller without hardware memory protection. Where an ECU is engineered using a process that can statically guarantee that no protection violations will occur at runtime it does not need to dedicate Use Case:       resources to check for violations. For example, if worst-case execution times are statically analyzed then timing protection is not needed at runtime. Furthermore, because the analysis shows that the conditions that trigger execution of the code will never occur, the code is "dead code" and should be removed because of the potential safety risk it brings. Dependencies:   – Supporting      – Material:
+
+⌋
+
+=== 4.5.5 Protection Errors
+
+The OS must be able to identify when an error that violates the protection schemes has occurred and must also provide facilities through which action can be taken to correct the fault. However, it is not the task of the OS to define the error handling scheme.
+
+[[SRS_Os_11013]]
+The OS shall be capable of notifying the occurrence of a pro- tection error at runtime ⌈ The OS shall be capable of notifying the occurrence of a protection error at runtime. Description:    A protection error is any memory access violation, timing fault, unauthorized call to OS service or software trap (for example division by zero, illegal instruction). If protection errors are notified at runtime this provides scope to potentially Rationale:      correct or handle the error according to a predefined fault handling strategy. The application needs to provide some kind of runtime fault tolerance that Use Case:       needs to take action on the type and/or number of errors that occur to improve availability at runtime. Dependencies:   – Supporting      – Material:
+
+⌋
+
+[[SRS_Os_11014]]
+In case of a protection error, the OS shall provide an error reac- tion on OS-, OS-Application and task/ISR-level ⌈ In case of a protection error, the OS shall provide an error reaction on OS-, Description: OS-Application and task/ISR-level. The user shall be able to select the action. The action taken on the occurrence of an error is a function of the failure modes of the system as a whole. For example, in some cases it will be appropriate to Rationale:      simply terminate the faulty task, in others this may pose more of a risk to safety than allowing it to continue to execute. Therefore, the decision which action is appropriate is up to the application. Use Case:       – Dependencies:   – Supporting      – Material:
+
+⌋

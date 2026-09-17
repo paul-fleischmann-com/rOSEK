@@ -1,0 +1,30 @@
+== 4.9 General Multi-Core issues
+
+=== 4.9.1 Overview
+
+The requirements in this section are very general. They define the spirit of the Multi- Core (MC) capability that will be supported by the AUTOSAR environment. From an architectural point of view, Multi-Core hardware can be managed in various different ways. On the one extreme, cores might be understood as almost separate ECU, on the other extreme, they can be presented to the user almost like a Single-Core (SC) system with the capability of true parallelism. In automotive systems the requirements on the MC support is very domain specific. Efficient scheduling, low resource consumption and short response time are essential. The requirements are designed in a way that the introduction of Multi-Core does not change the overall AUTOSAR philosophy. The MC concept allows to handle several cores almost like a SC system, but gives freedom to use cores outside this concept, e.g. as a dedicated I/O controller.
+
+=== 4.9.2 Functional Requirements
+
+[[SRS_Os_80001]]
+The OS shall be able to manage multiple closely coupled CPU Cores ⌈ The OS shall be able to manage multiple closely coupled CPU Cores. Description: That does not imply that all cores on a µC are controlled by the OS. Reasons to provide a solution with one OS that controls multiple cores are: • Enables efficient parallelization of functions. Rationale:       • Upward and downward scalability in number of cores. • Allows the restriction of the AUTOSAR Multi-Core extensions to a subset of available cores to run other OS instances on uncontrolled cores. • Applications (e.g. signal processing applications) with the need to achieve high performance computing via algorithm parallelization. • Multi core systems with common BSW. • Applications that grow beyond the boundary of the given number of cores Use Case:          (e.g. one) can easily utilize a higher number of cores (upward scalability). • Applications designed for multiple cores can be stripped down (e.g. for low cost systems) to fewer (e.g. one) cores (downward scalability). • Migration of engine control systems to Multi-Core. • Integration of formerly separated applications into one Multi-Core ECU. Dependencies:   [SRS_Os_80008] Supporting Material:
+
+⌋
+
+[[SRS_Os_80003]]
+The multi core extension shall provide the same degree of pre- dictability as the single core ⌈ The multi core extension shall provide the same degree of predictability as the Description:    single core. This covers deadlock free execution and freedom from unbounded blocking. Real-time capability is a key requirement of the automotive domain. The existing SC solution is designed in a way that their usage cannot cause Rationale: unbounded blocking and guarantees deadlock free execution. The MC solution shall behave in a similar manner. Use Case:       – Dependencies:   [SRS_Os_80005] Supporting      – Material:
+
+⌋
+
+=== 4.9.3 Additional description of the term "One AUTOSAR system controlling
+
+....
+           multiple cores"
+....
+When talking about an AUTOSAR system that is controlling multiple cores as in
+[[SRS_Os_80001]]
+several implications are made: • The system shall be aware of the existence of multiple cores. • The system shall be responsible for the scheduling of tasks on multiple cores. • Parts of the system code shall be able to run concurrently (e.g. by using reentrant code). • All BSW IDs (e.g. IDs of tasks, events, alarms, ...) shall be unique across cores. • It shall be allowed to access shared objects (e.g. data, peripheral units, ...) from any core, unless restricted by protection mechanisms.
+
+=== 4.9.4 Additional description of the term "unbounded blocking"
+
+Blocking is a situation where a high priority runtime object can not execute because a low priority runtime object prevents this (e.g. by occupying a needed resource). Unintentional blocking might be caused by priority inversion. The term unbounded blocking means that the potential blocking duration is not limited and therefore the required real-time behaviour cannot be guaranteed.

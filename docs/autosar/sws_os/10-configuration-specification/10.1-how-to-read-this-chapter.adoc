@@ -1,0 +1,11 @@
+== 10.1 How to read this chapter
+
+For details refer to [4] Chapter 10.1 “Introduction to configuration specification” .
+
+=== 10.1.1 Rules for paramters
+
+Some configuration parameters are configured as floating point values and sometimes these values must be rounded in order to be used. The following rules define the rounding of specific parameters:
+....
+     • Execution times (for the timing protection) are "round down"
+     • Timeframes are "round down"
+....

@@ -1,0 +1,125 @@
+== B History of Constraints and Specification Items
+
+=== B.1 Differences between R24-11 and R25-11
+
+==== B.1.1 Added Specification Items in R25-11
+
+[[ECUC_Arti_00225]]
+[ECUC_Os_00411] [ECUC_Os_00412] [ECUC_Os_00413]
+[[ECUC_Os_00414]]
+[ECUC_Os_00415] [ECUC_Os_00416] [SWS_Os_00864]
+[[SWS_Os_00865]]
+[SWS_Os_00866] [SWS_Os_00867] [SWS_Os_00868] [SWS_ Os_00869] [SWS_Os_00870] [SWS_Os_00871] [SWS_Os_00872] [SWS_Os_00873]
+[[SWS_Os_00874]]
+[SWS_Os_00875] [SWS_Os_00876] [SWS_Os_00877] [SWS_ Os_00878] [SWS_Os_00879] [SWS_Os_00880] [SWS_Os_00881] [SWS_Os_91035]
+
+[[SWS_Os_91036]]
+
+==== B.1.2 Changed Specification Items in R25-11
+
+[[ECUC_Arti_00055]]
+[ECUC_Arti_00059] [ECUC_Arti_00063] [ECUC_Arti_00090]
+[[ECUC_Arti_00091]]
+[ECUC_Os_00006] [ECUC_Os_00143] [ECUC_Os_00325]
+[[ECUC_Os_01017]]
+[SWS_Os_00064] [SWS_Os_00407] [SWS_Os_00440] [SWS_ Os_00473] [SWS_Os_00786] [SWS_Os_00788] [SWS_Os_00836] [SWS_Os_00840]
+
+[[SWS_Os_91028]]
+
+==== B.1.3 Deleted Specification Items in R25-11
+
+[[ECUC_Arti_00092]]
+[SWS_Os_00560] [SWS_Os_00769] [SWS_Os_00770] [SWS_- Os_00771] [SWS_Os_00793] [SWS_Os_00794] [SWS_Os_00802] [SWS_Os_- 91027]
+
+==== B.1.4 Added Constraints in R25-11
+
+none
+
+==== B.1.5 Changed Constraints in R25-11
+
+none
+
+==== B.1.6 Deleted Constraints in R25-11
+
+none
+
+=== B.2 Differences between R23-11 and R24-11
+
+==== B.2.1 Added Specification Items in R24-11
+
+[[ECUC_Arti_00182]]
+[ECUC_Arti_00183] [ECUC_Arti_00184]          [ECUC_Arti_00185]
+[[ECUC_Arti_00186]]
+[ECUC_Arti_00187] [ECUC_Arti_00188]          [ECUC_Arti_00189]
+[[ECUC_Arti_00190]]
+[ECUC_Arti_00191] [ECUC_Arti_00192]          [ECUC_Arti_00193]
+[[ECUC_Arti_00194]]
+[ECUC_Arti_00195] [ECUC_Arti_00196]          [ECUC_Arti_00197]
+[[ECUC_Arti_00198]]
+[ECUC_Arti_00199] [ECUC_Arti_00200]          [ECUC_Arti_00201]
+[[ECUC_Arti_00202]]
+[ECUC_Arti_00203] [ECUC_Arti_00204]          [ECUC_Arti_00211]
+[[ECUC_Arti_00212]]
+[ECUC_Arti_00213] [ECUC_Arti_00214]          [ECUC_Arti_00224]
+[[ECUC_Os_00410]]
+[SWS_Os_00863] [SWS_Os_91028]
+
+==== B.2.2 Changed Specification Items in R24-11
+
+[[ECUC_Arti_00071]]
+[ECUC_Arti_00086] [ECUC_Arti_00090] [ECUC_Os_00044]
+[[ECUC_Os_00114]]
+[SWS_Os_00106] [SWS_Os_00244] [SWS_Os_00258] [SWS_- Os_00287] [SWS_Os_00364] [SWS_Os_00467] [SWS_Os_00502] [SWS_Os_00506]
+[[SWS_Os_00538]]
+[SWS_Os_00563] [SWS_Os_00773] [SWS_Os_00784] [SWS_- Os_00787] [SWS_Os_00788] [SWS_Os_91026]
+
+==== B.2.3 Deleted Specification Items in R24-11
+
+[[ECUC_Os_00120]]
+[SWS_Os_00111] [SWS_Os_00365] [SWS_Os_00459] [SWS_- Os_00497] [SWS_Os_00498] [SWS_Os_00501] [SWS_Os_00503] [SWS_Os_00508]
+[[SWS_Os_00547]]
+[SWS_Os_00548] [SWS_Os_00555] [SWS_Os_00557] [SWS_- Os_00564] [SWS_Os_91029]
+
+==== B.2.4 Added Constraints in R24-11
+
+none
+
+==== B.2.5 Changed Constraints in R24-11
+
+none
+
+==== B.2.6 Deleted Constraints in R24-11
+
+none
+
+=== B.3 Differences between R22-11 and R23-11
+
+==== B.3.1 Added Specification Items in R23-11
+
+[[SWS_Os_00859]]
+[SWS_Os_00860] [SWS_Os_00861] [SWS_Os_00862] [SWS_- Os_91034]
+
+==== B.3.2 Changed Specification Items in R23-11
+
+[[SWS_Os_00261]]
+[SWS_Os_00287] [SWS_Os_00548] [SWS_Os_00566] [SWS_- Os_00573] [SWS_Os_00675] [SWS_Os_00798] [SWS_Os_00820] [SWS_Os_00822]
+[[SWS_Os_00826]]
+[SWS_Os_91025]
+
+==== B.3.3 Deleted Specification Items in R23-11
+
+[[SWS_Os_00821]]
+[SWS_Os_00823]
+
+==== B.3.4 Added Constraints in R23-11
+
+[[SWS_Os_CONSTR_00001]]
+[SWS_Os_CONSTR_00002]
+
+==== B.3.5 Changed Constraints in R23-11
+
+none
+
+==== B.3.6 Deleted Constraints in R23-11
+
+none

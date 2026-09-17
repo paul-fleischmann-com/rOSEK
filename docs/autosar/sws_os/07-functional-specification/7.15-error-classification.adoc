@@ -1,0 +1,40 @@
+== 7.15 Error classification
+
+AUTOSAR BSW modules normally report their errors to Det (development errors) or Dem (production errors). The OS handles errors differently (see also [2]) and does not report its errors to Dem/Det. If a reporting of errors to Dem/Det is needed the user can perform these actions in the ErrorHook. The following table contains all error codes which might be reported from the OS (be- sides those already defined in [2])
+
+[[SWS_Os_91025]]
+Definition of development errors in module Os Upstream requirements: SRS_BSW_00480
+
+⌈
+....
+    Type of error                                        Related error code                       Error value
+    An invalid address is given as a parameter to a      E_OS_ILLEGAL_ADDRESS                     Assigned by
+    service.                                                                                      implementation
+    A memory access violation occurred                   E_OS_PROTECTION_MEMORY                   Assigned by
+                                                                                                  implementation
+    A stack fault detected via stack monitoring by the   E_OS_STACKFAULT                          Assigned by
+    OS                                                                                            implementation
+    Core is not available                                E_OS_CORE                                Assigned by
+                                                                                                  implementation
+    Potential deadlock due to wrong nesting              E_OS_NESTING_DEADLOCK                    Assigned by
+                                                                                                  implementation
+    Tasks terminates without a TerminateTask() or        E_OS_MISSINGEND                          Assigned by
+    ChainTask() call.                                                                             implementation
+    A Task/Category 2 ISR blocks for too long            E_OS_PROTECTION_LOCKED                   Assigned by
+                                                                                                  implementation
+    De-scheduling with occupied spinlock                 E_OS_SPINLOCK                            Assigned by
+                                                                                                  implementation
+    Service cannot be called.                            E_OS_SERVICEID                           Assigned by
+                                                                                                  implementation
+    A trap occurred                                      E_OS_PROTECTION_EXCEPTION                Assigned by
+                                                                                                  implementation
+    Deadlock situation due to interference               E_OS_INTERFERENCE_DEADLOCK               Assigned by
+                                                                                                  implementation
+    A Task or Category 2 ISR exceeds its execution       E_OS_PROTECTION_TIME                     Assigned by
+    time budget                                                                                   implementation
+    A service of the OS is called inside an interrupt    E_OS_DISABLEDINT                         Assigned by
+    disable/enable pair.                                                                          implementation
+    A Task/Category 2 ISR arrives before its             E_OS_PROTECTION_ARRIVAL                  Assigned by
+    timeframe has expired                                                                         implementation
+....
+⌋

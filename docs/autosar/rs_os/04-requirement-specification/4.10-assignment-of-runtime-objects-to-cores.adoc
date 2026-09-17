@@ -1,0 +1,29 @@
+== 4.10 Assignment of runtime objects to cores
+
+=== 4.10.1 Overview
+
+One major question when defining a Multi-Core system is whether runtime objects (tasks and ISR) can change between cores dynamically or not. The ability to dynamically assign runtime objects to different cores would have a mas- sive impact on all efficiency aspects (code size / data size / speed / response time / real time capability) of a system. It is conceivable to bind OsApplications to cores or to define the core binding on the level of TASKS and ISRs. To minimize the impact and complexity of the Multi-Core support within AUTOSAR it was decided to define the core binding the level of Os Applications. This section defines requirements, that state core binding as the way to handle runtime objects within a MC AUTOSAR environment.
+
+=== 4.10.2 Requirements
+
+[[SRS_Os_80005]]
+OsApplications and as a result TASKS and OsISRs shall be assigned statically to cores ⌈
+
+....
+    Description:    OsApplications and as a result TASKS and OsISRs shall be assigned statically
+                    to cores.
+                     • If TASKS or OsISRs can change the core during runtime, the real-time
+                       capability might be violated.
+                       • If tasks of a single OsApplication can be bound to different cores the
+                         shutdown of an OsApplication becomes hard. Valid mechanisms would be
+    Rationale:           required.
+                       • To fulfill requirement [BSW00009] and [BSW00010] it shall be possible to
+                         access EVENTS and TASKS of different OsApplications.
+                       • In case of Multi-Core OSApplications shall be used irrespective of the
+                         scalability class. (see AUTOSAR_SWS_OS).
+    Use Case:       –
+    Dependencies:   OS specification; [SRS_Os_80003], [SRS_Os_80015], [SRS_Os_80016]
+    Supporting      AUTOSAR_SWS_OS
+    Material:
+....
+⌋

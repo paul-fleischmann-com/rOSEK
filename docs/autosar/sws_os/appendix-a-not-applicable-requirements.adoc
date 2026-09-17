@@ -1,0 +1,24 @@
+== A Not applicable requirements
+
+[[SWS_Os_NA_00767]]
+Upstream requirements: SRS_BSW_00344, SRS_BSW_00404, SRS_BSW_00405, SRS_BSW_
+....
+                         00170, SRS_BSW_00419, SRS_BSW_00383, SRS_BSW_00384,
+                         SRS_BSW_00375, SRS_BSW_00406, SRS_BSW_00168, SRS_BSW_
+                         00407, SRS_BSW_00423, SRS_BSW_00337, SRS_BSW_00369,
+                         SRS_BSW_00339, SRS_BSW_00422, SRS_BSW_00417, SRS_BSW_
+                         00409, SRS_BSW_00385, SRS_BSW_00386, SRS_BSW_00437,
+                         SRS_BSW_00388, SRS_BSW_00389, SRS_BSW_00390, SRS_BSW_
+                         00392, SRS_BSW_00393, SRS_BSW_00395, SRS_BSW_00396,
+                         SRS_BSW_00399, SRS_BSW_00403, SRS_BSW_00416, SRS_BSW_
+                         00425, SRS_BSW_00432, SRS_BSW_00452, SRS_BSW_00458,
+                         SRS_BSW_00461, SRS_BSW_00466, SRS_BSW_00469, SRS_BSW_
+                         00470, SRS_BSW_00471, SRS_BSW_00472, SRS_BSW_00478,
+                         SRS_BSW_00490, SRS_BSW_00491, SRS_BSW_00492, RS_Arti_
+                         00008, RS_Arti_00025, RS_Arti_00039, RS_Arti_00040, RS_Arti_
+                         00041, RS_Arti_00042, RS_Arti_04085, RS_Arti_04086, RS_Arti_
+                         04087, RS_Arti_04089, RS_Arti_04090, RS_Arti_04101, RS_Arti_
+                         04143, RS_Arti_04145, RS_Arti_00038, RS_Arti_00028, RS_Arti_
+                         00035, RS_Arti_00036, RS_Arti_00037
+....
+⌈These requirements are not applicable to this specification.⌋

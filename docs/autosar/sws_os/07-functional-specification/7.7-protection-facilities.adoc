@@ -1,0 +1,692 @@
+== 7.7 Protection Facilities
+
+Protection is only possible for Operating System managed objects. This means that:
+....
+    • It is not possible to provide protection during runtime of Category 1 ISRs, be-
+      cause the operating system is not aware of any Category 1 ISRs being invoked.
+      Therefore, if any protection is required, Category 1 ISRs have to be avoided. If
+      Category 1 interrupts AND OS-Applications are used together then all Category
+      1 ISR must belong to a trusted OS-Application.
+    • It is not possible to provide protection between functions called from the body of
+      the same Task/Category 2 ISR.
+....
+
+=== 7.7.1 Memory Protection
+
+==== 7.7.1.1 Background & Rationale
+
+Memory protection will only be possible on processors that provide hardware support for memory protection. The memory protection scheme is based on the (data, code and stack) sections of the executable program. Stack: An OS-Application comprises a number of Tasks and ISRs. The stack for these objects, by definition, belongs only to the owner object and there is therefore no need to share stack data between objects, even if those objects belong to the same OS-Application. Memory protection for the stacks of Tasks and ISRs is useful mainly for two reasons: 1. Provide a more immediate detection of stack overflow and underflow for the Task
+....
+     or ISR than can be achieved with stack monitoring
+....
+2. Provide protection between constituent parts of and OS-Application, for example
+....
+     to satisfy some safety constraints.
+....
+Data: OS-Applications can have private data sections and Tasks/ISRs can have pri- vate data sections. OS-Application’s private data sections are shared by all Tasks/ ISRs belonging to that OS-Application. Code: Code sections are either private to an OS-Application or can be shared between all OS-Applications (to use shared libraries). In the case where code protection is not used, executing incorrect code will eventually result in a memory, timing or service violation.
+
+==== 7.7.1.2 Requirements
+
+Data Sections and Stack
+
+[[SWS_Os_00198]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall prevent write access to its own data sections and its own stack from non-trusted OS-Applications.⌋
+
+[[SWS_Os_00795]]
+Upstream requirements: SRS_Os_11005
+
+⌈The OS shall offer the possibility to restrict write access of trusted OS-Applications in the same way as it is done for non-trusted OS-Applications.⌋
+
+This can be configured with the OsTrustedApplicationWithProtection. Private data of an OS-Application
+
+[[SWS_Os_00026]]
+Upstream requirements: SRS_Os_11000
+
+⌈The Operating System module may prevent read access to an OS-Application’s data section attempted by other non-trusted OS-Applications.⌋
+
+[[SWS_Os_00086]]
+Upstream requirements: SRS_Os_11006
+
+⌈The Operating System module shall permit an OS-Application read and write access to that OS-Application’s own private data sections.⌋
+
+[[SWS_Os_00207]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module shall prevent write access to the OS-Application’s pri- vate data sections from other non-trusted OS-Applications.⌋
+
+Private Stack of Task/ISR
+
+[[SWS_Os_00196]]
+Upstream requirements: SRS_Os_11006
+
+⌈The Operating System module shall permit a Task/Category 2 ISR read and write access to that Task’s/Category 2 ISR’s own private stack.⌋
+
+[[SWS_Os_00208]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module may prevent write access to the private stack of Tasks/ Category 2 ISRs of a non-trusted application from all other Tasks/ISRs in the same OS-Application.⌋
+
+[[SWS_Os_00355]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module shall prevent write access to all private stacks of Tasks/Category 2 ISRs of an OS-Application from other non-trusted OS- Applications.⌋
+
+Private data of a Task/ISR
+
+[[SWS_Os_00087]]
+Upstream requirements: SRS_Os_11006
+
+⌈The Operating System module shall permit a Task/Category 2 ISR read and write access to that Task’s/Category 2 ISR’s own private data sections.⌋
+
+[[SWS_Os_00195]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module may prevent write access to the private data sections of a Task/Category 2 ISR of a non-trusted application from all other Tasks/ISRs in the same OS-Application.⌋
+
+[[SWS_Os_00356]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module shall prevent write access to all private data sections of a Task/Category 2 ISR of an OS-Application from other non-trusted OS-Applications.⌋
+
+Code Sections
+
+[[SWS_Os_00027]]
+Upstream requirements: SRS_Os_11000
+
+⌈The Operating System module may provide an OS-Application the ability to protect its code sections against executing by non-trusted OS-Applications.⌋
+
+[[SWS_Os_00081]]
+Upstream requirements: SRS_Os_11007
+
+⌈The Operating System module shall provide the ability to provide shared library code in sections that are executable by all OS-Applications.⌋
+
+Peripherals
+
+[[SWS_Os_00209]]
+Upstream requirements: SRS_Os_11001
+
+⌈If OsTrustedApplicationWithProtection == FALSE then the Operating Sys- tem module shall permit trusted OS-Applications read and write access to peripher- als.⌋
+
+[[SWS_Os_00083]]
+Upstream requirements: SRS_Os_11005
+
+⌈The Operating System module shall allow non-trusted OS-Applications to write to their assigned peripherals only (incl. reads that have the side effect of writing to a memory location).⌋
+
+Memory Access Violation
+
+[[SWS_Os_00044]]
+Upstream requirements: SRS_Os_11013
+
+⌈If a memory access violation is detected, the Operating System module shall call the ProtectionHook with status code E_OS_PROTECTION_MEMORY.⌋
+
+=== 7.7.2 Timing Protection
+
+==== 7.7.2.1 Background & Rationale
+
+A timing fault in a real-time system occurs when a Task or interrupt misses its deadline at runtime. AUTOSAR OS does not offer deadline monitoring for timing protection. Deadline mon- itoring is insufficient to correctly identify the Task/ISR causing a timing fault in an AUTOSAR system. When a deadline is violated this may be due to a timing fault in- troduced by an unrelated Task/ISR that interferes/blocks for too long. The fault in this case lies with the unrelated Task/ISR and this will propagate through the system until a Task/ISR misses its deadline. The Task/ISR that misses a deadline is therefore not necessarily the Task/ISR that has failed at runtime, it is simply the earliest point that a timing fault is detected. If action is taken based on a missed deadline identified with deadline monitoring this would potentially use false evidence of error to terminate a correct OS-Application in
+
+favor of allowing an incorrect OS-Application to continue running. The problem is best illustrated by example. Consider a system with the following configuration:
+....
+ TaskID       Priority     Execution Time   Deadline
+                                            (=Period)
+ A            High         1                5
+ B            Medium       3                10
+ C            Low          5                15
+....
+Assuming that all Tasks are ready to run at time zero, the following execution trace would be expected and all Tasks would meet their respective deadlines.
+
+....
+                         Figure 7.11: Example execution trace
+....
+Now consider the case when Tasks A and B behave incorrectly. The figure below shows both Task A and Task B executing for longer than specified and Task B arriving 2 ticks earlier than specified. Both Tasks A and B meet their deadlines. Task C however, behaves correctly but it fails to meet its deadline because of the incorrect execution of Tasks A and B. This is fault propagation - a fault in an unrelated part of the system is causing a correctly functioning part of the system to fail.
+
+....
+                   Figure 7.12: Insufficiency of Deadline Monitoring
+....
+Whether a Task or ISR meets its deadline in a fixed priority preemptive operating system like AUTOSAR OS is determined by the following factors:
+....
+    • the execution time of Task/ISRs in the system
+    • the blocking time that Task/ISRs suffers from lower priority Tasks/ISRs locking
+      shared resources or disabling interrupts
+    • the interarrival rate of Task/ISRs in the system
+....
+For safe and accurate timing protection it is necessary for the operating system to control these factors at runtime to ensure that Tasks/ISRs can meet their respective deadlines. AUTOSAR OS prevents timing errors from (1) by using execution time protection to guarantee a statically configured upper bound, called the Execution Budget, on the execution time of:
+....
+    • Tasks
+    • Category 2 ISRs
+....
+AUTOSAR OS prevents timing errors from (2) by using locking time protection to guar- antee a statically configured upper bound, called the Lock Budget, on the time that:
+....
+    • Resources are held by Tasks/Category 2 ISRs
+    • OS interrupts are suspended by Tasks/Category 2 ISRs
+    • ALL interrupts are suspended/disabled by Tasks/Category 2 ISRs
+....
+AUTOSAR OS prevents timing errors from (3) by using inter-arrival time protection to guarantee a statically configured lower bound, called the Time Frame, on the time between:
+....
+    • A Task being permitted to transition into the READY state due to:
+            – Activation (the transition from the SUSPENDED to the READY state)
+            – Release (the transition from the WAITING to the READY state)
+    • A Category 2 ISR arriving. An arrival occurs when the Category 2 ISR is recog-
+      nized by the OS
+....
+Inter-arrival time protection for basic Tasks controls the time between successive ac- tivations, irrespective of whether activations are queued or not. In the case of queued activations, activating a basic Task which is in the READY or RUNNING state is a new activation because it represents the activation of a new instance of the Task. Inter- arrival time protection therefore interacts with queued activation to control the rate at which the queue is filled. Inter-arrival time protection for extended Tasks controls the time between successive activations and releases. When a Task is in the WAITING state and multiple Events are set with a single call to SetEvent this represents a single release. When a Task waits for one or more Events which are already set this represents a notional Wait/ Release/Start transition and therefore is considered as a new release. The following figure shows how execution time protection and inter-arrival time protec- tion interact with the task state transition model for AUTOSAR OS.
+
+Figure 7.13: Time protection interaction with the task state transition model with Os- TaskTimingProtectionDeferrableServer=FALSE
+
+Notes: 1. Inter-arrival time enforcement on Category 2 ISRs can be used to protect an
+....
+     ECU from a "babbling idiot" source of interrupts (e.g. a CAN controller taking an
+     interrupt each time a frame is received from another ECU on the network).
+....
+2. Timing protection only applies to Tasks or Category 2 ISRs. There is no pro-
+....
+     tection for Category 1 ISRs. If timing protection error occurs during a category 1
+     ISR, consistency of the Operating System module cannot be guaranteed. There-
+     fore we discourage timing protection in systems with category 1 interrupts.
+....
+3. Timing protection does not apply before the Operating System module is started. 4. In the case of trusted OS-Applications it is essential that all timing information
+....
+     is correct, otherwise the system may fail at run-time. For a non-trusted OS-
+     Application, timing protection can be used to enforce timing boundaries between
+     executable objects.
+....
+
+===== 7.7.2.1.1 Deferrable Server
+
+If timing protection is enabled the normal behavior for the OS after detection of a timing violation is to call the ProtectionHook. By this the user is informed and can decide on a proper reaction. Unfortunately the reaction is often limited to a killing of the faulty entity. Another option for the Timing Protection is to somehow "freeze" a task when it exhausts its execution budget. Instead of calling the ProtectionHook and applying one of the current destructive reactions, such as abruptly terminating the task or shutting down the entire OS, the new reaction consists in quietly descheduling the task and placing it in a state where it cannot be scheduled until its budget is replenished again. This approach is also known as "Deferrable Server", an effective and easy-to- implement variant of a real-time scheduling mechanism known as "Aperiodic Server". For further details see [7], [8], [9]. Under certain assumptions, the approach also supports the implementation of the "Polling Server", another well-known variant of the "Aperiodic Server" mechanism. If a task uses OsTaskTimingProtectionDeferrableServer, then it gets an ad- ditional task state BUDGET_EXHAUSTED which will be entered if the tasks budget is exhausted. It will stay in this state until its budget is replenished ("refilled"). The re- filling can be realitzed via API (see BudgetReplenish), via Alarm action or via an expiry point in a ScheduleTable. The user is reponsible for the refilling, e.g. by having an Alarm which cyclically replenish the execution budget of the deferred server task. The following details explain the possible state changes for Deferrable Servers and what’s happening: 1. When the Operating System starts each Deferrable Server get’s its initial execu-
+....
+     tion budget (configured in OsTaskExecutionBudget)
+....
+2. This budget is used while Deferrable Server is in task state RUNNING 3. When Deferrable Server is preempted (becoming READY), blocked (becoming
+....
+     WAITING) or terminates (becoming SUSPENDED) the current execution budget is
+     kept.
+....
+4. When Deferrable Server is RUNNING and the budget is exhausted (<=zero ; see
+....
+     also [SWS_Os_00871]) the Operating System changes the task state to BUD-
+     GET_EXHAUSTED and schedules another Task.
+....
+5. A Deferrable Server in BUDGET_EXHAUSTED can only leave this task state when
+....
+     another entity replenishes the budget. Replenish means that the OsTaskEx-
+     ecutionBudget is added to the current budget. This can happen via API or
+     an alarm action or an expiy point of a ScheduleTable. (see [SWS_Os_00872],
+     [SWS_Os_00874]).
+....
+The following figure shows the possible Task states for Tasks with OsTaskTiming- ProtectionDeferrableServer=TRUE
+
+....
+            Figure 7.14: Task states and transitions for Deferrable Server Tasks
+....
+Using Deferrable Server mechanism has some restrictions regarding configurability. See [SWS_Os_00877], [SWS_Os_00879], [SWS_Os_00880] and [SWS_Os_00881] for details. Note: In this context the term "Server" is used in accordance with the real-time schedul- ing terminology to refer to a task used to handle aperiodic requests and subject to execution budget monitoring. It has nothing to do with the "Server" of a Client/Server interface in AUTOSAR.
+
+==== 7.7.2.2 Requirements
+
+[[SWS_Os_00028]]
+Upstream requirements: SRS_Os_11008
+
+⌈In a non-trusted OS-Application, the Operating System module shall apply timing pro- tection to every Task/Category 2 ISR of this non-trusted OS-Application.⌋
+
+[[SWS_Os_00089]]
+Upstream requirements: SRS_Os_11008
+
+⌈In a trusted OS-Application, the Operating System module shall provide the ability to apply timing protection to Tasks/Category 2 ISRs of this OS-Application.⌋
+
+[[SWS_Os_00397]]
+Upstream requirements: SRS_Os_11008
+
+⌈If no OS-Application is configured, the Operating System module shall be able to apply timing protection to Tasks/Category 2 ISRs.⌋
+
+Timing Protection: Tasks
+
+[[SWS_Os_00064]]
+Upstream requirements: SRS_Os_11008, SRS_Os_11013
+
+⌈If a Task’s OsTaskExecutionBudget is reached and the OsTaskTiming- ProtectionDeferrableServer is not configured for that Task (as per de- fault), then the Operating System module shall call the ProtectionHook with E_OS_PROTECTION_TIME.⌋
+
+[[SWS_Os_00473]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall reset a Task’s OsTaskExecutionBudget on a transition to the SUSPENDED or WAITING states if the OsTaskTimingProtection- DeferrableServer is not configured for that Task (as per default).⌋
+
+[[SWS_Os_00465]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall limit the inter-arrival time of Tasks to one per OsTaskTimeFrame.⌋
+
+[[SWS_Os_00469]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall start an OsTaskTimeFrame when a Task is activated successfully.⌋
+
+[[SWS_Os_00472]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall start an OsTaskTimeFrame when a Task is released successfully.⌋
+
+[[SWS_Os_00466]]
+Upstream requirements: SRS_Os_11008
+
+⌈If an attempt is made to activate a Task before the end of an OsTaskTimeFrame then the Operating System module shall not perform the activation AND shall call the ProtectionHook with E_OS_PROTECTION_ARRIVAL.⌋
+
+[[SWS_Os_00467]]
+Upstream requirements: SRS_Os_11008
+
+⌈If an attempt is made to release a Task before the end of an OsTaskTimeFrame then the Operating System module shall not perform the release AND shall call the ProtectionHook with E_OS_PROTECTION_ARRIVAL.⌋
+
+Timing Protection: Tasks with Deferrable Server option
+
+[[SWS_Os_00869]]
+Additional Task state Upstream requirements: SRS_Os_13000
+
+⌈The AUTOSAR OS shall support an additional task state BUDGET_EXHAUSTED for Tasks configured with OsTaskTimingProtectionDeferrableServer=TRUE. This state can be entered only if the timing protection is active and only by the Tasks con- figured with OsTaskTimingProtectionDeferrableServer. In this state a Task is not running and cannot be scheduled.⌋
+
+[[SWS_Os_00870]]
+Behavior of Tasks in state BUDGET_EXHAUSTED Upstream requirements: SRS_Os_13000
+
+⌈Any functionallity (API or alarm action or expiry point) which tries to activate the Task (or set an Event of a Task) in state BUDGET_EXHAUSTED shall behave as if the Task would be in state READY except that BUDGET_EXHAUSTED can be left only as specified by [SWS_Os_00872].⌋
+
+Example: If a user calls SetEvent for a Task which is currently in BUD- GET_EXHAUSTED, the function shall set the events and return E_OK.
+
+[[SWS_Os_00872]]
+Leaving state BUDGET_EXHAUSTED Upstream requirements: SRS_Os_13000
+
+⌈The BUDGET_EXHAUSTED state can only be left by calling BudgetReplenish or us- ing an Alarm with action OsAlarmBudgetReplenish or a related action at an expiry point of a ScheduleTable. If the replenish succeeded (the current execution budget of the Task is >0) then the Task will change to state READY. Afterwards a rescheduling may happen.⌋
+
+[[SWS_Os_00871]]
+Entering BUDGET_EXHAUSTED Upstream requirements: SRS_Os_11008, SRS_Os_11013
+
+⌈If a Task is in state RUNNING and OsTaskExecutionBudget has been exhausted and OsTaskTimingProtectionDeferrableServer=TRUE is configured for that Task: As soon as the Task is neither suspending/disabling any interrupts nor hold- ing any OS resource or spinlock, the Operating System module shall deschedule it, put it in the new state BUDGET_EXHAUSTED and schedule another Task.⌋
+
+[[SWS_Os_00871]]
+effectively mean that the Tasks current budget can be lower than zero. This can e.g. happen when the budget is exhasuted but a switch to the BUD- GET_EXHAUSTED state is delayed because the Task still holds a OS resource (or simi- lar object). Timing Protection: ISRs
+
+[[SWS_Os_00210]]
+Upstream requirements: SRS_Os_11013
+
+⌈If a Category 2 ISR’s OsIsrExecutionBudget is reached then the Operating Sys- tem module shall call the ProtectionHook with E_OS_PROTECTION_TIME.⌋
+
+[[SWS_Os_00474]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall reset an ISR’s OsIsrExecutionBudget when the ISR returns control to the OS or terminates.⌋
+
+[[SWS_Os_00470]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall limit the inter-arrival time of Category 2 ISRs to one per OsIsrTimeFrame.⌋
+
+[[SWS_Os_00471]]
+Upstream requirements: SRS_Os_11008
+
+⌈The Operating System module shall measure the start of an OsIsrTimeFrame from the point at which it recognizes the interrupt (i.e. in the Operating System interrupt wrapper).⌋
+
+[[SWS_Os_00048]]
+Upstream requirements: SRS_Os_11008
+
+⌈If Category 2 interrupt occurs before the end of the OsIsrTimeFrame then the Op- erating System module shall not execute the user provided ISR AND shall call the ProtectionHook with E_OS_PROTECTION_ARRIVAL.⌋
+
+Timing Protection: Resource Locking and Interrupt Disabling
+
+[[SWS_Os_00033]]
+Upstream requirements: SRS_Os_11008, SRS_Os_11013, SRS_Os_11014
+
+⌈If a Task/Category 2 ISR holds an OSEK Resource and exceeds the OsTaskRe- sourceLockBudget (or OsIsrResourceLockBudget) , the Operating System module shall call the ProtectionHook with E_OS_PROTECTION_LOCKED.⌋
+
+[[SWS_Os_00037]]
+Upstream requirements: SRS_Os_11008, SRS_Os_11013, SRS_Os_11014
+
+⌈If a Task/Category 2 ISR disables interrupts (via Suspend/Disable|All/ OS|Interrupts()) and exceeds the configured OsIsrAllInterruptLockBudget (or OsIsrOsInterruptLockBudget or OsTaskAllInterruptLockBudget or OsTaskOsInterruptLockBudget) the Operating System module shall call the ProtectionHook with E_OS_PROTECTION_LOCKED.⌋
+
+==== 7.7.2.3 Implementation Notes
+
+Execution time enforcement requires hardware support, e.g. a timing enforcement interrupt. If an interrupt is used to implement the time enforcement, the priority of this interrupt has to be high enough to "interrupt" the supervised Tasks or ISRs. Depending on the real hardware support this could mean that DisableAllInter- rupts and SuspendAllInterrupts disable not all interrupts (e.g. all interrupts except of the interrupt used for timing protection) or that the usage of Category 1 ISRs - which bypass the Operating System (and also the timing protection) - is limited some- how. The implementation has to document such implementation specific behaviour (e.g. the limitations when timing protection is used).
+
+=== 7.7.3 Service Protection
+
+==== 7.7.3.1 Background & Rationale
+
+As OS-Applications can interact with the Operating System module through services, it is essential that the service calls will not corrupt the Operating System module itself. Service Protection guards against such corruption at runtime. There are a number of cases to consider with Service Protection: An OS-Application makes an API call 1. with an invalid handle or out of range value. 2. in the wrong context, e.g. calling ActivateTask in the StartupHook. 3. or fails to make an API call that results in the OSEK OS being left in an undefined
+....
+     state, e.g. it terminates without a ReleaseResource call
+....
+4. that impacts on the behaviour of every other OS-Application in the system, e.g.
+....
+     ShutdownOS
+....
+5. to manipulate Operating System objects that belong to another OS-Application
+....
+     (to which it does not have the necessary permissions), e.g. an OS-Application
+     tries to execute ActivateTask on a Task it does not own.
+....
+The OSEK OS already provides some service protection through the status codes returned from service calls and this will provide the basis for service protection. This means that service protection will only apply for the extended status of OSEK OS. However, OSEK OS does not cover all the cases outlined above. The following sections describe - besides the mandatory extended status - the additional protection require- ments to be applied in each of these cases.
+
+==== 7.7.3.2 Invalid Object Parameter or Out of Range Value
+
+===== 7.7.3.2.1 Background & Rationale
+
+The current OSEK OS service calls already return E_OS_ID on invalid objects (i.e. objects not defined in the OIL file) and E_OS_VALUE for out of range values (e.g. setting an alarm cycle time less than OsCounterMinCycle).
+
+===== 7.7.3.2.2 Requirements
+
+[[SWS_Os_00051]]
+Upstream requirements: SRS_Os_11009, SRS_Os_11013
+
+⌈If an invalid address (address is not writable by this OS-Application) is passed as an out-parameter to an Operating System service, the Operating System module shall return the status code E_OS_ILLEGAL_ADDRESS.⌋
+
+==== 7.7.3.3 Service Calls Made from Wrong Context
+
+===== 7.7.3.3.1 Background & Rationale
+
+The current OSEK OS defines the valid calling context for service calls (see [2]), how- ever protects against only a small set of these invalid calls, e.g. calling Terminate- Task from a Category 2 ISR.
+
+....
+                               Task
+
+                                       Cat1 ISR
+
+                                                      Cat2 ISR
+
+                                                                     ErrorHook
+
+                                                                                    Pre/PostTaskHook
+
+                                                                                                        StartupHook
+
+                                                                                                                       ShutdownHook
+
+                                                                                                                                       Alarm Callback
+
+                                                                                                                                                        ProtectionHook
+
+                                                                                                                                                                          inside trusted function
+....
+Service
+
+....
+ ActivateTask                 OK                  OK                                                                                                                     OK
+ ActivateTaskAsyn             OK                  OK                                                                                                                     OK
+ TerminateTask                OK                  C
+ ChainTask                    OK                  C
+ Schedule                     OK                  C
+ GetTaskID                    OK                  OK             OK                OK                                                                   OK               OK
+ GetTaskState                 OK                  OK             OK                OK                                                                                    OK
+ DisableAllInterrupts         OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ EnableAllInterrupts          OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ SuspendAllInterrupts         OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ ResumeAllInterrupts          OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ SuspendOSInterrupts          OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ ResumeOSInterrupts           OK      OK          OK             OK                OK                  OK             OK              OK                OK               OK
+ GetResource                  OK                  OK                                                                                                                     OK
+ ReleaseResource              OK                  OK                                                                                                                     OK
+ SetEvent                     OK                  OK                                                                                                                     OK
+ SetEventAsyn                 OK                  OK                                                                                                                     OK
+ ClearEvent                   OK                  C
+ GetEvent                     OK                  OK             OK                OK                                                                                    OK
+ WaitEvent                    OK                  C
+ GetAlarmBase                 OK                  OK             OK                OK                                                                                    OK
+ GetAlarm                     OK                  OK             OK                OK                                                                                    OK
+ SetRelAlarm                  OK                  OK                                                                                                                     OK
+ SetAbsAlarm                  OK                  OK                                                                                                                     OK
+ CancelAlarm                  OK                  OK                                                                                                                     OK
+ GetActiveApplicationMode     OK                  OK             OK                OK                  OK             OK                                                 OK
+....
+StartOS
+....
+ ShutdownOS                   OK                  OK             OK                                    OK                                                                OK
+ GetApplicationID             OK                  OK             OK                OK                  OK             OK                                OK               OK
+ GetISRID                     OK                  OK             OK                                                                                     OK               OK
+ CallTrustedFunction          OK                  OK                                                                                                                     OK
+ CheckISRMemoryAccess         OK                  OK             OK                                                                                     OK               OK
+ CheckTaskMemoryAccess        OK                  OK             OK                                                                                     OK               OK
+ CheckObjectAccess            OK                  OK             OK                                                                                     OK               OK
+ CheckObjectOwnership         OK                  OK             OK                                                                                     OK               OK
+ StartScheduleTableRel        OK                  OK                                                                                                                     OK
+ StartScheduleTableAbs        OK                  OK                                                                                                                     OK
+ StopScheduleTable            OK                  OK                                                                                                                     OK
+ NextScheduleTable            OK                  OK                                                                                                                     OK
+ StartScheduleTableSynchron   OK                  OK                                                                                                                     OK
+ SyncScheduleTable            OK                  OK                                                                                                                     OK
+ GetScheduleTableStatus       OK                  OK                                                                                                                     OK
+                                                                 ▽
+
+                                                     △
+ SetScheduleTableAsync           OK            OK                                             OK
+ IncrementCounter                OK            OK                                             OK
+ GetCounterValue                 OK            OK                                             OK
+ GetElapsedValue                 OK            OK                                             OK
+ TerminateApplication            OK            OK     OK1
+ GetApplicationState             OK            OK     OK      OK    OK    OK           OK     OK
+ GetCurrentApplicationID         OK            OK     OK      OK    OK    OK           OK     OK
+ ReadPeripheral8                 OK            OK                                             OK
+ ReadPeripheral16                OK            OK                                             OK
+ ReadPeripheral32                OK            OK                                             OK
+ WritePeripheral8                OK            OK                                             OK
+ WritePeripheral16               OK            OK                                             OK
+ WritePeripheral32               OK            OK                                             OK
+ ModifyPeripheral8               OK            OK                                             OK
+ ModifyPeripheral16              OK            OK                                             OK
+ ModifyPeripheral32              OK            OK                                             OK
+ DisableInterruptSource          OK            OK                                             OK
+ EnableInterruptSource           OK            OK                                             OK
+ ClearPendingInterrupt           OK            OK
+ isOsStarted                     OK       OK   OK     OK      OK    OK    OK     OK    OK     OK
+ BudgetReplenish                 OK            OK                                             OK
+
+                           Table 7.1: Allowed Calling Context for OS Service Calls
+....
+In the table above "C" indicates that validity is only "Checked in Extended status by E_OS_CALLEVEL" .
+
+===== 7.7.3.3.2 Requirements
+
+[[SWS_Os_00088]]
+Upstream requirements: SRS_Os_11009, SRS_Os_11013
+
+⌈If an OS-Application makes a service call from the wrong context AND is currently not inside a Category 1 ISR the Operating System module shall not perform the requested action (the service call shall have no effect) and return E_OS_CALLEVEL or the "invalid value" of the service.⌋
+
+==== 7.7.3.4 Services with Undefined Behaviour
+
+===== 7.7.3.4.1 Background & Rationale
+
+There are a number of situations where the behaviour of OSEK OS is undefined in extended status. This is unacceptable when protection is required as it would allow the
+
+1
+....
+      Only in case of self termination.
+....
+Operating System module to be corrupted through its own service calls. The implemen- tation of service protection for the Operating System module must therefore describe and implement a behaviour that does not jeopardize the integrity of the system or of any OS-Application which did not cause the specific error.
+
+===== 7.7.3.4.2 Requirements
+
+Tasks ends without calling a TerminateTask or ChainTask
+
+[[SWS_Os_00052]]
+Upstream requirements: SRS_Os_11009
+
+⌈If a Task returns from its entry function without making a TerminateTask or ChainTask call, the Operating System module shall terminate the Task (and call the OsPostTaskHook if configured).⌋
+
+[[SWS_Os_00069]]
+Upstream requirements: SRS_Os_11009
+
+⌈If a Task returns from its entry function without making a TerminateTask or Chain- Task call AND the error hook is configured, the Operating System module shall call the ErrorHook (this is done regardless of whether the Task causes other errors, e.g. E_OS_RESOURCE) with status E_OS_MISSINGEND before the Task leaves the RUN- NING state.⌋
+
+[[SWS_Os_00070]]
+Upstream requirements: SRS_Os_11009, SRS_Os_11013
+
+⌈If a Task returns from the entry function without making a TerminateTask or ChainTask call and still holds OSEK Resources, the Operating System module shall release them.⌋
+
+[[SWS_Os_00239]]
+Upstream requirements: SRS_Os_00097
+
+⌈If a Task returns from the entry function without making a TerminateTask or ChainTask call and interrupts are still disabled, the Operating System module shall enable them.⌋
+
+Category 2 ISR ends with locked interrupts or allocated resources
+
+[[SWS_Os_00368]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If a Category 2 ISR calls DisableAllInterrupts / SuspendAllInterrupts / SuspendOSInterrupts and ends (returns) without calling the corresponding En- ableAllInterrupts / ResumeAllInterrupts / ResumeOSInterrupts, the Op- erating System module shall perform the missing service and shall call the ErrorHook (if configured) with the status E_OS_DISABLEDINT.⌋
+
+[[SWS_Os_00369]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If a Category 2 ISR calls GetResource and ends (returns) without calling the corre- sponding ReleaseResource, the Operating System module shall perform the Re- leaseResource call and shall call the ErrorHook (if configured) with the status E_OS_RESOURCE.⌋
+
+PostTaskHook called during ShutdownOS
+
+[[SWS_Os_00071]]
+Upstream requirements: SRS_Os_00097
+
+⌈If the PostTaskHook is configured, the Operating System module shall not call the hook if ShutdownOS is called.⌋
+
+Tasks/ISRs calls EnableAllInterrupts/ResumeAllInterrupts/ResumeOSIn- terrupts without a corresponding disable
+
+[[SWS_Os_00092]]
+Upstream requirements: SRS_Os_11009
+
+⌈If EnableAllInterrupts / ResumeAllInterrupts / ResumeOSInterrupts are called and no corresponding DisableAllInterrupts / SuspendAllInter- rupts / SuspendOSInterrupts was done before, the Operating System module shall not perform this Operating System service.⌋
+
+Tasks/ISRs calling OS services when DisableAllInterupts/SuspendAllInterrupts/ SuspendOSInterrupts called
+
+[[SWS_Os_00093]]
+Upstream requirements: SRS_Os_11009, SRS_Os_11013
+
+⌈If interrupts are disabled/suspended by a Task/ISR/Hook and the Task/ISR/Hook calls any Operating System service (excluding the interrupt services) then the Operat- ing System module shall ignore the service AND shall return E_OS_DISABLEDINT if the service returns a StatusType value.⌋
+
+==== 7.7.3.5 Service Restrictions for Non-Trusted OS-Applications
+
+===== 7.7.3.5.1 Background & Rationale
+
+The Operating System service calls available are restricted according to the calling context (see 7.7.3.3). In a protected system, additional constraints need to be placed to prevent non-trusted OS-Applications executing API calls that can have a global effect on the system. Each level of restriction is a proper subset of the previous level as shown in the figure below.
+
+....
+                             Figure 7.15: API Restrictions
+....
+There are two defined integrity levels: 1. Trusted 2. Non-Trusted that correspond exactly with trusted and non-trusted OS-Applications.
+
+===== 7.7.3.5.2 Requirements
+
+[[SWS_Os_00054]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall ignore calls to ShutdownOS from non-trusted OS-Applications.⌋
+
+==== 7.7.3.6 Service Calls on Objects in Different OS-Applications
+
+===== 7.7.3.6.1 Background
+
+Section 7.7.3.2 stated that E_OS_ID is returned by OSEK OS service calls when the object is invalid. Under the protection scheme a service call can be invalid because the caller does not have valid permissions for the object (a new meaning for multi-OS- Application systems). This is a similar case to an object not being accessible in OSEK OS (for example, when a Task tries to get a Resource which exists in the system but has not been configured as used by the Task).
+
+===== 7.7.3.6.2 Requirements
+
+[[SWS_Os_00056]]
+Upstream requirements: SRS_Os_11001, SRS_Os_11010, SRS_Os_11013
+
+⌈If an OS-object identifier is the parameter of an Operating System module’s system service, and no sufficient access rights have been assigned to this OS-object at config- uration time (parameter Os[...]AccessingApplication, e.g. OsTaskAccessingAppli- cation) to the calling Task/Category 2 ISR, the Operating System module’s system service shall return E_OS_ACCESS.⌋
+
+[[SWS_Os_00449]]
+Upstream requirements: SRS_Os_11001
+
+⌈CheckTaskMemoryAccess and CheckISRMemoryAccess check the memory ac- cess. Memory access checking is possible for all OS-Applications and from all OS- Applications and does not need granted rights.⌋
+
+[[SWS_Os_00449]]
+is an exception to [SWS_Os_00056].
+
+[[SWS_Os_00450]]
+Upstream requirements: SRS_Os_11001
+
+⌈CheckObjectAccess checks the access rights for Operating System objects. Checking object access is possible for all OS-Applications and from all OS-Applications and does not need granted rights.⌋
+
+[[SWS_Os_00450]]
+is an exception to [SWS_Os_00056].
+
+=== 7.7.4 Protecting the Hardware used by the OS
+
+==== 7.7.4.1 Background & Rationale
+
+Where a processor supports privileged and non-privileged mode it is usually the case that certain registers, and the instructions to modify those registers, are inaccessible outside the privileged mode. On such hardware, executing the Operating System module in privileged mode and Tasks/ISRs in non-privileged mode protects the registers fundamental to Operating System module operation from inadvertent corruption by the objects executing in non- privileged mode. The Operating System module’s services will need to execute in privileged mode as they will need to modify the registers that are protected outside this mode. The Operating System module can use the control registers of the MPU, timer unit(s), interrupt controller, etc. and therefore it is necessary to protect those registers against non-trusted OS-Applications.
+
+==== 7.7.4.2 Requirements
+
+[[SWS_Os_00058]]
+Upstream requirements: SRS_Os_11001
+
+⌈If supported by hardware, the Operating System module shall execute non-trusted OS-Applications in non-privileged mode.⌋
+
+[[SWS_Os_00096]]
+Upstream requirements: SRS_Os_11011
+
+⌈As far as supported by hardware, the Operating System module shall not allow non- trusted OS-Applications to access control registers managed by the Operating System module.⌋
+
+[[SWS_Os_00245]]
+Upstream requirements: SRS_Os_11011
+
+⌈If an instruction exception occurs (e.g. division by zero) the Operating System module shall call the protection hook with E_OS_PROTECTION_EXCEPTION.⌋
+
+==== 7.7.4.3 Implementation Notes
+
+When the Operating System module is running non-trusted OS-Applications, the Oper- ating System module’s treatment of interrupt entry and hook routines must be carefully managed. Interrupt handling: Where the MCU supports different modes (as discussed in this section) ISRs will require the Operating System module to do extra work in the ISR() wrapper. ISRs will typically be entered in privileged mode. If the handler is part of a non-trusted OS-Application then the ISR() wrapper must make sure that a switch to non-privileged mode occurs before the handler executes.
+
+=== 7.7.5 Providing Trustedfunctions
+
+==== 7.7.5.1 Background & Rationale
+
+An OS-Application can invoke a Trustedfunction provided by (another) trusted OS- Application. That can require a switch from non-privileged to privileged mode. This is typically achieved by these operations:
+....
+    • Each trusted OS-Application may export services which are callable from other
+      OS-Applications.
+    • During configuration these trusted services must be configured to be called from
+      a non-trusted OS-Application.
+    • The call from the non-trusted OS-Application to the trusted service is using a
+      mechanism (e.g. trap/software interrupt) provided by the Operating System. The
+      service is passed as an identifier that is used to determine, in the trusted envi-
+      ronment, if the service can be called.
+    • The Operating System offers services to check if a memory region is write/read/
+      execute accessible from an OS-Application. It also returns information if the
+      memory region is part of the stack space.
+....
+The Operating System software specification does not provide support for non-trusted services. Please note: During the execution of a trusted function a protection violation or the self-termination of the calling OS-Application can be fatal. In such cases the fault reaction (e.g. restart or terminate OS-Application) impacts also the ongoing trusted function call. It is assumed that the code of the trusted function itself is free of such direct violations, but there are some cases where a violation nevertheless may occur. These are:
+....
+    • (A) Timing violation inside the trusted function: It might happen that during
+      the execution of a trusted function a timing violation happens. E.g. the configured
+      execution budget of the caller is exhausted inside the trusted function. In such
+
+      cases the violation can be delayed until the function returns to the non-trusted
+      caller (see also [SWS_Os_00565].
+    • (B) Parallel violations within the OS-Application which called the trusted
+      function: It might happen that a Task which executes the trusted function is
+      preempted by another Task (or Category 2 ISR) of the same OS-Application.
+      Then this other Task (or Category 2 ISR) is causing a violation, e.g. via a memory
+      fault or a timing violation.
+    • (C) Self termination of the OS-Application: Each application can perform a
+      self-termination, e.g. initated by another Task of the same OS-Application. In
+      case of an ongoing trusted function call of the OS-Application this may also im-
+      pact the (trusted) OS-Application which offers the trusted function.
+    • (D) Foreign termination of the OS-Application: Each trusted OS-Application
+      can request a termination of another OS-Application. If the to be terminated OS-
+      Application is currently executing a trusted function it may have also impact on
+      this trusted OS-Application. It is assumed that a (trusted) OS-Application never
+      terminates another OS-Application with an on-going trusted function call.
+....
+Situations like (B) or (C) can be solved by avoiding preemptions in the OS-Application when a trusted function is ongoing. This can be reached by using locks which are preventing the scheduling (on the same core). The disadvantage of this approach is that it impacts the overall timing (i.e. also of other OS-Applications which use the same core). So a violation caused by another entity is avoided, but maybe at the cost of a timing violation which then may also require a restart or reset. On the other hand a careful design could solve the issue without locking, e.g. by only perfoming calls to trusted function from tasks with the highest priority of the OS-Application. Therefore the OS offers a (global) switch (see OsLockTrustedFunctionCall) to allow adaption of the required behaviour. For OsLockTrustedFunctionCall == TRUE the OS will lock parallel activities of the OS-Application to avoid situations like (B) or (C). For OsLockTrustedFunctionCall == FALSE no locks are perfomed by the OS and parallel activities may happen in the OS-Application.
+
+==== 7.7.5.2 Requirements
+
+[[SWS_Os_00451]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall allow exporting services from trusted OS- Applications.⌋
+
+The Operating System module provides the service CallTrustedFunction (see
+[[SWS_Os_00097]]
+) to call a trusted function from a (trusted or non-trusted) OS- Application.
+
+[[SWS_Os_00100]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If CallTrustedFunction is called and the called trusted function is not configured the Operating System module shall call the ErrorHook with E_OS_SERVICEID.⌋
+
+The Operating System module provides the services CheckISRMemoryAccess and CheckTaskMemoryAccess (see [SWS_Os_00512] and [SWS_Os_00513]) for OS- Applications to check if a memory region is write/read/execute accessible from a Task/ Category 2 ISR and also return information if the memory region is part of the stack space.

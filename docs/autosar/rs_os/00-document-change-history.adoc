@@ -1,0 +1,102 @@
+== Document Change History
+
+....
+Requirements on Operating
+ Document Title                 System
+ Document Owner                 AUTOSAR
+ Document Responsibility        AUTOSAR
+ Document Identification No     8
+
+
+ Document Status                published
+ Part of AUTOSAR Standard       Classic Platform
+ Part of Standard Release       R25-11
+
+
+                        Document Change History
+ Date         Release   Changed by       Description
+                        AUTOSAR          • Timing protection extension for
+ 2025-11-27   R25-11    Release            deferrable server
+                        Management
+                                         • Removed ControlIdle API
+                        AUTOSAR
+ 2024-11-27   R24-11    Release          • Removed partition restart
+                        Management
+                        AUTOSAR
+ 2023-11-23   R23-11    Release          • No content changes
+                        Management
+                        AUTOSAR
+                                         • Narrowed scope to cores running
+ 2022-11-24   R22-11    Release
+                                           AUTOSAR OS
+                        Management
+                        AUTOSAR
+ 2021-11-25   R21-11    Release          • Updated traceability
+                        Management
+                        AUTOSAR
+ 2020-11-30   R20-11    Release          • Added ARTI requirements
+                        Management
+                        AUTOSAR          • No content changes
+ 2019-11-28   R19-11    Release          • changed Document Status from Final to
+                        Management         published
+                        AUTOSAR
+                                         • Incorporation of concept "AUTOSAR
+ 2018-10-31   4.4.0     Release
+                                           Run-Time Interface"
+                        Management
+                        AUTOSAR          • minor corrections / clarifications /
+ 2017-12-08   4.3.1     Release            editorial changes; For details please
+                        Management         refer to the ChangeDocumentation
+                                     ▽
+
+                                        △
+                       AUTOSAR              • minor corrections / clarifications /
+ 2016-11-30   4.3.0    Release                editorial changes; For details please
+                       Management             refer to the ChangeDocumentation
+                       AUTOSAR              • Incorporation of concept "Mechanisms
+ 2014-10-31   4.2.1    Release                and constraints to protect ASIL BSW
+                       Management             against QM BSW"
+                       AUTOSAR
+ 2013-10-31   4.1.2    Release              • Editorial changes
+                       Management
+                                            • Requirements added to support power
+                                              saving mode
+
+                       AUTOSAR              • Formal rework of requirement tracing
+ 2013-03-15   4.1.1
+                       Administration
+                                            • Updated according to
+                                              TPS_standardization template as minor
+                                              changes
+                       AUTOSAR              • Merging of
+ 2011-12-22   4.0.3
+                       Administration         AUTOSAR_SRS_MultiCoreOS
+                                            • Removed requirement for the OS to
+                                              ensure that interrupt priority registers are
+                                              consistent with OS configuration
+                       AUTOSAR
+ 2010-09-30   3.1.5
+                       Administration       • Various minor changes to descriptions to
+                                              aid understanding
+
+                                            • Legal disclaimer revised
+                       AUTOSAR
+ 2008-08-13   3.1.1                         • Legal disclaimer revised
+                       Administration
+                                            • Document meta information extended
+                       AUTOSAR
+ 2007-12-21   3.0.1
+                       Administration       • Small layout adaptations made
+                       AUTOSAR              • "Advice for users" revised
+ 2007-01-24   2.1.15
+                       Administration       • "Revision Information" added
+                       AUTOSAR
+ 2006-11-28   2.1                           • Legal disclaimer revised
+                       Administration
+                       AUTOSAR
+ 2006-05-16   2.0                           • Minor formal changes
+                       Administration
+                       AUTOSAR
+ 2005-05-31   1.0                           • Initial Release
+                       Administration
+....

@@ -1,0 +1,39 @@
+= AUTOSAR RS_OS (Requirements on Operating System)
+:toc:
+
+AUTOSAR-Release:: AUTOSAR CP R25-11
+Document ID:: 8
+Document-Datum:: 2025-11-27
+Quelle:: https://www.autosar.org/fileadmin/standards/R25-11/CP/AUTOSAR_CP_RS_OS.pdf
+Heruntergeladen am:: 2026-09-17
+
+Diese Dateien sind eine Referenzkopie der öffentlichen AUTOSAR Classic-Platform
+Requirements-Spezifikation für das OS (RS_OS), gegliedert nach Kapiteln. RS_OS enthält
+die High-Level-Requirements (SRS_Os_*), von denen die SWS_OS-Requirements (siehe
+../sws_os/) abgeleitet sind — bessere Ausgangsbasis für die Requirements-Ableitung in
+Issue #28 als SWS_OS allein. Dient ausschließlich der internen Referenz beim
+Clean-Room-Entwurf von rOSEK, siehe PLAN.md.
+
+== Disclaimer (AUTOSAR)
+
+Disclaimer
+
+This work (specification and/or software implementation) and the material contained in it, as released by AUTOSAR, is for the purpose of information only. AUTOSAR and the companies that have contributed to it shall not be liable for any use of the work. The material contained in this work is protected by copyright and other types of intel- lectual property rights. The commercial exploitation of the material contained in this work requires a license to such intellectual property rights. This work may be utilized or reproduced without any modification, in any form or by any means, for informational purposes only. For any other purpose, no part of the work may be utilized or reproduced, in any form or by any means, without permission in writing from the publisher. The work has been developed for automotive applications only. It has neither been developed, nor tested for non-automotive applications. The word AUTOSAR and the AUTOSAR logo are registered trademarks.
+
+== Inhalt
+
+include::00-document-change-history.adoc[]
+
+include::01-scope-of-this-document.adoc[]
+
+include::02-how-to-read-this-document.adoc[]
+
+include::03-requirements-guidelines.adoc[]
+
+include::04-requirement-specification.adoc[]
+
+include::05-requirements-tracing.adoc[]
+
+include::06-references.adoc[]
+
+include::appendix-a-change-history-of-autosar-traceable-items.adoc[]

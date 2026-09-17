@@ -1,0 +1,149 @@
+== 8.7 Hook functions
+
+Hook functions are called by the operating system if specific conditions are met. They are provided by the user. Besides the ProtectionHook below, the hooks from [10] and/ or extensions from 7.12 may be called by the OS.
+
+=== 8.7.1 ProtectionHook
+
+[[SWS_Os_00538]]
+Definition of configurable interface ProtectionHook Upstream requirements: SRS_Os_11013
+
+⌈
+....
+    Service Name         ProtectionHook
+    Syntax               ProtectionReturnType ProtectionHook (
+                           StatusType Fatalerror
+                         )
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Fatalerror                    The error which caused the call to the protection hook
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         ProtectionReturnType          PRO_IGNORE
+                                                       PRO_TERMINATETASKISR
+                                                       PRO_TERMINATEAPPL
+                                                       PRO_SHUTDOWN
+                                                       The return value defines the action the OS shall take after the
+                                                       protection hook.
+    Description          The protection hook is always called if a serious error occurs. E.g. exceeding the worst case
+                         execution time or violating against the memory protection.
+    Available via        Os_Externals.h
+....
+⌋
+
+Depending on the return value the Operating System module will either:
+....
+       • forcibly terminate the Task/Category 2 ISR which causes the problem OR
+       • forcibly terminate the OS-Application the Task/Category 2 ISR belong OR
+       • shutdown the system OR
+       • do nothing
+....
+(see 7.8.2)
+
+[[SWS_Os_00308]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If ProtectionHook returns an invalid value, the Operating System module shall take the same action as if no protection hook is configured.⌋
+
+[[SWS_Os_00542]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of ProtectionHook: Available in Scalability Classes 2, 3 and 4.⌋
+
+=== 8.7.2 Application specific StartupHook
+
+[[SWS_Os_00539]]
+Definition of configurable interface StartupHook_<App> Upstream requirements: SRS_Os_00097
+
+⌈
+....
+    Service Name         StartupHook_<App>
+    Syntax               void StartupHook_<App> (
+                           void
+                         )
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         None
+    Description          The application specific startup hook is called during the start of the OS (after the user has
+                         started the OS via StartOS()).
+    Available via        Os_Externals.h
+....
+⌋
+
+The application specific StartupHook is always called after the standard Star- tupHook (see [SWS_Os_00236]). If more than one OS-Application is configured which use startup hooks, the order of calls to the startup hooks of the different OS- Applications is not defined.
+
+[[SWS_Os_00543]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of StartupHook_<App>: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.7.3 Application specific ErrorHook
+
+[[SWS_Os_00540]]
+Definition of configurable interface ErrorHook_<App> Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name         ErrorHook_<App>
+    Syntax               void ErrorHook_<App> (
+                           StatusType Error
+                         )
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Error                         The error which caused the call to the error hook
+    Parameters (inout)   None
+    Parameters (out)     None
+                                                         ▽
+
+                                                       △
+    Return value         None
+    Description          The application specific error hook is called whenever a Task or Category 2 ISR which belongs
+                         to the OS-Application causes an error.
+    Available via        Os_Externals.h
+....
+⌋
+
+If the general ErrorHook is configured, the general ErrorHook is called before the application specific error hook is called (see [SWS_Os_00246]).
+
+[[SWS_Os_00544]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of ErrorHook_<App>: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.7.4 Application specific ShutdownHook
+
+[[SWS_Os_00541]]
+Definition of configurable interface ShutdownHook_<App> Upstream requirements: SRS_Os_00097
+
+⌈
+....
+    Service Name         ShutdownHook_<App>
+    Syntax               void ShutdownHook_<App> (
+                           StatusType Fatalerror
+                         )
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Fatalerror                   The error which caused the action to shut down the operating
+                                                      system.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         None
+    Description          The application specific shutdown hook is called whenever the system starts the shut down of
+                         itself.
+    Available via        Os_Externals.h
+....
+⌋
+
+If the general ShutdownHook is configured, the general ShutdownHook is called after all application specific shutdown hook(s) are called (see [SWS_Os_00237]). If more OS-Applications with an application specific shutdown hook exist the order of calls to these application specific shutdown hooks is not defined.
+
+[[SWS_Os_00545]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of ShutdownHook_<App>: Available in Scalability Classes 3 and 4.⌋

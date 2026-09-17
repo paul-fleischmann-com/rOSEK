@@ -1,0 +1,149 @@
+== 4 Constraints and assumptions
+
+=== 4.1 Existing Standards
+
+This document makes the following assumptions about the referenced related stan- dards and norms:
+....
+    • [2] provides a sufficiently flexible scheduling policy to schedule AUTOSAR sys-
+      tems.
+    • [2] is a mature specification and implementations are used in millions of ECUs
+      worldwide.
+    • [2] does not provide enough support for isolating multi-source software compo-
+      nents at runtime.
+    • [2] does not provide enough runtime support for demonstrating the absence of
+      some classes of fault propagation in a safety-case.
+....
+
+=== 4.2 Terminology
+
+The specification uses the following operators when requirements specify multiple terms:
+....
+    • NOT : negation of a single term e.g. NOT Weekend
+    • AND : conjunction of two terms e.g. Weekend AND Saturday
+    • OR : disjunction of two terms e.g. Monday OR Tuesday
+....
+A requirement comprising multiple terms is evaluated left to right. The precedence rules are:
+....
+    • Highest Precedence NOT
+    • Lowest Precedence AND OR
+....
+The expression NOT X AND Y means (NOT X) AND (Y) Where operators of the same precedence are used in the same sentence, commas are used to disambiguate. The expression X AND Y, OR Z means (X AND Y) OR Z.
+
+=== 4.3 Interaction with the RTE
+
+The configuration of an AUTOSAR system [5] maps the runnables of a software compo- nent to (one or more) Tasks that are scheduled by the operating system. All runnables in a Task share the same protection boundary. In AUTOSAR, a software component must not include an interrupt handler. A software component is therefore implemented as runnables executing within the body of a Task, or set of Tasks, only.
+
+Runnables get access to hardware-sourced data through the AUTOSAR RTE. The RTE provides the runtime interface between runnables and the basic software modules. The basic software modules also comprise a number of Tasks and ISRs that are scheduled by the operating system. It is assumed that the software component templates and the description of the basic software modules provide sufficient information about the required runtime behavior to be able to specify the attributes of Tasks required to configure the OS.
+
+=== 4.4 Operating System Abstraction Layer (OSAL)
+
+Systems that do not use the OS defined in AUTOSAR can provide a platform for the execution of AUTOSAR software components using an Operating System Abstraction Layer. The interface to the OSAL is exactly that defined for the AUTOSAR OS.
+
+=== 4.5 Multi-Core Hardware assumptions
+
+There are currently several existing and suggested HW-architectures1 for Multi-Core microprocessors. There is considerable variation in the features offered by these ar- chitectures. Therefore this section attempts to capture a common set of architectural features required for Multi-Core. Hardware assumptions shall remain assumptions and shall not become official AUTOSAR requirements.
+
+==== 4.5.1 CPU Core features
+
+1. More than one core on the same piece of silicon. 2. The HW offers a method that can be used by the SW to identify a core. 3. The hardware supports atomic read and atomic write operations for a fixed word
+....
+     length depending on the hardware.
+....
+4. The hardware supports some atomic Test-And-Set functionality or similar func-
+....
+     tionalities that can be used to build a critical section shared between cores. Ad-
+     ditional atomic operations may exist.
+....
+5. The cores may have the same instruction set; at least a common basic instruction
+....
+     set is available on all cores. Core specific add-ons may exist, but they are not
+     considered.
+....
+6. The cores have the same data representation. For example, the same size of
+....
+     integer, same byte and bit order, etc.
+....
+1
+....
+    In this context "architecture" encompasses: the connections between cores and memory, and to
+....
+peripherals and how interrupts work.
+
+7. If per-core caches exist, AUTOSAR requires support for RAM - cache coherency
+....
+     in HW or in SW. In software means that the cache-controller can be programmed
+     by the SW in a way that it invalidates cache lines or excludes certain memory
+     regions from caching.
+....
+8. In case of an exception (such as an illegal memory reference or divide by zero)
+....
+     the exception occurs on the core that introduced the exception.
+....
+9. For notification purposes, it is possible to trigger an interrupt/trap on any core.
+
+==== 4.5.2 Memory features
+
+....
+    • Shared RAM is available to all cores; at least all cores can share a substantial
+      part of the memory.
+    • Flash shall be shared between all cores at least. However, performance can be
+      improved if Flash/RAM can be partitioned so that there are separate pathways
+      from cores to Flash.
+    • A single address space is assumed, at least in the shared parts of the memory
+      address space.
+    • The AUTOSAR Multi-Core architecture shall be capable to run on systems that
+      do and do not support memory protection. If memory protection exists, all cores
+      are covered by a hardware-based memory protection.
+....
+
+==== 4.5.3 Multi-Core Limitations
+
+....
+    • In AUTOSAR R4.0, it is not supported to activate additional cores under control
+      of AUTOSAR after the Operating System was started.
+    • The scheduling algorithm does not assign Tasks dynamically to cores.
+    • The AUTOSAR OS Resource algorithm is not supported across cores. Re-
+      sources can be used locally, between Tasks that are bound to the same core
+      but not between Tasks/ISRs which are bound to different cores.
+....
+
+=== 4.6 Limitations
+
+==== 4.6.1 Hardware
+
+The core AUTOSAR operating system assumes free access to hardware resources, which are managed by the OS itself. This includes, but is not limited to, the following hardware:
+....
+    • interrupt control registers
+
+    • processor status words
+    • stack pointer(s)
+....
+Specific (extended) features of the core operating system extend the requirements on hardware resource. The following list outlines the features that have requirements on the hardware. Systems that do not use these OS features do not have these hardware requirements.
+....
+    • Memory Protection: A hardware memory protection unit is required. All memory
+      accesses that have the consequence of writing (e.g. reads that have the side
+      effect of writing to a memory location) shall be treated as writes.
+    • Time Protection: Timer Hardware for monitoring execution times and arrival rates.
+    • Privileged and non-privileged modes on the MCU: to protect the OS against in-
+      ternal corruption caused by writes to OS controlled registers. This mode must
+      not allow OS-Applications to circumvent protection (e.g. write registers which
+      govern memory protection, write to processor status word etc.). The privileged
+      mode must be under full control of the protected OS which uses the mode inter-
+      nally and to transfer control back and forth from a non-trusted OS-Application to
+      a trusted OS-Application. The microprocessor must support a controlled means
+      which moves a processor into this privileged mode.
+    • Local/Global Time Synchronization: A global time source is needed.
+....
+In general hardware failures in the processor are not detected by the operating system. In the event of hardware failure, correct operation of the OS cannot be guaranteed. The resources managed by a specific OS implementation have to be defined within the appropriate configuration file of the OS.
+
+==== 4.6.2 Programming Language
+
+The API of the operating system is defined as C function calls or macros. If other languages are used, they must adapt to the C interface.
+
+==== 4.6.3 Miscellaneous
+
+The operating system does not provide services for dynamic memory management.
+
+=== 4.7 Applicability to car domains
+
+The operating system has the same design constraints regarding size and scalability under which [2] was designed. The immediate domain of applicability is therefore currently body, chassis and power train ECUs. However, there is no reason that the OS cannot be used to implement ECUs for infotainment applications.

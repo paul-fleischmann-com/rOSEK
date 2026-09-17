@@ -1,0 +1,48 @@
+== 7.14 Interrupt source API
+
+=== 7.14.1 Background & Rationale
+
+The Operating System needs to guarantee the scheduling, wherefore it needs to be the only component which accesses the interrupt controller. Therefore it provides to other BSW/CDD components the interfaces DisableInterruptSource, EnableInter- ruptSource and ClearPendingInterrupt to give access to the interrupt control registers of category 2 ISRs. The pair of DisableInterruptSource/EnableInterruptSource may be used for two different purposes: 1. A specific interrupt should be masked for a short time (potentially to avoid data con- sistency problems). A masked request shall be served afterwards, once the interrupt source gets enabled again. 2. Interrupt requests of a specific source should be ignored for a specific time (poten- tially a longer time e.g. while the CAN driver sleeps). After enabling the source, only new requests should be considered.
+
+=== 7.14.2 Requirements
+
+[[SWS_Os_00808]]
+Upstream requirements: SRS_Os_11011
+
+⌈The Operating System shall provide for each category 2 interrupt source (OsIsr- Category == CATEGORY_2) the APIs DisableInterruptSource, EnableInter- ruptSource and ClearPendingInterrupt.⌋
+
+DisableInterruptSource/EnableInterruptSource does not support nested calls.
+
+[[SWS_Os_00809]]
+Upstream requirements: SRS_Os_11011
+
+⌈Nested calls of interrupt source control API The Operating System shall return E_OS_NOFUNC (in EXTENDED status) in case Dis- ableInterruptSource is called for an interrupt source which is already disabled or EnableInterruptSource is called for an interrupt source which is already enabled.⌋
+
+[[SWS_Os_00810]]
+Upstream requirements: SRS_Os_11011
+
+⌈Error handling of interrupt source control API If the Operating System detects an error while executing a DisableInterrupt- Source, EnableInterruptSource and ClearPendingInterrupt the OS shall
+
+return the appropriate StatusType and call the ErrorHook. Otherwise E_OK shall be returned.⌋
+
+[[SWS_Os_00811]]
+Upstream requirements: SRS_Os_11011
+
+⌈A call of EnableInterruptSource shall enable the requested interrupt source by modifying the interrupt controller registers. Additionally it shall clear the interrupt pend- ing flag.⌋
+
+[[SWS_Os_00812]]
+Upstream requirements: SRS_Os_11011
+
+⌈A call of DisableInterruptSource shall disable the requested interrupt source by modifying the interrupt controller registers.⌋
+
+[[SWS_Os_00813]]
+Upstream requirements: SRS_Os_11011
+
+⌈A call of ClearPendingInterrupt shall clear the interrupt pending flag by modify- ing the respective interrupt controller registers.⌋
+
+[[SWS_Os_00814]]
+Upstream requirements: SRS_Os_11011
+
+⌈Clearing of pending interrupts shall be restricted to clearing the pending flag in the interrupt controller.⌋
+
+Note: This does not necessarily guarantee that the interrupt request is cleared suc- cessfully, i.e. the ISR may still be serviced afterwards. (This may happen due to racing conditions or as the request needs to be cleared in the requesting hardware unit also.)

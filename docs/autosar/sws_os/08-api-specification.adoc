@@ -1,0 +1,19 @@
+== 8 API specification
+
+This chapter contains the APIs offered by the operating system. Note that not all services are available in all scalability classes, and that the behavior of some ser- vices is extended for specific scalability classes. For example, API to relatively start a ScheduleTable has an additional check if the ScheduleTable allows implicit syn- chronization. This check is only performed in SC2 and SC4 where synchronization of ScheduleTables is supported.
+
+include::08-api-specification/8.1-constants.adoc[]
+
+include::08-api-specification/8.2-macros.adoc[]
+
+include::08-api-specification/8.3-type-definitions.adoc[]
+
+include::08-api-specification/8.4-function-definitions.adoc[]
+
+include::08-api-specification/8.5-ioc.adoc[]
+
+include::08-api-specification/8.6-expected-interfaces.adoc[]
+
+include::08-api-specification/8.7-hook-functions.adoc[]
+
+include::08-api-specification/8.8-service-interfaces.adoc[]

@@ -1,0 +1,40 @@
+== 7.13 Hardware peripheral access
+
+=== 7.13.1 Background & Rationale
+
+On some MCU architectures, there are memory mapped hardware registers (peripheral area), which are only accessible in specific modes (e.g. in privileged mode). As long as a Tasks/ISRs is running with full hardware access they can directly access these registers. If memory protection is used by the Operating System, Task/ISRs of non- trusted Os-Applications cannot access such registers directly because this would be recognized as a memory violation by the Operating System. To allow access to such registers even from non-trusted applications the Operating Systems offers the following APIs to read, write and modify registers:
+
+....
+     • ReadPeripheral8
+     • ReadPeripheral16
+     • ReadPeripheral32
+     • WritePeripheral8
+     • WritePeripheral16
+     • WritePeripheral32
+     • ModifyPeripheral8
+     • ModifyPeripheral16
+     • ModifyPeripheral32
+....
+In order to control the access to the registers the access has to be configured for each OsApplication. By this the Os can check during run-time if a caller has sufficient rights.
+
+=== 7.13.2 Requirements
+
+[[SWS_Os_00806]]
+....
+    Upstream requirements: SRS_Os_11005
+....
+⌈Check access to peripheral registers The Operating System shall only execute access to peripheral registers via APIs Read PeripheralX, WritePeripheralX and ModifyPeripheralX if :
+....
+     • parameter Address is in range of OsPeripheralAreaStartAddress and Os-
+       PeripheralAreaEndAddress
+     • parameter Area is valid
+     • the caller is configured to have sufficient rights (OsPeripheralAreaAc-
+       cessingApplication).
+....
+⌋
+
+[[SWS_Os_00807]]
+....
+    Upstream requirements: SRS_Os_11005
+....
+⌈Error handling of peripheral access API If the Operating System detects an error (see [[SWS_Os_00806]]) while executing a ReadPeripheralX, WritePeripheralX and ModifyPeripheralX the OS shall return the ap- propriate StatusType and call the ErrorHook. Otherwise E_OK shall be returned.⌋

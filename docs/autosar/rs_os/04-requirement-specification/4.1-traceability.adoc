@@ -1,0 +1,20 @@
+== 4.1 Traceability
+
+....
+ Feature no               Feature name
+ RS_BRF_01200             AUTOSAR OS shall be backwards compatible to OSEK OS
+ RS_BRF_01232             AUTOSAR OS shall support isolation and protection of application software
+ RS_BRF_01096             AUTOSAR shall support start-up and shutdown of ECUs
+ RS_BRF_01208             AUTOSAR OS shall support to start lists of tasks regularly
+ RS_BRF_01216             AUTOSAR OS shall support to synchronize ScheduleTables to an outside time source
+ RS_BRF_01240             AUTOSAR OS shall support communication between OSApplications
+ RS_BRF_02008             AUTOSAR shall provide mechanisms to protect the system from unauthorized read access
+ RS_BRF_01224             AUTOSAR OS shall support timing protection
+ RS_BRF_01248             AUTOSAR OS shall support to terminate and restart OSApplications
+ RS_BRF_01256             AUTOSAR OS shall offer support to switch off cores
+ RS_BRF_01264             AUTOSAR OS shall support multi-core deadlock free mutual exclusion
+ RS_BRF_01184             AUTOSAR shall support different methods of degradation
+ RS_BRF_00206             AUTOSAR shall support multi-core MCUs
+
+                                      Table 4.1: Traceability
+....

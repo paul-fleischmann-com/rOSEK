@@ -1,0 +1,2106 @@
+== 8.4 Function definitions
+
+The availability of the following services is defined in table [SWS_Os_00241]. The use of these services may be restricted depending on the context they are called from. See table 7.1 for details.
+
+=== 8.4.1 GetApplicationID
+
+[[SWS_Os_00016]]
+Definition of API function GetApplicationID Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name            GetApplicationID
+    Syntax                  ApplicationType GetApplicationID (
+                              void
+                            )
+    Service ID [hex]        0x00
+    Sync/Async              Synchronous
+    Reentrancy              Reentrant
+    Parameters (in)         None
+    Parameters (inout)      None
+    Parameters (out)        None
+    Return value            ApplicationType                <identifier of running OS-Application> or
+                                                           INVALID_OSAPPLICATION
+                                                                ▽
+
+                                                        △
+    Description          This service determines the OS-Application (a unique identifier has to be allocated to each
+                         application) where the caller originally belongs to (was configured to).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00261]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈GetApplicationID shall return the application identifier to which the executing Task/Cat2 ISR/hook was configured.⌋
+
+This means that the return value of GetApplicationID, when called from a category
+1 ISR, is undefined.
+
+[[SWS_Os_00262]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If no OS-Application is running, GetApplicationID shall return INVALID_OSAP- PLICATION.⌋
+
+[[SWS_Os_00514]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetApplicationID: Available in Scalability Classes 3 and 4 and in multi-core systems.⌋
+
+=== 8.4.2 GetCurrentApplicationID
+
+[[SWS_Os_00797]]
+Definition of API function GetCurrentApplicationID Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name         GetCurrentApplicationID
+    Syntax               ApplicationType GetCurrentApplicationID (
+                           void
+                         )
+    Service ID [hex]     0x27
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         ApplicationType              <identifier of the OS-Application> or INVALID_OSAPPLICATION
+                                                        ▽
+
+                                                          △
+    Description          This service determines the OS-Application where the caller of the service is currently
+                         executing. Note that if the caller is not within a CallTrustedFunction() call the value is equal to
+                         the result of GetApplicationID().
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00798]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈GetCurrentApplicationID shall return the application identifier in which the cur- rent Task/Cat2 ISR/hook is executed.⌋
+
+This means that the return value of GetCurrentApplicationID, when called from a category 1 ISR, is undefined.
+
+[[SWS_Os_00799]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If no OS-Application is running, GetCurrentApplicationID shall return IN- VALID_OSAPPLICATION.⌋
+
+[[SWS_Os_00800]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetCurrentApplicationID: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.3 GetISRID
+
+[[SWS_Os_00511]]
+Definition of API function GetISRID ⌈ Service Name         GetISRID Syntax               ISRType GetISRID ( void ) Service ID [hex]     0x01 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      None Parameters (inout)   None Parameters (out)     None Return value         ISRType                        <Identifier of running ISR> or INVALID_ISR Description          This service returns the identifier of the currently executing ISR. Available via        Os.h
+
+⌋
+
+[[SWS_Os_00263]]
+⌈If called from category 2 ISR (or Hook routines called inside a category 2 ISR), GetISRID shall return the identifier of the currently executing ISR.⌋
+
+[[SWS_Os_00264]]
+⌈If its caller is not a category 2 ISR (or Hook routines called inside a category 2 ISR), GetISRID shall return INVALID_ISR.⌋
+
+[[SWS_Os_00515]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetISRID: Available in all Scalability Classes.⌋
+
+=== 8.4.4 CallTrustedFunction
+
+[[SWS_Os_00097]]
+Definition of API function CallTrustedFunction Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name         CallTrustedFunction
+    Syntax               StatusType CallTrustedFunction (
+                           TrustedFunctionIndexType FunctionIndex,
+                           TrustedFunctionParameterRefType FunctionParams
+                         )
+    Service ID [hex]     0x02
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      FunctionIndex                 Index of the function to be called.
+                         FunctionParams                Pointer to the parameters for the function - specified by the
+                                                       FunctionIndex - to be called. If no parameters are provided, a
+                                                       NULL_PTR has to be passed.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                    E_OK: No Error
+                                                       E_OS_SERVICEID: No function defined for this index
+    Description          A (trusted or non-trusted) OS-Application uses this service to call a trusted function
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00265]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If <FunctionIndex> is a defined function index, CallTrustedFunction shall call the function <FunctionIndex> out of a list of implementation specific trusted functions with the protection settings of the OS-Application which provides the trusted function AND shall return E_OK after completion.⌋
+
+[[SWS_Os_00312]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈Caveats of CallTrustedFunction:
+
+....
+     • The called trusted function must conform to the following C prototype: void
+       TRUSTED_<name_of_the_trusted_service>( TrustedFunctionIndex
+       Type,TrustedFunctionParameterRefType); (The arguments are the
+       same as the arguments of CallTrustedFunction).
+     • Normally, a user will not directly call this service, but it will be part of some stan-
+       dard interface, e.g. a standard I/O interface.
+     • It is the duty of the called trusted function to check rights of passed parameters,
+       especially if parameters are interpreted as out parameters.
+     • It should be noted that the CallTrustedFunction does not disable timing pro-
+       tection for the Task which called the service. This may lead to timing faults (calls
+       of the ProtectionHook) even inside of a trusted OS-Application. It is therefore
+       recommended to use CallTrustedFunction only for stateless functions (e.g.
+       functions which do not write or do not have internal states)
+....
+⌋
+
+[[SWS_Os_00266]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈When CallTrustedFunction calls the function <FunctionIndex>, that function shall be executed with the same processor mode, memory protection boundaries and the service protection limitations of the OS-Application to which it belongs. The notion of "current application" shall remain that of the calling Task or Category 2 ISR.⌋
+
+Reaction to timing protection can be defined to terminate the OS-Application. If a Task is inside CallTrustedFunction and Task rescheduling takes place within the same OS-Application, the newly running higher priority Task may cause timing protec- tion and terminate the OS-Application, thus indirectly aborting the trusted function. To avoid this, the scheduling of other Tasks which belong to the same OS-Application as the caller can be restricted, as well as the availability of interrupts of the same OS- Application.
+
+[[SWS_Os_00565]]
+⌈When CallTrustedFunction is called and the caller of Call- TrustedFunction is supervised with timing protection, the Operating System shall delay any timing protection errors until the CallTrustedFunction returns to a OsApplication with OsTrustedApplicationDelayTimingViolationCall == FALSE.⌋
+
+[[SWS_Os_00563]]
+⌈ If OsLockTrustedFunctionCall == TRUE the OperatingSystem shall not schedule any other Tasks which belong to the same OS-Application as the non-trusted caller of the service. Also interrupts of Category 2 which belong to the same OS-Application shall be disabled during the execution of the service.⌋
+
+The lock/disabling in [SWS_Os_00563] is required to support timing supervision. Since the caller of a trusted function can be any Task or Category 2 ISR the Operating System has to make sure that no other calls can preempt/interrupt the ongoing trusted function.
+
+[[SWS_Os_00364]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If CallTrustedFunction calls the trusted function, that function shall continue to run on the same interrupt/task priority and be allowed to call system services defined for inside trusted functions.⌋
+
+See also table in chapter 7.7.3.3.
+
+[[SWS_Os_00292]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the function index <FunctionIndex> in a call of CallTrustedFunction is unde- fined, CallTrustedFunction shall return E_OS_SERVICEID.⌋
+
+[[SWS_Os_00516]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of CallTrustedFunction: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.5 CheckISRMemoryAccess
+
+[[SWS_Os_00512]]
+Definition of API function CheckISRMemoryAccess Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name         CheckISRMemoryAccess
+    Syntax               AccessType CheckISRMemoryAccess (
+                           ISRType ISRID,
+                           MemoryStartAddressType Address,
+                           MemorySizeType Size
+                         )
+    Service ID [hex]     0x03
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ISRID                        ISR reference
+                         Address                      Start of memory area
+                         Size                         Size of memory area
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         AccessType                   Value which contains the access rights to the memory area.
+    Description          This service checks if a memory region is write/read/execute accessible and also returns
+                         information if the memory region is part of the stack space.
+                                                        ▽
+
+                                                △
+    Available via      Os.h
+....
+⌋
+
+[[SWS_Os_00267]]
+....
+    Upstream requirements: SRS_Os_11005
+....
+⌈If the ISR reference <ISRID> in a call of CheckISRMemoryAccess is valid, Check- ISRMemoryAccess shall return the access rights of the ISR on the specified memory area.⌋
+
+[[SWS_Os_00313]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If an access right (e.g. "read") is not valid for the whole memory area specified in a call of CheckISRMemoryAccess, CheckISRMemoryAccess shall yield no access regarding this right.⌋
+
+[[SWS_Os_00268]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ISR reference <ISRID> is not valid, CheckISRMemoryAccess shall yield no access rights.⌋
+
+[[SWS_Os_00517]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of CheckISRMemoryAccess: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.6 CheckTaskMemoryAccess
+
+[[SWS_Os_00513]]
+Definition of API function CheckTaskMemoryAccess Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name       CheckTaskMemoryAccess
+    Syntax             AccessType CheckTaskMemoryAccess (
+                         TaskType TaskID,
+                         MemoryStartAddressType Address,
+                         MemorySizeType Size
+                       )
+    Service ID [hex]   0x04
+    Sync/Async         Synchronous
+    Reentrancy         Reentrant
+    Parameters (in)    TaskID                  Task reference
+                       Address                 Start of memory area
+                                                ▽
+
+                                                        △
+                         Size                         Size of memory area
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         AccessType                   Value which contains the access rights to the memory area.
+    Description          This service checks if a memory region is write/read/execute accessible and also returns
+                         information if the memory region is part of the stack space.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00269]]
+....
+    Upstream requirements: SRS_Os_11005
+....
+⌈If the Task reference <TaskID> in a call of CheckTaskMemoryAccess is valid, CheckTaskMemoryAccess shall return the access rights of the Task on the specified memory area.⌋
+
+[[SWS_Os_00314]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If an access right (e.g. "read") is not valid for the whole memory area specified in a call of CheckTaskMemoryAccess, CheckTaskMemoryAccess shall yield no access regarding this right.⌋
+
+[[SWS_Os_00270]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the Task reference <TaskID> in a call of CheckTaskMemoryAccess is not valid, CheckTaskMemoryAccess shall yield no access rights.⌋
+
+[[SWS_Os_00518]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of CheckTaskMemoryAccess: Available in Scalability Classes 3 and 4⌋
+
+=== 8.4.7 CheckObjectAccess
+
+[[SWS_Os_00256]]
+Definition of API function CheckObjectAccess Upstream requirements: SRS_Os_11010
+
+⌈
+....
+    Service Name         CheckObjectAccess
+    Syntax               ObjectAccessType CheckObjectAccess (
+                           ApplicationType ApplID,
+                           ObjectTypeType ObjectType,
+                           void ...
+                         )
+    Service ID [hex]     0x05
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ApplID                        OS-Application identifier
+                         ObjectType                    Type of the following parameter
+                         ...                           The object to be examined
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         ObjectAccessType              ACCESS if the ApplID has access to the object
+                                                       NO_ACCESS otherwise
+    Description          This service determines if the OS-Applications, given by ApplID, is allowed to use the IDs of a
+                         Task, Resource, Counter, Alarm or Schedule Table in API calls.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00271]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If the OS-Application <ApplID> in a call of CheckObjectAccess has access to the queried object, CheckObjectAccess shall return ACCESS.⌋
+
+[[SWS_Os_00272]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If the OS-Application <ApplID> in a call of CheckObjectAccess has no access to the queried object, CheckObjectAccess shall return NO_ACCESS.⌋
+
+[[SWS_Os_00423]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If in a call of CheckObjectAccess the object to be examined is not a valid object OR <ApplID> is invalid OR <ObjectType> is invalid THEN CheckObjectAccess shall return NO_ACCESS.⌋
+
+[[SWS_Os_00519]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of CheckObjectAccess: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.8 CheckObjectOwnership
+
+[[SWS_Os_00017]]
+Definition of API function CheckObjectOwnership Upstream requirements: SRS_Os_11010
+
+⌈
+....
+    Service Name         CheckObjectOwnership
+    Syntax               ApplicationType CheckObjectOwnership (
+                           ObjectTypeType ObjectType,
+                           void ...
+                         )
+    Service ID [hex]     0x06
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ObjectType                   Type of the following parameter
+                         ...                          The object to be examined
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         ApplicationType              <OS-Application>: the OS-Application to which the object Object
+                                                      Type belongs or
+                                                      INVALID_OSAPPLICATION if the object does not exists
+    Description          This service determines to which OS-Application a given Task, ISR, Counter, Alarm or
+                         Schedule Table belongs
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00273]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If the object <ObjectType> specified in a call of CheckObjectOwnership exists, CheckObjectOwnership shall return the identifier of the OS-Application to which the object belongs.⌋
+
+[[SWS_Os_00274]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If in a call of CheckObjectOwnership the specified object <ObjectType> is invalid OR the argument of the type (the ". . . ") is invalid OR the object does not belong to any OS-Application, CheckObjectOwnership shall return INVALID_OSAPPLICATION.⌋
+
+[[SWS_Os_00520]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of CheckObjectOwnership: Available in Scalability Classes 3 and 4 and in multi-core systems.⌋
+
+=== 8.4.9 StartScheduleTableRel
+
+[[SWS_Os_00347]]
+Definition of API function StartScheduleTableRel Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Service Name         StartScheduleTableRel
+    Syntax               StatusType StartScheduleTableRel (
+                           ScheduleTableType ScheduleTableID,
+                           TickType Offset
+                         )
+    Service ID [hex]     0x07
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID               Schedule table to be started
+                         Offset                        Number of ticks on the counter before the the schedule table
+                                                       processing is started
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                    E_OK: No Error
+                                                       E_OS_ID (only in EXTENDED status): ScheduleTableID not valid.
+                                                       E_OS_VALUE (only in EXTENDED status): Offset is greater than
+                                                       (OsCounterMaxAllowedValue - InitialOffset) or is equal to 0.
+                                                       E_OS_STATE: Schedule table was already started.
+    Description          This service starts the processing of a schedule table at "Offset" relative to the "Now" value on
+                         the underlying counter.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00275]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableRel is not valid, StartScheduleTableRel shall return E_OS_ID.⌋
+
+[[SWS_Os_00452]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableRel is implicitely synchronized (OsScheduleTblSyncStrategy = IMPLICIT), StartScheduleTableRel shall return E_OS_ID.⌋
+
+[[SWS_Os_00332]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If <Offset> in a call of StartScheduleTableRel is zero StartSched- uleTableRel shall return E_OS_VALUE.⌋
+
+[[SWS_Os_00276]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the offset <Offset>) is greater than OsCounterMaxAllowedValue of the un- derlying Counter minus the Initial Offset, StartScheduleTableRel shall return E_OS_VALUE.⌋
+
+[[SWS_Os_00277]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableRel is not in the state SCHEDULETABLE_STOPPED, StartScheduleTableRel shall return E_OS_STATE.⌋
+
+[[SWS_Os_00278]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the input parameters of StartScheduleTableRel are valid and the state of ScheduleTable <ScheduleTableID> is SCHEDULETABLE_STOPPED, then StartScheduleTableRel shall start the processing of a ScheduleTable <Sched- uleTableID>. The Initial Expiry Point shall be processed after <Offset> + Initial Offset ticks have elapsed on the underlying Counter. The state of <ScheduleTableID> is set to SCHEDULETABLE_RUNNING before the service returns to the caller.⌋
+
+[[SWS_Os_00521]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of StartScheduleTableRel: Available in all Scalability Classes.⌋
+
+=== 8.4.10 StartScheduleTableAbs
+
+[[SWS_Os_00358]]
+Definition of API function StartScheduleTableAbs Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Service Name         StartScheduleTableAbs
+    Syntax               StatusType StartScheduleTableAbs (
+                           ScheduleTableType ScheduleTableID,
+                           TickType Start
+                         )
+    Service ID [hex]     0x08
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID         Schedule table to be started
+                         Start                   Absolute counter tick value at which the schedule table is started
+    Parameters (inout)   None
+                                                  ▽
+
+                                                      △
+    Parameters (out)   None
+    Return value       StatusType                    E_OK: No Error
+                                                     E_OS_ID (only in EXTENDED status): ScheduleTableID not valid
+                                                     E_OS_VALUE (only in EXTENDED status): "Start" is greater than
+                                                     OsCounterMaxAllowedValue
+                                                     E_OS_STATE: Schedule table was already started
+    Description        This service starts the processing of a schedule table at an absolute value "Start" on the
+                       underlying counter.
+    Available via      Os.h
+....
+⌋
+
+[[SWS_Os_00348]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableAbs is not valid, StartScheduleTableAbs shall return E_OS_ID.⌋
+
+[[SWS_Os_00349]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the <Start> in a call of StartScheduleTableAbs is greater than the OsCounter- MaxAllowedValue of the underlying Counter, StartScheduleTableAbs shall re- turn E_OS_VALUE.⌋
+
+[[SWS_Os_00350]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableAbs is not in the state SCHEDULETABLE_STOPPED, StartScheduleTableAbs shall return E_OS_STATE.⌋
+
+[[SWS_Os_00351]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the input parameters of StartScheduleTableAbs are valid and <ScheduleTable ID> is in the state SCHEDULETABLE_STOPPED, StartScheduleTableAbs shall start the processing of ScheduleTable <ScheduleTableID> when the underlying Counter next equals <Start> and shall set the state of <ScheduleTableID> to - SCHEDULETABLE_RUNNING (for a non-synchronized / Explicitly synchronized ScheduleTable) OR
+....
+- SCHEDULETABLE_RUNNING_AND_SYNCHRONOUS                                     (for     implicitly      synchronized
+....
+ScheduleTable) before returning to the user. (The Initial Expiry Point will be processed when the un- derlying Counter next equals <Start>+Initial Offset).⌋
+
+[[SWS_Os_00522]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of StartScheduleTableAbs: Available in all Scalability Classes.⌋
+
+=== 8.4.11 StopScheduleTable
+
+[[SWS_Os_00006]]
+Definition of API function StopScheduleTable Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Service Name         StopScheduleTable
+    Syntax               StatusType StopScheduleTable (
+                           ScheduleTableType ScheduleTableID
+                         )
+    Service ID [hex]     0x09
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID              Schedule table to be stopped
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                   E_OK: No Error
+                                                      E_OS_ID (only in EXTENDED status): ScheduleTableID not valid.
+                                                      E_OS_NOFUNC: Schedule table was already stopped
+    Description          This service cancels the processing of a schedule table immediately at any point while the
+                         schedule table is running.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00279]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable identifier <ScheduleTableID> in a call of StopSched- uleTable is not valid, StopScheduleTable shall return E_OS_ID.⌋
+
+[[SWS_Os_00280]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable with identifier <ScheduleTableID> is in state SCHED- ULETABLE_STOPPED when calling StopScheduleTable, StopScheduleTable shall return E_OS_NOFUNC.⌋
+
+[[SWS_Os_00281]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the input parameters of StopScheduleTable are valid, StopSched- uleTableshall set the state of <ScheduleTableID> to SCHEDULETABLE_STOPPED and (stop the ScheduleTable <ScheduleTableID> from processing any further ex- piry points and) shall return E_OK.⌋
+
+[[SWS_Os_00523]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of StopScheduleTable: Available in all Scalability Classes.⌋
+
+=== 8.4.12 NextScheduleTable
+
+[[SWS_Os_00191]]
+Definition of API function NextScheduleTable Upstream requirements: SRS_Os_00099
+
+⌈
+....
+    Service Name         NextScheduleTable
+    Syntax               StatusType NextScheduleTable (
+                           ScheduleTableType ScheduleTableID_From,
+                           ScheduleTableType ScheduleTableID_To
+                         )
+    Service ID [hex]     0x0a
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID_From         Currently processed schedule table
+                         ScheduleTableID_To           Schedule table that provides its series of expiry points
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                   E_OK: No error
+                                                      E_OS_ID (only in EXTENDED status): ScheduleTableID_From or
+                                                      ScheduleTableID_To
+                                                      not valid
+                                                      E_OS_NOFUNC: ScheduleTableID_From not started
+                                                      E_OS_STATE: ScheduleTableID_To is started or next
+    Description          This service switches the processing from one schedule table to another schedule table.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00282]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the input parameter <ScheduleTableID_From> or <ScheduleTableID_To> in a call of NextScheduleTable is not valid, NextScheduleTable shall return E_OS_ID.⌋
+
+[[SWS_Os_00330]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If in a call of NextScheduleTable ScheduleTable <ScheduleTableID_To> is driven by different Counter than ScheduleTable <ScheduleTableID_From> then NextScheduleTable shall return an error E_OS_ID.⌋
+
+[[SWS_Os_00283]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID_From> in a call of NextScheduleTable is in state SCHEDULETABLE_STOPPED OR in state SCHEDULETABLE_NEXT, NextScheduleTable shall leave the state of <ScheduleTable_From> and <Sched- uleTable_To> unchanged and return E_OS_NOFUNC.⌋
+
+[[SWS_Os_00309]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If the ScheduleTable <ScheduleTableID_To> in a call of NextScheduleTable is not in state SCHEDULETABLE_STOPPED, NextScheduleTable shall leave the state of <ScheduleTable_From> and <ScheduleTable_To> unchanged and return E_OS_STATE.⌋
+
+[[SWS_Os_00484]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If OsScheduleTblSyncStrategy of <ScheduleTableID_To> in a call of NextScheduleTable is not equal to the OsScheduleTblSyncStrategy of <ScheduleTableID_From> then NextScheduleTable shall return E_OS_ID.⌋
+
+[[SWS_Os_00284]]
+Upstream requirements: SRS_Os_00099
+
+⌈If the input parameters of NextScheduleTable are valid then NextSched- uleTable shall start the processing of ScheduleTable <ScheduleTableID_To> <ScheduleTableID_From>.FinalDelay ticks after the Final Expiry Point on <Sched- uleTableID_From> is processed and shall return E_OK. NextScheduleTable shall process the Initial Expiry Point on <ScheduleTableID_To> at <ScheduleTableID_ From>.Final Delay + <ScheduleTable_To>.Initial Offset ticks after the Final Expiry Point on <ScheduleTableID_From> is processed .⌋
+
+[[SWS_Os_00324]]
+Upstream requirements: SRS_Os_00099
+
+⌈If the input parameters of NextScheduleTable are valid AND the <ScheduleTa- bleID_From> already has a "next" ScheduleTable then NextScheduleTableshall replace the previous "next" ScheduleTable with <ScheduleTableID_To> and shall change the old "next" ScheduleTable state to SCHEDULETABLE_STOPPED.⌋
+
+[[SWS_Os_00505]]
+Upstream requirements: SRS_Os_11002
+
+⌈If OsScheduleTblSyncStrategy of the ScheduleTables <ScheduleTableID_ From> and <ScheduleTableID_To> in a call of NextScheduleTable is EXPLICIT and the Operating System module already synchronizes <ScheduleTableID_From>, NextScheduleTable shall continue synchonization after the start of processing <ScheduleTableID_To>.⌋
+
+[[SWS_Os_00453]]
+Upstream requirements: SRS_Os_00099
+
+⌈If the <ScheduleTableID_From> in a call of NextScheduleTable is stopped, NextScheduleTable shall not start the "next" ScheduleTable and change its state to SCHEDULETABLE_STOPPED.⌋
+
+[[SWS_Os_00524]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of NextScheduleTable: Available in all Scalability Classes.⌋
+
+=== 8.4.13 StartScheduleTableSynchron
+
+[[SWS_Os_00201]]
+Definition of API function StartScheduleTableSynchron Upstream requirements: SRS_Os_11002
+
+⌈
+....
+    Service Name         StartScheduleTableSynchron
+    Syntax               StatusType StartScheduleTableSynchron (
+                           ScheduleTableType ScheduleTableID
+                         )
+    Service ID [hex]     0x0b
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID               Schedule table to be started
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                    E_OK: No Error
+                                                       E_OS_ID (only in EXTENDED status): ScheduleTableID not valid
+                                                       E_OS_STATE: Schedule table was already started
+    Description          This service starts an explicitly synchronized schedule table synchronously.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00387]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If in a call of StartScheduleTableSynchron the ScheduleTable <Schedule TableID> is not valid OR the ScheduleTable <ScheduleTableID> is not explicitly synchronized (OsScheduleTblSyncStrategy != EXPLICIT) StartScheduleTa- bleSynchron shall return E_OS_ID.⌋
+
+[[SWS_Os_00388]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of StartScheduleTableSyn- chron is not in the state SCHEDULETABLE_STOPPED, StartScheduleTableSyn- chron shall return E_OS_STATE.⌋
+
+[[SWS_Os_00389]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If <ScheduleTableID> in a call of StartScheduleTableSynchron is valid, StartScheduleTableSynchron shall set the state of <ScheduleTableID> to SCHEDULETABLE_WAITING and start the processing of ScheduleTable <Schedule
+
+TableID> after the synchronization count of the ScheduleTable is set via Sync- ScheduleTable. The Initial Expiry Point shall be processed when (Duration-Sync Value)+InitialOffset ticks have elapsed on the synchronization Counter where:
+....
+       • Duration is <ScheduleTableID>.OsScheduleTableDuration
+       • SyncValue is the <Value> parameter passed to the SyncScheduleTable
+       • InitialOffset is the shortest expiry point offset in <ScheduleTableID>
+....
+⌋
+
+[[SWS_Os_00525]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of StartScheduleTableSynchron: Available in Scalability Classes 2 and 4.⌋
+
+=== 8.4.14 SyncScheduleTable
+
+[[SWS_Os_00199]]
+Definition of API function SyncScheduleTable Upstream requirements: SRS_Os_11002
+
+⌈
+....
+    Service Name         SyncScheduleTable
+    Syntax               StatusType SyncScheduleTable (
+                           ScheduleTableType ScheduleTableID,
+                           TickType Value
+                         )
+    Service ID [hex]     0x0c
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID              Schedule table to be synchronized
+                         Value                        The current value of the synchronization counter
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                   E_OK: No errors
+                                                      E_OS_ID (only in EXTENDED status): The ScheduleTableID was
+                                                      not valid or schedule
+                                                      table can not be synchronized (OsScheduleTblSyncStrategy not
+                                                      set or
+                                                      OsScheduleTblSyncStrategy = IMPLICIT)
+                                                      E_OS_VALUE (only in EXETENDED status): The <Value> is out
+                                                      of range
+                                                      E_OS_STATE: The state of schedule table <ScheduleTableID> is
+                                                      equal to
+                                                      SCHEDULETABLE_STOPPED
+    Description          This service provides the schedule table with a synchronization count and start synchronization.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00454]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the <ScheduleTableID> in a call of SyncScheduleTable is not valid OR Sched- uleTable can not be explicitely synchronized (OsScheduleTblSyncStrategy is not equal to EXPLICIT) SyncScheduleTable shall return E_OS_ID.⌋
+
+[[SWS_Os_00455]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the <Value> in a call of SyncScheduleTable is greater or equal than the OsS- cheduleTableDuration, SyncScheduleTable shall return E_OS_VALUE.⌋
+
+[[SWS_Os_00456]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the state of the ScheduleTable <ScheduleTableID> in a call of SyncSched- uleTable is equal to SCHEDULETABLE_STOPPED or SCHEDULETABLE_NEXT Sync- ScheduleTable shall return E_OS_STATE.⌋
+
+[[SWS_Os_00457]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If the parameters in a call of SyncScheduleTable are valid, SyncScheduleTable shall provide the Operating System module with the current synchronization count for the given ScheduleTable. (It is used to synchronize the processing of the Schedule Table to the synchronization Counter.)⌋
+
+[[SWS_Os_00526]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of SyncScheduleTable: Available in Scalability Classes 2 and 4.⌋
+
+=== 8.4.15 SetScheduleTableAsync
+
+[[SWS_Os_00422]]
+Definition of API function SetScheduleTableAsync Upstream requirements: SRS_Os_11002
+
+⌈
+....
+    Service Name       SetScheduleTableAsync
+    Syntax             StatusType SetScheduleTableAsync (
+                         ScheduleTableType ScheduleTableID
+                       )
+    Service ID [hex]   0x0d
+    Sync/Async         Synchronous
+    Reentrancy         Reentrant
+                                               ▽
+
+                                                        △
+    Parameters (in)      ScheduleTableID              Schedule table for which status is requested
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                   E_OK: No Error
+                                                      E_OS_ID (only in EXTENDED status): Invalid ScheduleTableID
+    Description          This service stops synchronization of a schedule table.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00362]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If SetScheduleTableAsync is called for a running ScheduleTable, the Operating System module shall stop further synchronization until a SyncScheduleTable call is made.⌋
+
+[[SWS_Os_00323]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If SetScheduleTableAsync is called for a running ScheduleTable the Operating System module shall continue to process expiry points on the ScheduleTable.⌋
+
+[[SWS_Os_00458]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If OsScheduleTblSyncStrategy of <ScheduleTableID> in a call of SetSched- uleTableAsync is not equal to EXPLICIT OR if <ScheduleTableID> is invalid then SetScheduleTableAsync shall return E_OS_ID.⌋
+
+[[SWS_Os_00483]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the current state of the <ScheduleTableID> in a call of SetScheduleTableAsync equals to SCHEDULETABLE_STOPPED, SCHEDULETABLE_NEXT or SCHEDULETABLE_ WAITING then SetScheduleTableAsync shall return E_OS_STATE.⌋
+
+[[SWS_Os_00300]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If the current state of <ScheduleTableID> in a call of SetSched- uleTableAsync equals SCHEDULETABLE_RUNNING_AND_SYNCHRONOUS (or SCHEDULETABLE_RUNNING) then SetScheduleTableAsync shall set (or keep in case of SCHEDULETABLE_RUNNING) the status of <ScheduleTableID> to SCHED- ULETABLE_RUNNING.⌋
+
+[[SWS_Os_00527]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of SetScheduleTableAsync: Available in Scalability Classes 2 and 4.⌋
+
+=== 8.4.16 GetScheduleTableStatus
+
+[[SWS_Os_00227]]
+Definition of API function GetScheduleTableStatus Upstream requirements: SRS_Os_11002
+
+⌈
+....
+    Service Name         GetScheduleTableStatus
+    Syntax               StatusType GetScheduleTableStatus (
+                           ScheduleTableType ScheduleTableID,
+                           ScheduleTableStatusRefType ScheduleStatus
+                         )
+    Service ID [hex]     0x0e
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ScheduleTableID               Schedule table for which status is requested
+    Parameters (inout)   None
+    Parameters (out)     ScheduleStatus                Reference to ScheduleTableStatusType
+    Return value         StatusType                    E_OK: No Error
+                                                       E_OS_ID (only in EXTENDED status): Invalid ScheduleTableID
+    Description          This service queries the state of a schedule table (also with respect to synchronization).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00289]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of GetScheduleTableSta- tus is NOT started, GetScheduleTableStatus shall pass back SCHED- ULETABLE_STOPPED via the reference parameter <ScheduleStatus> AND shall return E_OK.⌋
+
+[[SWS_Os_00353]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of GetScheduleTableStatus was used in a NextScheduleTable call AND waits for the end of the current Sched- uleTable, GetScheduleTableStatus shall return SCHEDULETABLE_NEXT via the reference parameter <ScheduleStatus> AND shall return E_OK.⌋
+
+[[SWS_Os_00354]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of GetScheduleTableSta- tus is configured with explicit synchronization AND <ScheduleTableID> was started with StartScheduleTableSynchronAND no synchronization count was provided to the Operating System, GetScheduleTableStatus shall return SCHEDULETABLE_ WAITING via the reference parameter <ScheduleStatus> AND shall return E_OK.⌋
+
+[[SWS_Os_00290]]
+....
+    Upstream requirements: SRS_Os_11002
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of GetScheduleTableStatus is started AND synchronous, GetScheduleTableStatus shall pass back SCHED- ULETABLE_RUNNING_AND_SYNCHRONOUS via the reference parameter <Schedule Status> AND shall return E_OK.⌋
+
+[[SWS_Os_00291]]
+....
+    Upstream requirements: SRS_Os_00098
+....
+⌈If the ScheduleTable <ScheduleTableID> in a call of GetScheduleTableSta- tus is started AND NOT synchronous (deviation is not within the precision interval OR the ScheduleTable has been set asynchronous), GetScheduleTableStatus shall pass back SCHEDULETABLE_RUNNING via the reference parameter Schedule Status AND shall return E_OK.⌋
+
+[[SWS_Os_00293]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the identifier <ScheduleTableID> in a call of GetScheduleTableStatus is NOT valid, GetScheduleTableStatus shall return E_OS_ID.⌋
+
+[[SWS_Os_00528]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetScheduleTableStatus: Available in all Scalability Classes.⌋
+
+=== 8.4.17 IncrementCounter
+
+[[SWS_Os_00399]]
+Definition of API function IncrementCounter ⌈ Service Name         IncrementCounter Syntax               StatusType IncrementCounter ( CounterType CounterID ) Service ID [hex]     0x0f Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      CounterID                    The Counter to be incremented Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No errors E_OS_ID (only in EXTENDED status): The CounterID was not valid or counter is implemented in hardware and can not be incremented by software Description          This service increments a software counter. Available via        Os.h
+
+⌋
+
+[[SWS_Os_00285]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If the input parameter <CounterID> in a call of IncrementCounter is not valid OR the Counter is a hardware Counter, IncrementCounter shall return E_OS_ID.⌋
+
+[[SWS_Os_00286]]
+Upstream requirements: SRS_Os_11020
+
+⌈If the input parameter of IncrementCounter is valid, IncrementCounter shall increment the Counter <CounterID> by one (if any alarm connected to this Counter expires, the given action, e.g. Task activation, is done) and shall return E_OK.⌋
+
+[[SWS_Os_00321]]
+Upstream requirements: SRS_Os_11020
+
+⌈If in a call of IncrementCounter an error happens during the execution of an alarm action, e.g. E_OS_LIMIT caused by a Task activation, IncrementCounter shall call the error hook(s), but the IncrementCounter service itself shall return E_OK.⌋
+
+[[SWS_Os_00529]]
+Upstream requirements: SRS_Os_11020
+
+⌈Caveats of IncrementCounter: If called from a Task, rescheduling may take place.⌋
+
+[[SWS_Os_00530]]
+Upstream requirements: SRS_Os_11016
+
+⌈Availability of IncrementCounter: Available in all Scalability Classes.⌋
+
+=== 8.4.18 GetCounterValue
+
+[[SWS_Os_00383]]
+Definition of API function GetCounterValue ⌈ Service Name         GetCounterValue Syntax               StatusType GetCounterValue ( CounterType CounterID, TickRefType Value ) Service ID [hex]     0x10 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      CounterID            The Counter which tick value should be read Parameters (inout)   None Parameters (out)     Value                Contains the current tick value of the counter ▽
+
+....
+                                                        △
+    Return value         StatusType                    E_OK: No errors
+                                                       E_OS_ID (only in EXTENDED status): The <CounterID> was not
+                                                       valid
+    Description          This service reads the current count value of a counter (returning either the hardware timer
+                         ticks if counter is driven by hardware or the software ticks when user drives counter).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00376]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the input parameter <CounterID> in a call of GetCounterValue is not valid, GetCounterValue shall return E_OS_ID.⌋
+
+[[SWS_Os_00377]]
+⌈If the input parameter <CounterID> in a call of GetCounter- Value is valid, GetCounterValue shall return the current tick value of the Counter via <Value> and return E_OK.⌋
+
+[[SWS_Os_00531]]
+....
+    Upstream requirements: SRS_Os_11020
+....
+⌈Caveats of GetCounterValue: Note that for counters of OsCounterType = HARDWARE the real timer value (the - possibly adjusted - hardware value, see
+[[SWS_Os_00384]]
+) is returned, whereas for counters of OsCounterType = SOFTWARE the current "software" tick value is returned.⌋
+
+[[SWS_Os_00532]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetCounterValue: Available in all Scalability Classes.⌋
+
+=== 8.4.19 GetElapsedValue
+
+[[SWS_Os_00392]]
+Definition of API function GetElapsedValue ⌈ Service Name         GetElapsedValue Syntax               StatusType GetElapsedValue ( CounterType CounterID, TickRefType Value, TickRefType ElapsedValue ) Service ID [hex]     0x11 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      CounterID                     The Counter to be read Parameters (inout)   Value                         in: the previously read tick value of the counter out: the current tick value of the counter ▽
+
+....
+                                                      △
+    Parameters (out)   ElapsedValue                  The difference to the previous read value
+    Return value       StatusType                    E_OK: No errors
+                                                     E_OS_ID (only in EXTENDED status): The CounterID was not
+                                                     valid
+                                                     E_OS_VALUE (only in EXTENDED status): The given Value was
+                                                     not valid
+    Description        This service gets the number of ticks between the current tick value and a previously read tick
+                       value.
+    Available via      Os.h
+....
+⌋
+
+[[SWS_Os_00381]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the input parameter <CounterID> in a call of GetElapsedValue is not valid GetElapsedValue shall return E_OS_ID.⌋
+
+[[SWS_Os_00391]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the <Value> in a call of GetElapsedValue is larger than the max allowed value of the <CounterID>, GetElapsedValue shall return E_OS_VALUE.⌋
+
+[[SWS_Os_00382]]
+⌈If the input parameters in a call of GetElapsedValue are valid, GetElapsedValue shall return the number of elapsed ticks since the given <Value> value via <ElapsedValue> and shall return E_OK.⌋
+
+[[SWS_Os_00460]]
+⌈GetElapsedValue shall return the current tick value of the Counter in the <Value> parameter.⌋
+
+[[SWS_Os_00533]]
+⌈Caveats of GetElapsedValue:If the timer already passed the <Value> value a second (or multiple) time, the result returned is wrong. The reason is that the service can not detect such a relative overflow.⌋
+
+[[SWS_Os_00534]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetElapsedValue: Available in all Scalability Classes.⌋
+
+=== 8.4.20 TerminateApplication
+
+[[SWS_Os_00258]]
+Definition of API function TerminateApplication Upstream requirements: SRS_Os_11022
+
+⌈
+....
+    Service Name         TerminateApplication
+    Syntax               StatusType TerminateApplication (
+                           ApplicationType Application,
+                           RestartType RestartOption
+                         )
+    Service ID [hex]     0x12
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Application                  The identifier of the OS-Application to be terminated. If the caller
+                                                      belongs to <Application> the call results in a self termination.
+                         RestartOption                Parameter is no longer used and ignored.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                   E_OK: No errors
+                                                      E_OS_ID: <Application> was not valid (only in EXTENDED
+                                                      status)
+                                                      E_OS_ACCESS: The caller does not have the right to terminate
+                                                      <Application> (only in EXTENDED status)
+                                                      E_OS_STATE: The state of <Application> does not allow
+                                                      terminating <Application>
+    Description          This service terminates the OS-Application to which the calling Task/Category 2 ISR/application
+                         specific error hook belongs.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00493]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the input parameter <Application> in a call of TerminateApplication is not valid TerminateApplication shall return E_OS_ID.⌋
+
+[[SWS_Os_00494]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the input parameter <Application> in a call of TerminateApplication is valid AND the caller belongs to a non-trusted OS-Application AND the caller does not belong to <Application> TerminateApplication shall return E_OS_ACCESS.⌋
+
+[[SWS_Os_00507]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the state of <Application> in a call of TerminateApplication is APPLICA- TION_TERMINATED TerminateApplication shall return E_OS_STATE.⌋
+
+[[SWS_Os_00287]]
+....
+    Upstream requirements: SRS_Os_11022
+....
+⌈If the parameters in a call of TerminateApplication are valid and the above cri- teria are met TerminateApplication shall terminate <Application> (i.e. to kill all Tasks, disable the interrupt sources of those ISRs which belong to the OS-Application and free all other OS resources associated with the application). The <Application> state is set to APPLICATION_TERMINATED. If the caller belongs to <Application> TerminateApplication shall not return, otherwise it shall return E_OK.⌋
+
+[[SWS_Os_00535]]
+....
+    Upstream requirements: SRS_Os_11022
+....
+⌈Caveats of TerminateApplication:
+....
+       • If no applications are configured the implementation shall make sure that this
+         service is not available.
+       • Tasks and interrupts that are owned by a trusted application can terminate any
+         OS-Application. Tasks and interrupts that are owned by a non-trusted application
+         can only terminate their owning OS-Application.
+....
+⌋
+
+Note: Although trusted OS-Application can be forcibly terminated by Tasks/Interrupts of other trusted OS-Applications it is not recommended. This may have further impacts, e.g. to users who are currently part of such an OS-Application via a CallTrusted- Function call.
+
+[[SWS_Os_00536]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of TerminateApplication: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.21 GetApplicationState
+
+[[SWS_Os_00499]]
+Definition of API function GetApplicationState Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Service Name        GetApplicationState
+    Syntax              StatusType GetApplicationState (
+                          ApplicationType Application,
+                          ApplicationStateRefType Value
+                        )
+    Service ID [hex]    0x14
+    Sync/Async          Synchronous
+                                               ▽
+
+                                                        △
+    Reentrancy           Reentrant
+    Parameters (in)      Application                   The OS-Application from which the state is requested
+    Parameters (inout)   None
+    Parameters (out)     Value                         The current state of the application
+    Return value         StatusType                    E_OK: No errors
+                                                       E_OS_ID: <Application> is not valid (only in EXTENDED status)
+    Description          This service returns the current state of an OS-Application.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00495]]
+....
+    Upstream requirements: SRS_BSW_00323
+....
+⌈If the <Application> in a call of GetApplicationState is not valid GetApplica- tionState shall return E_OS_ID.⌋
+
+[[SWS_Os_00496]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈If the parameters in a call of GetApplicationState are valid, GetApplication- State shall return the state of OS-Application <Application> in <Value>.⌋
+
+[[SWS_Os_00537]]
+....
+    Upstream requirements: SRS_Os_11016
+....
+⌈Availability of GetApplicationState: Available in Scalability Classes 3 and 4.⌋
+
+=== 8.4.22 GetNumberOfActivatedCores
+
+[[SWS_Os_00672]]
+Definition of API function GetNumberOfActivatedCores Upstream requirements: SRS_Os_80001
+
+⌈
+....
+    Service Name         GetNumberOfActivatedCores
+    Syntax               uint32 GetNumberOfActivatedCores (
+                           void
+                         )
+    Service ID [hex]     0x15
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         uint32                        Number of cores running the AUTOSAR OS (see below)
+                                                        ▽
+
+                                                         △
+    Description          The function returns the number of cores running the AUTOSAR OS. This function might be a
+                         macro.
+    Available via        Os.h
+....
+⌋
+
+The function GetNumberOfActivatedCores shall be callable from within a Task and an Category 2 ISR. Otherwise the behavior is unspecified.
+
+[[SWS_Os_00673]]
+....
+    Upstream requirements: SRS_Os_80001
+....
+⌈The return value of GetNumberOfActivatedCores shall be less or equal to the configured value of OsNumberOfCores.⌋
+
+=== 8.4.23 GetCoreID
+
+[[SWS_Os_00674]]
+Definition of API function GetCoreID Upstream requirements: SRS_Os_80001
+
+⌈
+....
+    Service Name         GetCoreID
+    Syntax               CoreIdType GetCoreID (
+                           void
+                         )
+    Service ID [hex]     0x16
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         CoreIdType                    The return value is the unique ID of the core.
+    Description          The function returns a unique core identifier.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00675]]
+....
+    Upstream requirements: SRS_Os_80001
+....
+⌈The function GetCoreID shall return the unique logical CoreID of the core on which the function is called. The value is defined in the configuration parameter EcucCoreId.⌋
+
+=== 8.4.24 StartCore
+
+[[SWS_Os_00676]]
+Definition of API function StartCore Upstream requirements: SRS_Os_80006
+
+⌈
+....
+    Service Name         StartCore
+    Syntax               void StartCore (
+                           CoreIdType CoreID,
+                           StatusType* Status
+                         )
+    Service ID [hex]     0x17
+    Sync/Async           Synchronous
+    Reentrancy           Non Reentrant
+    Parameters (in)      CoreID                         Core identifier
+    Parameters (inout)   None
+    Parameters (out)     Status                         Return value of the function in extended status: E_OK: No Error
+                                                        E_OS_ID: Core ID is invalid. E_OS_ACCESS: The function was
+                                                        called after starting the OS. E_OS_STATE: The Core is already
+                                                        activated.
+                                                        Return value of the function in standard status E_OK: No Error
+    Return value         None
+    Description          It is not supported to call this function after StartOS(). The function starts the core specified by
+                         the parameter CoreID. The OUT parameter allows the caller to check whether the operation
+                         was successful or not. If a core is started by means of this function StartOS shall be called on
+                         the core.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00677]]
+....
+    Upstream requirements: SRS_Os_80006
+....
+⌈The function StartCore shall start one core that shall run under the control of the AUTOSAR OS.⌋
+
+[[SWS_Os_00678]]
+....
+    Upstream requirements: SRS_Os_80006
+....
+⌈Calls to the StartCore function after StartOS shall return with E_OS_ACCESS and the core shall not be started.⌋
+
+[[SWS_Os_00679]]
+....
+    Upstream requirements: SRS_Os_80006
+....
+⌈If the parameter CoreIDs refers to a core that was already started by the function StartCore the related core is ignored and E_OS_STATE shall be returned.⌋
+
+[[SWS_Os_00681]]
+....
+    Upstream requirements: SRS_Os_80006
+....
+⌈There is no call to the ErrorHook if an error occurs during StartCore.⌋
+
+=== 8.4.25 GetSpinlock
+
+[[SWS_Os_00686]]
+Definition of API function GetSpinlock Upstream requirements: SRS_Os_80021
+
+⌈
+....
+    Service Name         GetSpinlock
+    Syntax               StatusType GetSpinlock (
+                           SpinlockIdType SpinlockId
+                         )
+    Service ID [hex]     0x19
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      SpinlockId                     The value refers to the spinlock instance that shall be locked.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                     E_OK - In standard and extended status : No Error
+                                                        E_OS_ID - In extended status: The SpinlockId is invalid
+                                                        E_OS_INTERFERENCE_DEADLOCK - In extended status: A TASK
+                                                        tries to occupy the spinlock while the lock is already occupied by
+                                                        a TASK on the same core. This would cause a deadlock.
+                                                        E_OS_NESTING_DEADLOCK - In extended status: A TASK tries to
+                                                        occupy the spinlock while a TASK on the same core is holding a
+                                                        different spinlock in a way that may cause a deadlock.
+                                                        E_OS_ACCESS - In extended status: The spinlock cannot be
+                                                        accessed.
+    Description          GetSpinlock tries to occupy a spin-lock variable. If the function returns, either the lock is
+                         successfully taken or an error has occurred. The spinlock mechanism is an active polling
+                         mechanism. The function does not cause a de-scheduling.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00687]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall occupy a spinlock. If the spinlock is already occu- pied the function shall busy wait until the spinlock becomes available.⌋
+
+[[SWS_Os_00688]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall return E_OK if no error was detected. The spinlock is now occupied by the calling Task/Category 2 ISR on the calling core.⌋
+
+[[SWS_Os_00689]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall return E_OS_ID if the parameter SpinlockID refers to a spinlock that does not exist.⌋
+
+[[SWS_Os_00690]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall return E_OS_INTERFERENCE_DEADLOCK if the spinlock referred by the parameter SpinlockID is already occupied by a Task/Cate- gory 2 ISR on the same core.⌋
+
+[[SWS_Os_00691]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall return E_OS_NESTING_DEADLOCK if the sequence by which multiple spinlocks are occupied at the same time on one core do not comply with the configured order.⌋
+
+[[SWS_Os_00692]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function GetSpinlock shall return E_OS_ACCESS if the accessing OS- Application was not listed in the configuration (OsSpinlock).⌋
+
+[[SWS_Os_00693]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈It shall be allowed to call the function GetSpinlock while interrupts are disabled.⌋
+
+[[SWS_Os_00694]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈It shall be allowed to call the function GetSpinlock while a Resource is occupied.⌋
+
+=== 8.4.26 ReleaseSpinlock
+
+[[SWS_Os_00695]]
+Definition of API function ReleaseSpinlock Upstream requirements: SRS_Os_80021
+
+⌈
+....
+    Service Name         ReleaseSpinlock
+    Syntax               StatusType ReleaseSpinlock (
+                           SpinlockIdType SpinlockId
+                         )
+    Service ID [hex]     0x1a
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      SpinlockId           The value refers to the spinlock instance that shall be locked.
+    Parameters (inout)   None
+    Parameters (out)     None
+                                                ▽
+
+                                                     △
+    Return value       StatusType                   E_OK - In standard and extended status: No Error
+                                                    E_OS_ID - In extended status: The SpinlockId is invalid.
+                                                    E_OS_STATE - In extended status: The Spinlock is not occupied
+                                                    by the TASK
+                                                    E_OS_ACCESS - In extended status: The Spinlock cannot be
+                                                    accessed.
+                                                    E_OS_NOFUNC - In extended status: Attempt to release a spinlock
+                                                    while another spinlock (or resource) has to be released before.
+    Description        ReleaseSpinlock releases a spinlock variable that was occupied before. Before terminating a
+                       TASK all spinlock variables that have been occupied with GetSpinlock() shall be released.
+                       Before calling WaitEVENT all Spinlocks shall be released.
+    Available via      Os.h
+....
+⌋
+
+[[SWS_Os_00696]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall release a spinlock that has been occupied by the same (calling) Task. If the related GetSpinlock call used configured locks ( OsSpinlockLockMethod) the function shall also perform the undo of the used lock.⌋
+
+[[SWS_Os_00697]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall return E_OK if no error was detected. The spinlock is now free and can be occupied by the same or other Tasks.⌋
+
+[[SWS_Os_00698]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall return E_OS_ID if the parameter SpinlockID refers to a spinlock that does not exist.⌋
+
+[[SWS_Os_00699]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall return E_OS_STATE if the parameter Spinlock ID refers to a spinlock that is not occupied by the calling Task.⌋
+
+[[SWS_Os_00700]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall return E_OS_ACCESS if the Task has no ac- cess to the spinlock referred by the parameter SpinlockID⌋
+
+[[SWS_Os_00701]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function ReleaseSpinlock shall return E_OS_NOFUNC if the Task tries to re- lease a spinlock while another spinlock (or Resource) has to be released before. No functionality shall be performed.⌋
+
+=== 8.4.27 TryToGetSpinlock
+
+[[SWS_Os_00703]]
+Definition of API function TryToGetSpinlock Upstream requirements: SRS_Os_80021
+
+⌈
+....
+    Service Name         TryToGetSpinlock
+    Syntax               StatusType TryToGetSpinlock (
+                           SpinlockIdType SpinlockId,
+                           TryToGetSpinlockType* Success
+                         )
+    Service ID [hex]     0x1b
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      SpinlockId                   The value refers to the spinlock instance that shall be locked.
+    Parameters (inout)   None
+    Parameters (out)     Success                      Returns if the lock has been occupied or not
+    Return value         StatusType                   E_OK - In standard and extended status: No Error
+                                                      E_OS_ID - In extended status: The SpinlockId is invalid.
+                                                      E_OS_INTERFERENCE_DEADLOCK - In extended status: A TASK
+                                                      tries to occupy the spinlock while the lock is already occupied by
+                                                      a TASK on the same core. This would cause a deadlock.
+                                                      E_OS_NESTING_DEADLOCK - In extended status: A TASK tries to
+                                                      occupy a spinlock while holding a different spinlock in a way that
+                                                      may cause a deadlock.
+                                                      E_OS_ACCESS - In extended status: The spinlock cannot be
+                                                      accessed.
+    Description          TryToGetSpinlock has the same functionality as GetSpinlock with the difference that if the
+                         spinlock is already occupied by a TASK on a different core the function sets the OUT parameter
+                         "Success" and returns with E_OK.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00704]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function TryToGetSpinlock shall atomically test the availability of the spinlock and if available occupy it. The result of success is returned.⌋
+
+[[SWS_Os_00705]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈The function TryToGetSpinlock shall set the OUT parameter "Success" to TRY- TOGETSPINLOCK_SUCCESS if the spinlock was successfully occupied, and TRYTO- GETSPINLOCK_NOSUCCESS if not. In both cases E_OK shall be returned.⌋
+
+[[SWS_Os_00706]]
+....
+    Upstream requirements: SRS_Os_80021
+....
+⌈If the function TryToGetSpinlock does not return E_OK, the OUT parameter "Suc- cess" shall be undefined.⌋
+
+[[SWS_Os_00707]]
+Upstream requirements: SRS_Os_80021
+
+⌈The function TryToGetSpinlock shall return E_OS_ID if the parameter SpinlockID refers to a spinlock that does not exist.⌋
+
+[[SWS_Os_00708]]
+Upstream requirements: SRS_Os_80021
+
+⌈The function TryToGetSpinlock shall return E_OS_INTERFERENCE_DEADLOCK if the spinlock referred by the parameter SpinlockID is already occupied by a Task on the same core.⌋
+
+[[SWS_Os_00709]]
+Upstream requirements: SRS_Os_80021
+
+⌈The function TryToGetSpinlock shall return E_OS_NESTING_DEADLOCK if a Task tries to occupy a spinlock while holding a different spinlock in a way that may cause a deadlock.⌋
+
+[[SWS_Os_00710]]
+Upstream requirements: SRS_Os_80021
+
+⌈The function TryToGetSpinlock shall return E_OS_ACCESS if the Task has no access to the spinlock referred by the parameter SpinlockID⌋
+
+[[SWS_Os_00711]]
+Upstream requirements: SRS_Os_80021
+
+⌈It shall be allowed to call the function TryToGetSpinlock while interrupts are dis- abled.⌋
+
+[[SWS_Os_00712]]
+Upstream requirements: SRS_Os_80021
+
+⌈It shall be allowed to call the function TryToGetSpinlock while a Resource is occupied.⌋
+
+=== 8.4.28 ShutdownAllCores
+
+[[SWS_Os_00713]]
+Definition of API function ShutdownAllCores Upstream requirements: SRS_Os_80007, SRS_BSW_00336
+
+⌈
+....
+    Service Name         ShutdownAllCores
+    Syntax               void ShutdownAllCores (
+                           StatusType Error
+                         )
+    Service ID [hex]     0x1c
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Error                          <Error> needs to be a valid error code supported by the
+                                                        AUTOSAR OS.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         None
+    Description          After this service the OS on all AUTOSAR cores is shut down. Allowed at TASK level and ISR
+                         level and also internally by the OS. The function will never return. The function will force other
+                         cores into a shutdown.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00714]]
+....
+    Upstream requirements: SRS_Os_80007
+....
+⌈A synchronized shutdown shall be triggered by the API function ShutdownAll- Cores.⌋
+
+[[SWS_Os_00715]]
+....
+    Upstream requirements: SRS_Os_80007
+....
+⌈ShutdownAllCores shall not return.⌋
+
+[[SWS_Os_00716]]
+....
+    Upstream requirements: SRS_Os_80007
+....
+⌈If ShutdownAllCores is called from non trusted code the call shall be ignored.⌋
+
+=== 8.4.29 ReadPeripheral8, ReadPeripheral16, ReadPeripheral32
+
+[[SWS_Os_91013]]
+Definition of API function ReadPeripheral8 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ReadPeripheral8
+    Syntax               StatusType ReadPeripheral8 (
+                           AreaIdType Area,
+                           const uint8* Address,
+                           uint8* ReadValue
+                         )
+    Service ID [hex]     0x28
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                         hardware peripheral area reference
+                         Address                      memory address
+    Parameters (inout)   None
+    Parameters (out)     ReadValue                    content of the given memory location (<Address>)
+    Return value         StatusType                   E_OK No error
+                                                      E_OS_ID Area id is out of range (EXTENDED status)
+                                                      E_OS_VALUE Address does not belong to given Area
+                                                      (EXTENDED status)
+                                                      E_OS_CALLEVEL Wrong call context of the API function
+                                                      (EXTENDED status)
+                                                      E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                      the given
+    Description          This service returns the content of a given memory location (<Address>).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91015]]
+Definition of API function ReadPeripheral16 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ReadPeripheral16
+    Syntax               StatusType ReadPeripheral16 (
+                           AreaIdType Area,
+                           const uint16* Address,
+                           uint16* ReadValue
+                         )
+    Service ID [hex]     0x29
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                         hardware peripheral area reference
+                         Address                      memory address
+    Parameters (inout)   None
+    Parameters (out)     ReadValue                    content of the given memory location (<Address>)
+                                                       ▽
+
+                                                       △
+    Return value         StatusType                   E_OK No error
+                                                      E_OS_ID Area id is out of range (EXTENDED status)
+                                                      E_OS_VALUE Address does not belong to given Area
+                                                      (EXTENDED status)
+                                                      E_OS_CALLEVEL Wrong call context of the API function
+                                                      (EXTENDED status)
+                                                      E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                      the given
+    Description          This service returns the content of a given memory location (<Address>).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91014]]
+Definition of API function ReadPeripheral32 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ReadPeripheral32
+    Syntax               StatusType ReadPeripheral32 (
+                           AreaIdType Area,
+                           const uint32* Address,
+                           uint32* ReadValue
+                         )
+    Service ID [hex]     0x2a
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                         hardware peripheral area reference
+                         Address                      memory address
+    Parameters (inout)   None
+    Parameters (out)     ReadValue                    content of the given memory location (<Address>)
+    Return value         StatusType                   E_OK No error
+                                                      E_OS_ID Area id is out of range (EXTENDED status)
+                                                      E_OS_VALUE Address does not belong to given Area
+                                                      (EXTENDED status)
+                                                      E_OS_CALLEVEL Wrong call context of the API function
+                                                      (EXTENDED status)
+                                                      E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                      the given
+    Description          This service returns the content of a given memory location (<Address>).
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.30 WritePeripheral8, WritePeripheral16, WritePeripheral32
+
+[[SWS_Os_91010]]
+Definition of API function WritePeripheral8 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         WritePeripheral8
+    Syntax               StatusType WritePeripheral8 (
+                           AreaIdType Area,
+                           uint8* Address,
+                           uint8 WriteValue
+                         )
+    Service ID [hex]     0x2b
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+    Parameters (inout)   None
+    Parameters (out)     WriteValue                  value to be written at the memory address
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service writes the <value> to a given memory location (<memory address>).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91012]]
+Definition of API function WritePeripheral16 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         WritePeripheral16
+    Syntax               StatusType WritePeripheral16 (
+                           AreaIdType Area,
+                           uint16* Address,
+                           uint16 WriteValue
+                         )
+    Service ID [hex]     0x2c
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+    Parameters (inout)   None
+    Parameters (out)     WriteValue                  value to be written at the memory address
+                                                       ▽
+
+                                                       △
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service writes the <value> to a given memory location (<memory address>).
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91011]]
+Definition of API function WritePeripheral32 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         WritePeripheral32
+    Syntax               StatusType WritePeripheral32 (
+                           AreaIdType Area,
+                           uint32* Address,
+                           uint32 WriteValue
+                         )
+    Service ID [hex]     0x2d
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+    Parameters (inout)   None
+    Parameters (out)     WriteValue                  content of the given memory location (<Address>)
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service writes the <value> to a given memory location (<memory address>).
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.31 ModifyPeripheral8, ModifyPeripheral16, ModifyPeripheral32
+
+[[SWS_Os_91016]]
+Definition of API function ModifyPeripheral8 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ModifyPeripheral8
+    Syntax               StatusType ModifyPeripheral8 (
+                           AreaIdType Area,
+                           uint8* Address,
+                           uint8 Clearmask,
+                           uint8 Setmask
+                         )
+    Service ID [hex]     0x2e
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+                         Clearmask                   memory address will be modified by an bit-AND
+                         Setmask                     memory address will be modified by an bit-OR
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service modifies a given memory location (<memory address>) with the formula:
+                         *<Address> = ((*<Address> & <clearmask>) | <setmask>)
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91018]]
+Definition of API function ModifyPeripheral16 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ModifyPeripheral16
+    Syntax               StatusType ModifyPeripheral16 (
+                           AreaIdType Area,
+                           uint16* Address,
+                           uint16 Clearmask,
+                           uint16 Setmask
+                         )
+    Service ID [hex]     0x35
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+                                                       ▽
+
+                                                       △
+                         Clearmask                   memory address will be modified by an bit-AND
+                         Setmask                     memory address will be modified by an bit-OR
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service modifies a given memory location (<memory address>) with the formula:
+                         *<Address> = ((*<Address> & <clearmask>) | <setmask>)
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_91017]]
+Definition of API function ModifyPeripheral32 Upstream requirements: SRS_Os_11005
+
+⌈
+....
+    Service Name         ModifyPeripheral32
+    Syntax               StatusType ModifyPeripheral32 (
+                           AreaIdType Area,
+                           uint32* Address,
+                           uint32 Clearmask,
+                           uint32 Setmask
+                         )
+    Service ID [hex]     0x2f
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      Area                        hardware peripheral area reference
+                         Address                     memory address
+                         Clearmask                   memory address will be modified by an bit-AND
+                         Setmask                     memory address will be modified by an bit-OR
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                  E_OK No error
+                                                     E_OS_ID Area id is out of range (EXTENDED status)
+                                                     E_OS_VALUE Address does not belong to given Area
+                                                     (EXTENDED status)
+                                                     E_OS_CALLEVEL Wrong call context of the API function
+                                                     (EXTENDED status)
+                                                     E_OS_ACCESS The calling task or ISR is not allowed to access
+                                                     the given
+    Description          This service modifies a given memory location (<memory address>) with the formula:
+                         *<Address> = ((*<Address> & <clearmask>) | <setmask>)
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.32 EnableInterruptSource
+
+[[SWS_Os_91020]]
+Definition of API function EnableInterruptSource Upstream requirements: SRS_Os_11011
+
+⌈
+....
+    Service Name         EnableInterruptSource
+    Syntax               StatusType EnableInterruptSource (
+                           ISRType ISRID,
+                           boolean ClearPending
+                         )
+    Service ID [hex]     0x31
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ISRID                          The ID of a category 2 ISR.
+                         ClearPending                   Defines whether the pending flag shall be cleared (TRUE) or not
+                                                        (FALSE).
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                     E_OK No error.
+                                                        E_OS_ID ISRID is not a valid category 2 ISR identifier
+                                                        (EXTENDED status)
+                                                        E_OS_CALLEVEL Wrong call context of the API function
+                                                        (EXTENDED status)
+                                                        E_OS_ACCESS The calling application is not the owner of the ISR
+                                                        passed in ISRID (Service Protection)
+    Description          Enables the interrupt source by modifying the interrupt controller registers. Additionally it may
+                         clear the interrupt pending flag
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.33 DisableInterruptSource
+
+[[SWS_Os_91019]]
+Definition of API function DisableInterruptSource Upstream requirements: SRS_Os_11011
+
+⌈
+....
+    Service Name         DisableInterruptSource
+    Syntax               StatusType DisableInterruptSource (
+                           ISRType ISRID
+                         )
+    Service ID [hex]     0x30
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ISRID                          The ID of a category 2 ISR.
+    Parameters (inout)   None
+    Parameters (out)     None
+                                                         ▽
+
+                                                         △
+    Return value         StatusType                     E_OK No error.
+                                                        E_OS_ID ISRID is not a valid category 2 ISR identifier
+                                                        (EXTENDED status)
+                                                        E_OS_CALLEVEL Wrong call context of the API function
+                                                        (EXTENDED status)
+                                                        E_OS_ACCESS The calling application is not the owner of the ISR
+                                                        passed in ISRID (Service Protection)
+    Description          Disables the interrupt source by modifying the interrupt controller registers.
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.34 ClearPendingInterrupt
+
+[[SWS_Os_91021]]
+Definition of API function ClearPendingInterrupt Upstream requirements: SRS_Os_11011
+
+⌈
+....
+    Service Name         ClearPendingInterrupt
+    Syntax               StatusType ClearPendingInterrupt (
+                           ISRType ISRID
+                         )
+    Service ID [hex]     0x32
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      ISRID                          The ID of a category 2 ISR.
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         StatusType                     E_OK No error.
+                                                        E_OS_ID ISRID is not a valid category 2 ISR identifier
+                                                        (EXTENDED status)
+                                                        E_OS_CALLEVEL Wrong call context of the API function
+                                                        (EXTENDED status)
+                                                        E_OS_ACCESS The calling application is not the owner of the ISR
+                                                        passed in ISRID (Service Protection)
+    Description          Clears the interrupt pending flag by modifying the interrupt controller registers.
+    Available via        Os.h
+....
+⌋
+
+=== 8.4.35 ActivateTaskAsyn
+
+[[SWS_Os_91022]]
+Definition of API function ActivateTaskAsyn Upstream requirements: SRS_Os_80015
+
+⌈
+....
+    Service Name         ActivateTaskAsyn
+    Syntax               void ActivateTaskAsyn (
+                           TaskType id
+                         )
+    Service ID [hex]     0x33
+    Sync/Async           Asynchronous
+    Reentrancy           Reentrant
+    Parameters (in)      id                            The id of the task to be activated
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         None
+    Description          Asynchronous version of the ActivateTask() function. Intended to be used for cross core task
+                         activation. Possible errors are not returned to the caller, but may be reported via error hooks.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00818]]
+....
+    Upstream requirements: SRS_Os_80015
+
+⌈Availability of ActivateTaskAsyn:                       Available in systems which support OS-
+....
+Applications.⌋
+
+Note: If during the Task activation an error occurs, and the caller is already gone (e.g. callers OS-Application is already terminated, OR callers core is shutting down OR ...) calls to error hooks are dropped and no reporting is done.
+
+=== 8.4.36 SetEventAsyn
+
+[[SWS_Os_91023]]
+Definition of API function SetEventAsyn Upstream requirements: SRS_Os_80015
+
+⌈
+....
+    Service Name         SetEventAsyn
+    Syntax               void SetEventAsyn (
+                           TaskType id,
+                           EventMaskType m
+                         )
+    Service ID [hex]     0x34
+    Sync/Async           Asynchronous
+    Reentrancy           Reentrant
+                                                         ▽
+
+                                                          △
+    Parameters (in)      id                             The id of the task to be activated
+                         m                              Mask of the events to be set
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         None
+    Description          Asynchronous version of the SetEvent() function. Intended to be used for cross core event
+                         setting. Possible errors are not returned to the caller, but may be reported via error hooks.
+    Available via        Os.h
+....
+⌋
+
+[[SWS_Os_00819]]
+....
+    Upstream requirements: SRS_Os_80015
+....
+⌈Availability of SetEventAsyn: Available in systems which support OS-Applications.⌋
+
+Note: If during the event setting an error occurs and the caller is already gone (e.g. callers OS-Application is already terminated, OR callers core is shutting down OR ...) calls to error hooks are dropped and no reporting is done.
+
+8.4.37 isOsStarted
+
+[[SWS_Os_91034]]
+Definition of API function isOsStarted Status:                DRAFT Upstream requirements: SRS_Os_00097
+
+⌈
+....
+    Service Name         isOsStarted (draft)
+    Syntax               boolean isOsStarted (
+                           void
+                         )
+    Service ID [hex]     0x36
+    Sync/Async           Synchronous
+    Reentrancy           Reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         boolean                        returns true if StartOS() was called otherwise false.
+    Description          This API returns a boolean value which indicates if the Os was already started. In case of
+                         multi-core it shall check if StartOs was already called on the core where isOsStarted was
+                         called. If the Os was (locally) started it returns true otherwise false. The function is intended to
+                         be implemented as macro. The function is by nature also callable before StartOs, but assumes
+                         a valid and initialized C environment (e.g. main() was called before the use of isOsStarted)
+                         Tags: atp.Status=draft
+    Available via        Os.h
+....
+⌋
+
+The isOsStarted API can be useful for drivers to detect if the Os was already started or not. Note that if called from within category 1 ISRs during startup it my happen that
+
+this interrupt just happened while the call to StartOS is processed. In such cases the correct return value of true is not guaranteed.
+
+8.4.38 BudgetReplenish
+
+[[SWS_Os_91035]]
+Definition of API function BudgetReplenish ⌈ Service Name         BudgetReplenish Syntax               StatusType BudgetReplenish ( TaskType id ) Service ID [hex]     0x38 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      id                           The id of the Task whose budget is replenished Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No error E_OS_ID: If id is no Task Id OR if Task is no Deferrable Server. E_OS_ACCESS: Calling application is not owner/has no access to Task OR id is Task Id of caller Task. Description          This API replenishes the execution budget of the given Task. Available via        Os.h
+
+⌋
+
+[[SWS_Os_00874]]
+Details of BudgetReplenish ⌈The function BudgetReplenish will add the configured execution budget (OsTaskExecutionBudget) to the current budget of the Task. If this would result in a bigger current budget than configured (in OsTaskExecutionBudget), the budget is saturated to OsTaskExecutionBudget. If the new budget is bigger than 0 and the task was previously in BUDGET_EXHAUSTED it will change state to READY and a rescheduling may happen.⌋
+
+Note: As per [SWS_Os_91035] it is not allowed to do a "self" replenish by calling the API with the own Task Id. In such cases the API returns E_OS_ACCESS.
+
+[[SWS_Os_00875]]
+Availability of BudgetReplenish ⌈The function BudgetRe- plenish is only available in Scalability Classes 2 and 4.⌋

@@ -1,0 +1,12 @@
+== 4.12 Shutdown of Multi-Core systems
+
+=== 4.12.1 Overview
+
+Similar to the startup, the shutdown behavior of a Multi-Core system is different from the behavior of a Single-Core system. If a run time object with the proper rights calls "ShutdownOS", the whole system (all cores controlled by the MC-OS) have to shut down. Once the shutdown procedure has been started, validtasks cannot be activated. It is in the responsibility of the developer/ system integrator to make sure that any preparations for shutdown on application and basic software level are completed before calling "ShutdownOS".
+
+=== 4.12.2 Requirements
+
+[[SRS_Os_80007]]
+Shutdown procedure shall be triggered by any core ⌈ Description:    The shutdown procedure can be triggered from any core. In case of an error, the related handler may require system shutdown. This Rationale: must be possible by any core. Use Case:       Protection hook returns PRO_SHUTDOWN Dependencies:   OS specification Supporting      – Material:
+
+⌋

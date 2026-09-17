@@ -1,0 +1,399 @@
+== 8.3 Type definitions
+
+=== 8.3.1 ApplicationType (for OS-Applications)
+
+[[SWS_Os_00772]]
+Definition of datatype ApplicationType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ApplicationType
+    Kind             Type
+    Derived from     uint32
+    Range            INVALID_OSAPPLICATION           –                          –
+    Description      This data type identifies the OS-Application.
+    Available via    Os.h
+....
+⌋
+
+[[SWS_Os_00826]]
+....
+    Upstream requirements: SRS_Os_80005
+....
+⌈The range of valid OS-Applications described by ApplicationType shall be zero- based and consecutive. The value shall be defined by the EcucPartitionId of the Ecuc- Partition referenced by the OS-Application. The Value of INVALID_OSAPPLICATION shall lie outside the range of valid OS-Application IDs.⌋
+
+Note: The OS may use other representations internally for a performance optimal im- plementation.
+
+[[SWS_Os_CONSTR_00001]]
+....
+    Upstream requirements: SRS_Os_80005
+....
+⌈The relationship between OsApplication and EcucPartition is supposed to be unique. This means that an EcucPartition must not be referenced by multiple OsAppEcucPar- titionRefs.⌋
+
+[[SWS_Os_CONSTR_00002]]
+....
+    Upstream requirements: SRS_Os_80005
+....
+⌈EcucPartitionIds shall be unique, zero based and consecutive.⌋
+
+=== 8.3.2 ApplicationStateType
+
+[[SWS_Os_00773]]
+Definition of datatype ApplicationStateType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ApplicationStateType
+    Kind             Type
+    Derived from     scalar
+    Range            APPLICATION_                     –                              –
+                     ACCESSIBLE
+                     APPLICATION_                     –                              –
+                     TERMINATED
+    Description      This data type identifies the state of an OS-Application.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.3 ApplicationStateRefType
+
+[[SWS_Os_00774]]
+Definition of datatype ApplicationStateRefType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ApplicationStateRefType
+    Kind             Type
+    Derived from     pointer
+    Description      This data type points to location where a ApplicationStateType can be stored.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.4 TrustedFunctionIndexType
+
+[[SWS_Os_00775]]
+Definition of datatype TrustedFunctionIndexType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             TrustedFunctionIndexType
+    Kind             Type
+    Derived from     scalar
+    Description      This data type identifies a trusted function.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.5 TrustedFunctionParameterRefType
+
+[[SWS_Os_00776]]
+Definition of datatype TrustedFunctionParameterRefType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             TrustedFunctionParameterRefType
+    Kind             Type
+    Derived from     pointer
+    Description      This data type points to a structure which holds the arguments for a call to a trusted function.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.6 AccessType
+
+[[SWS_Os_00777]]
+Definition of datatype AccessType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             AccessType
+    Kind             Type
+    Derived from     integral
+    Description      This type holds information how a specific memory region can be accessed.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.7 ObjectAccessType
+
+[[SWS_Os_00778]]
+Definition of datatype ObjectAccessType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ObjectAccessType
+    Kind             Type
+    Derived from     implementation_specific
+    Range            ACCESS                           –                               –
+                     NO_ACCESS                        –                               –
+    Description      This data type identifies if an OS-Application has access to an object.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.8 ObjectTypeType
+
+[[SWS_Os_00779]]
+Definition of datatype ObjectTypeType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ObjectTypeType
+    Kind             Type
+    Derived from     implementation_specific
+
+    Range            OBJECT_TASK                      –                               –
+                     OBJECT_ISR                       –                               –
+                     OBJECT_ALARM                     –                               –
+                     OBJECT_RESOURCE                  –                               –
+                     OBJECT_COUNTER                   –                               –
+                     OBJECT_                          –                               –
+                     SCHEDULETABLE
+    Description      This data type identifies an object.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.9 MemoryStartAddressType
+
+[[SWS_Os_00780]]
+Definition of datatype MemoryStartAddressType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name              MemoryStartAddressType
+    Kind              Pointer
+    Type              void*
+    Description       This data type is a pointer which is able to point to any location in the MCU address space.
+    Available via     Os.h
+....
+⌋
+
+=== 8.3.10 MemorySizeType
+
+[[SWS_Os_00781]]
+Definition of datatype MemorySizeType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             MemorySizeType
+    Kind             Type
+    Derived from     implementation_specific
+    Description      This data type holds the size (in bytes) of a memory region.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.11 ISRType
+
+[[SWS_Os_00782]]
+Definition of datatype ISRType ⌈ Name             ISRType Kind             Type Derived from     implementation_specific Range            INVALID_ISR                      –                              – Description      This data type identifies an interrupt service routine (ISR). Available via    Os.h
+
+⌋
+
+=== 8.3.12 ScheduleTableType
+
+[[SWS_Os_00783]]
+Definition of datatype ScheduleTableType Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Name             ScheduleTableType
+    Kind             Type
+    Derived from     implementation_specific
+    Description      This data type identifies a schedule table.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.13 ScheduleTableStatusType
+
+[[SWS_Os_00784]]
+Definition of datatype ScheduleTableStatusType Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Name             ScheduleTableStatusType
+    Kind             Type
+    Derived from     implementation_specific
+    Range            SCHEDULETABLE_                   –                               –
+                     STOPPED
+                     SCHEDULETABLE_NEXT               –                               –
+                     SCHEDULETABLE_                   –                               –
+                     WAITING
+                     SCHEDULETABLE_                   –                               –
+                     RUNNING
+                     SCHEDULETABLE_                   –                               –
+                     RUNNING_AND_
+                     SYNCHRONOUS
+    Description      This type describes the status of a schedule. The status can be one of the following:
+                      • The schedule table is not started (SCHEDULETABLE_STOPPED)
+                      • The schedule table will be started after the end of currently running schedule table (schedule
+                        table was used in NextScheduleTable() service) (SCHEDULETABLE_NEXT)
+                      • The schedule table uses explicit synchronization, has been started and is waiting for the global
+                        time. (SCHEDULETABLE_WAITING)
+                      • The schedule table is running, but is currently not synchronous to a global time source
+                        (SCHEDULETABLE_RUNNING)
+                      • The schedule table is running and is synchronous to a global time source (SCHEDULETABLE_
+                        RUNNING_AND_SYNCHRONOUS)
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.14 ScheduleTableStatusRefType
+
+[[SWS_Os_00785]]
+Definition of datatype ScheduleTableStatusRefType Upstream requirements: SRS_Os_00098
+
+⌈
+....
+    Name              ScheduleTableStatusRefType
+    Kind              Pointer
+    Type              ScheduleTableStatusType*
+    Description       This data type points to a variable of the data type ScheduleTableStatusType.
+    Available via     Os.h
+....
+⌋
+
+=== 8.3.15 ProtectionReturnType
+
+[[SWS_Os_00787]]
+Definition of datatype ProtectionReturnType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             ProtectionReturnType
+    Kind             Type
+    Derived from     implementation_specific
+    Range            PRO_IGNORE                       –                                –
+                     PRO_TERMINATETASKISR             –                                –
+                     PRO_TERMINATEAPPL                –                                –
+                     PRO_SHUTDOWN                     –                                –
+                     PRO_PREVENT_                     –                                –
+                     ARRIVAL_RATE
+    Description      This data type identifies a value which controls further actions of the OS on return from the
+                     protection hook.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.16 RestartType
+
+[[SWS_Os_00788]]
+Definition of datatype RestartType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             RestartType
+    Kind             Type
+    Derived from     implementation_specific
+                                                          ▽
+
+                                                         △
+    Range            OS_OSAPPLICATION_               –                                –
+                     RESTART
+                     OS_OSAPPLICATION_NO_            –                                –
+                     RESTART
+    Description      This data type defines the use of a Restart Task after terminating an OS-Application.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.17 PhysicalTimeType
+
+[[SWS_Os_00789]]
+Definition of datatype PhysicalTimeType ⌈ Name             PhysicalTimeType Kind             Type Derived from     implementation_specific Description      This data type is used for values returned by the conversion macro (see [SWS_Os_00393]) OS_ TICKS2<Unit>_<Counter>(). Available via    Os.h
+
+⌋
+
+=== 8.3.18 CoreIdType
+
+[[SWS_Os_00790]]
+Definition of datatype CoreIdType Upstream requirements: SRS_Os_80011
+
+⌈
+....
+    Name             CoreIdType
+    Kind             Type
+    Derived from     scalar
+    Range            OS_CORE_ID_MASTER               –                                refers to the master core, may be
+                                                                                      an alias for OS_CORE_ID_<x>
+                     OS_CORE_ID_0..OS_               –                                refers to logical core 0, core 1 etc.
+                     CORE_ID_65533
+    Description      CoreIdType is a scalar that allows identifying a single core. The CoreIdType shall represent the
+                     logical CoreID
+    Available via    Os.h
+....
+⌋
+
+[[SWS_Os_00825]]
+....
+    Upstream requirements: SRS_Os_80011
+....
+⌈The range of valid Core-IDs described by CoreIdType shall be zero-based and con- secutive.⌋
+
+=== 8.3.19 SpinlockIdType
+
+[[SWS_Os_00791]]
+Definition of datatype SpinlockIdType Upstream requirements: SRS_Os_80021
+
+⌈
+....
+    Name             SpinlockIdType
+    Kind             Type
+    Derived from     scalar
+    Range            1..65535                        –                               0x01, 0x02, ...: identifies a
+                                                                                     spinlock instance
+                     INVALID_SPINLOCK                0                               represents an invalid spinlock
+                                                                                     instance
+    Description      SpinlockIdType identifies a spinlock instance and is used by the API functions: GetSpinlock,
+                     ReleaseSpinlock and TryToGetSpinlock.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.20 TryToGetSpinlockType
+
+[[SWS_Os_00792]]
+Definition of datatype TryToGetSpinlockType Upstream requirements: SRS_Os_80021
+
+⌈
+....
+    Name             TryToGetSpinlockType
+    Kind             Enumeration
+    Range            TRYTOGETSPINLOCK_               –                    Spinlock successfully occupied
+                     SUCCESS
+                     TRYTOGETSPINLOCK_               –                    Unable to occupy the spinlock
+                     NOSUCCESS
+    Description      The TryToGetSpinlockType indicates if the spinlock has been occupied or not.
+    Available via    Os.h
+....
+⌋
+
+=== 8.3.21 AreaIdType
+
+[[SWS_Os_91000]]
+Definition of datatype AreaIdType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             AreaIdType
+    Kind             Type
+    Derived from     scalar
+                                                         ▽
+
+                                                                △
+    Range                0..65534                         –                               identifies a peripheral area
+    Description          AreaIdType identifies a peripheral area and is used by the API functions: ReadPeripheralX, Write
+                         PeripheralX and ModifyPeripheralX
+    Available via        Os.h
+....
+⌋
+
+=== 8.3.22 CounterType
+
+[[SWS_Os_00786]]
+Definition of datatype CounterType ⌈ Name                 CounterType Kind                 Type Derived from         uint32 Description          This data type identifies a counter. Available via        Os.h
+
+⌋

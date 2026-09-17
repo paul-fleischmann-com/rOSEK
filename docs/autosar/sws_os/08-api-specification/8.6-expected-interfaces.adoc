@@ -1,0 +1,72 @@
+== 8.6 Expected Interfaces
+
+In this chapter all interfaces required from other modules are listed.
+
+=== 8.6.1 Mandatory Interfaces
+
+There are no mandatory interfaces for the IOC.
+
+=== 8.6.2 Optional Interfaces
+
+The following table contains the optional interfaces which might be used by the Os and which are provided by other BSW modules.
+
+[[SWS_Os_91036]]
+Definition of optional interfaces requested by module Os ⌈ API Function                          Header File       Description Gpt_DisableNotification               Gpt.h             Disables the interrupt notification for a channel (relevant in normal mode). Gpt_EnableNotification                Gpt.h             Enables the interrupt notification for a channel (relevant in normal mode). Gpt_GetTimeElapsed                    Gpt.h             Returns the time already elapsed. Gpt_StartTimer                        Gpt.h             Starts a timer channel. Gpt_StopTimer                         Gpt.h             Stops a timer channel.
+
+⌋
+
+==== 8.6.2.1 ReceiverPullCB
+
+[[SWS_Os_00757]]
+Definition of configurable interface <ReceiverPullCB> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name              <ReceiverPullCB>
+    Syntax                    void <ReceiverPullCB> (
+                                void
+                              )
+    Sync/Async                Synchronous
+    Reentrancy                Reentrant
+    Parameters (in)           None
+    Parameters (inout)        None
+    Parameters (out)          None
+    Return value              None
+                                                        ▽
+
+                                                      △
+    Description        This callback function can be configured for the receiver of a communication. If configured, IOC
+                       calls this callback on the receiving core for each data reception. <ReceiverPullCB> is the
+                       callback function name configured by the receiver in the OsIocReceiverPullCB attribute to be
+                       called on data reception."
+    Available via      Os.h
+....
+⌋
+
+[[SWS_Os_00758]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The <ReceiverPullCB> function name shall be defined within a configuration file for each IOC communication in the OsIocReceiverPullCB attribute.⌋
+
+[[SWS_Os_00759]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The name of the callback shall be unique over the micro controller. For this purpose the following example can be considered as orientation for the IOC user: Example: Rte_IocReceiveCB_<IocId>⌋
+
+[[SWS_Os_00760]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The <ReceiverPullCB> function on the receiver side is using the access rights of the receiving OsApplication.⌋
+
+Note: This means that such a callback cannot be reused by another OsApplication.
+
+[[SWS_Os_00761]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈This notification mechanism shall be supported for both queued and unqueued com- munication semantic.⌋
+
+The owner of the <ReceiverPullCB> function shall pay attention that the execution time of the function shall not last too long. It shall be possible to call this function from an IOC-ISR.

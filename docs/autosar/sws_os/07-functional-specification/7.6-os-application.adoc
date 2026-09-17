@@ -1,0 +1,114 @@
+== 7.6 OS-Application
+
+=== 7.6.1 Background & Rationale
+
+An AUTOSAR OS must be capable of supporting a collection of Operating System objects (Tasks, ISRs, Alarms, ScheduleTables, Counters) that form a cohesive functional unit. This collection of objects is termed an OS-Application. The Operating System module is responsible for scheduling the available processing resource between the OS-Applications that share the processor. If OS-Application(s) are used, all Tasks, ISRs, Counters, Alarms and ScheduleTables must belong to an OS-Application. All objects which belong to the same OS-Application have access to each other. The right to access objects from other OS-Applications may be granted during configuration. An Event is accessible if the Task for which the event can be set is accessible. Access means that these Operating System objects are allowed as parameters to API services. There are two classes of OS-Application: 1. Trusted OS-Applications are allowed to run with monitoring or protection features
+....
+     disabled at runtime. They may have unrestricted access to memory, the Oper-
+     ating System module’s API, and need not have their timing behaviour enforced
+     at runtime. They are allowed to run in privileged mode when supported by the
+     processor. The Operating System module assumes that trusted OS-Applications
+     (and trusted functions) do not cause a memory related protection fault. If such a
+     fault happens the system stability is likely gone and a shutdown may be the only
+     option.
+....
+2. Non-Trusted OS-Applications are not allowed to run with monitoring or protection
+....
+     features disabled at runtime. They have restricted access to memory, restricted
+     access to the Operating System module’s API and have their timing behaviour
+     enforced at runtime. They are not allowed to run in privileged mode when sup-
+     ported by the processor.
+....
+It is assumed that the Operating System module itself is trusted. There are services offered by the AUTOSAR OS which give the caller information about the access rights and the membership of objects. These services are intended to be used in case of an inter-OS-Application call for checking access rights and arguments. Note that Resource objects do not belong to any OS-Application, but access to them must be explicitly granted. (The same principle applies to spinlocks in Multi-Core sys- tems) The running OS-Application is defined as the OS-Application to which the currently running Task or ISR belongs. In case of a hook routine the Task or ISR which caused the call of the hook routine defines the running OS-Application.
+
+....
+                       Figure 7.9: UML-model of OS-Application
+....
+OS-Applications have a state which defines the scope of accessibility of its Operating System objects from other OS-Applications. Each OS-Application is always in one of the following states:
+....
+    • Active and accessible (APPLICATION_ACCESSIBLE): Operating System objects
+      may be accessed from other OS-Applications. This is the default state at startup.
+    • Terminated and not accessible (APPLICATION_TERMINATED): Operating Sys-
+      tem objects cannot be accessed from other OS-Applications. State will not
+      change.
+....
+The following figure shows the states and the possible transitions:
+
+....
+                        Figure 7.10: States of OS-Applications
+....
+
+=== 7.6.2 Requirements
+
+[[SWS_Os_00445]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall support OS-Applications which are a configurable selection of Trusted Functions, Tasks, ISRs, Alarms, ScheduleTables, Counters, hooks (for startup, error and shutdown).⌋
+
+[[SWS_Os_00446]]
+Upstream requirements: SRS_Os_11001
+
+⌈The Operating System module shall support the notion of trusted and non-trusted OS-Applications.⌋
+
+[[SWS_Os_00464]]
+Upstream requirements: SRS_Os_11001
+
+⌈Trusted OS-Applications may offer services ("trusted services") to other (even non- trusted) OS-Applications.⌋
+
+The Operating System module provides the services GetApplicationID and GetCurrentApplicationID (see [SWS_Os_00016]) to determine the configured resp. currently executing OS-Application (a unique identifier shall be allocated to each application). The Operating System module provides the service CheckObjectOwnership (see [SWS_Os_00017]) to determine to which OS-Application a given Task, ISR, Counter, Alarm or ScheduleTable belongs. The Operating System module provides the service CheckObjectAccess (see
+[[SWS_Os_00256]]
+) to determine which OS-Applications are allowed to use the IDs of a Task, Resource, Counter, Alarm or ScheduleTable in API calls. The Operating System module provides the service TerminateApplication (see
+[[SWS_Os_00258]]
+) to terminate the OS-Application to which the calling Task/Category
+
+2 ISR/application specific error hook belongs. (This is an OS-Application level variant of the TerminateTask service) The Operating System provides the service TerminateApplication (see
+[[SWS_Os_00258]]
+) to terminate another OS-Application AND calls to this service shall be ignored if the caller does not belong to a trusted OS-Application.
+
+[[SWS_Os_00447]]
+....
+    Upstream requirements: SRS_Os_11022
+....
+⌈If the Operating System module terminates an OS-Application, then it shall:
+....
+     • terminate all running, ready and waiting Tasks/ISRs of the OS-Application AND
+     • disable all interrupts of the OS-Application AND
+     • stop all active alarms of the OS-Applications AND
+     • stop all ScheduleTables of the OS-Application.
+....
+⌋
+
+[[SWS_Os_00448]]
+....
+    Upstream requirements: SRS_Os_11010
+....
+⌈The Operating System module shall prevent access of OS-Applications, trusted or non-trusted, to objects not belonging to this OS-Application, except access rights for such objects are explicitly granted by configuration.⌋
+
+The Operating System provides the service GetApplicationState (see
+[[SWS_Os_00499]]
+) to request the current state of an OS-Application.
+
+[[SWS_Os_00500]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈The Operating System module shall set the state of all OS-Applications after the call of StartOS and before any StartupHook is called to APPLICATION_ACCESSIBLE.⌋
+
+[[SWS_Os_00502]]
+....
+    Upstream requirements: SRS_Os_11022
+....
+⌈If an OS-Application is terminated (e.g. through a service call or via protection hook) then the Operating System module shall set the state of this OS-Application to APPLI- CATION_TERMINATED.⌋
+
+[[SWS_Os_00504]]
+....
+    Upstream requirements: SRS_Os_11001
+....
+⌈The Operating System module shall deny access to Operating System objects from other OS-Applications to an OS-Application which is not in state APPLICA- TION_ACCESSIBLE.⌋
+
+[[SWS_Os_00509]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If a service call is made on an Operating System object that is owned by another OS-Application without state APPLICATION_ACCESSIBLE, then the Operating Sys- tem module shall return E_OS_ACCESS.⌋
+
+An example for [SWS_Os_00509] is a call to ActivateTask for a Task in an OS- Application that already terminated.

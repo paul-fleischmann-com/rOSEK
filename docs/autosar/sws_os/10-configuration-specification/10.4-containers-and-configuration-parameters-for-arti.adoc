@@ -1,0 +1,1339 @@
+== 10.4 Containers and configuration parameters for ARTI
+
+This section describes the structure (containers) and the parameters of ARTI objects related to the OS configuration. ARTI objects are defined by the MOD_ARTI model. For a detailed description of the referenced ARTI parameters, please see chapter 10 of [11]. Also refer to application note 12.7 of this document.
+
+[[SWS_Os_00859]]
+....
+     Upstream requirements: RS_Arti_00001, RS_Arti_00002, RS_Arti_00003, RS_Arti_00005, RS_-
+                            Arti_00007, RS_Arti_00011, RS_Arti_00012, RS_Arti_00014, RS_-
+                            Arti_00016, RS_Arti_00018, RS_Arti_00022, RS_Arti_00023, RS_Arti_
+                            00004, RS_Arti_00009
+....
+⌈The configuration items ArtiHardware and ArtiOs and their related subcontainers contain the parameters to configure ARTI objects.⌋
+
+=== 10.4.1 ArtiHardware
+
+[[ECUC_Arti_00061]]
+Definition of EcucParamConfContainerDef ArtiHardware ⌈ Container Name                     ArtiHardware Parent Container                   Arti Description                        The ArtiHardware container contains ARTI extensions to the EcucHardware module. Multiplicity                       0..1 Post-Build Variant Multiplicity    true Multiplicity Configuration Class   Pre-compile time                   X        VARIANT-PRE-COMPILE Link time                          – Post-build time                    X        VARIANT-POST-BUILD Configuration Parameters
+
+....
+    No Included Parameters
+
+    Included Containers
+    Container Name                      Multiplicity       Dependency
+    ArtiHardwareCoreClass               0..1               Contains the layout of an ARTI "Core" object, extending the Ecuc
+                                                           CoreDefinition.
+    ArtiHardwareCoreInstance            0..*               Description: Represents an instance of an ARTI "Core" object,
+                                                           extending the EcucCoreDefinition. When using ARTI for
+                                                           debugging or hardware based tracing, this is mandatory (i.e.
+                                                           multiplicity 1..*), else optional.
+....
+⌋ <ECUC-MODULE-CONFIGURATION-VALUES> <SHORT-NAME>Vendor1ArtiHardware</SHORT-NAME> <DEFINITION-REF DEST="ECUC-MODULE-DEF"> /AUTOSAR/Arti/ArtiHardware</DEFINITION-REF> <CONTAINERS> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiCoreClass</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiHardware/ArtiHardwareCoreClass</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiCore0</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiHardware/ArtiHardwareCoreInstance</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiCore1</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiHardware/ArtiHardwareCoreInstance</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> </CONTAINERS> </ECUC-MODULE-CONFIGURATION-VALUES>
+
+=== 10.4.2 ArtiHardwareCoreClass
+
+[[ECUC_Arti_00062]]
+Definition of EcucParamConfContainerDef ArtiHardware CoreClass ⌈ Container Name                       ArtiHardwareCoreClass Parent Container                     ArtiHardware Description                          Contains the layout of an ARTI "Core" object, extending the EcucCoreDefinition. Multiplicity                         0..1 Post-Build Variant Multiplicity      true Multiplicity Configuration Class     Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              – Post-build time                        X      VARIANT-POST-BUILD Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                               Multiplicity           ECUC ID
+    ArtiHardwareCoreClassCurrentApplicationRef                   0..1                   [ECUC_Arti_00054]
+    ArtiHardwareCoreClassCurrentIsrRef                           0..1                   [ECUC_Arti_00056]
+    ArtiHardwareCoreClassCurrentTaskRef                          1                      [ECUC_Arti_00058]
+    ArtiHardwareCoreClassGenericComponentRef                     0..1                   [ECUC_Arti_00064]
+                                                               ▽
+
+                                                              △
+    Included Parameters
+    Parameter Name                                              Multiplicity           ECUC ID
+    ArtiHardwareCoreClassLastErrorRef                           0..1                   [ECUC_Arti_00066]
+    ArtiHardwareCoreClassRunningTaskPriorityRef                 0..1                   [ECUC_Arti_00094]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00054]]
+Definition of EcucReferenceDef ArtiHardwareCoreClassCur- rentApplicationRef ⌈ Parameter Name                      ArtiHardwareCoreClassCurrentApplicationRef Parent Container                    ArtiHardwareCoreClass Description                         Refers to the ArtiObjectClassParameter that defines the ArtiCurrentApplicationInstance parameter. Multiplicity                        0..1 Type                                Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity     true Post-Build Variant Value            true Multiplicity Configuration Class    Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              – Post-build time                        X      VARIANT-POST-BUILD Value Configuration Class           Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              – Post-build time                        X      VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00056]]
+Definition of EcucReferenceDef ArtiHardwareCoreClassCur- rentIsrRef ⌈ Parameter Name                      ArtiHardwareCoreClassCurrentIsrRef Parent Container                    ArtiHardwareCoreClass Description                         Refers to the ArtiObjectClassParameter that defines the ArtiCurrentIsrInstance parameter. Multiplicity                        0..1 Type                                Reference to ArtiObjectClassParameter Post-Build Variant Value            true Value Configuration Class           Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              – Post-build time                        X      VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00058]]
+Definition of EcucReferenceDef ArtiHardwareCoreClassCur- rentTaskRef ⌈ Parameter Name                     ArtiHardwareCoreClassCurrentTaskRef Parent Container                   ArtiHardwareCoreClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiCurrentTaskInstance parameter. Multiplicity                       1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Value           true Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            – Post-build time                      X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00064]]
+Definition of EcucReferenceDef ArtiHardwareCoreClass GenericComponentRef ⌈ Parameter Name                     ArtiHardwareCoreClassGenericComponentRef Parent Container                   ArtiHardwareCoreClass Description                        Refers to an ArtiGenericComponentClass that extends the core description. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            – Post-build time                      X        VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            – Post-build time                      X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00066]]
+Definition of EcucReferenceDef ArtiHardwareCoreClassLast ErrorRef ⌈ Parameter Name                     ArtiHardwareCoreClassLastErrorRef Parent Container                   ArtiHardwareCoreClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiLastErrorInstance parameter. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            – ▽
+
+....
+                                                                △
+                                       Post-build time                           X         VARIANT-POST-BUILD
+    Value Configuration Class          Pre-compile time                          X         VARIANT-PRE-COMPILE
+                                       Link time                                 –
+                                       Post-build time                           X         VARIANT-POST-BUILD
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00094]]
+Definition of EcucReferenceDef ArtiHardwareCoreClassRun- ningTaskPriorityRef ⌈ Parameter Name                     ArtiHardwareCoreClassRunningTaskPriorityRef Parent Container                   ArtiHardwareCoreClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiHwCoreInstanceRunning TaskPriority parameter. This attribute specifies how to evaluate the current priority of the task referred by RUNNINGTASK. The current priority can be different from the static task priority as a result of priority ceiling protocol. This attribute differs from Arti CurrentTask->ArtiOsTaskClassPriority as here is a single variable while in multiple tasks there is a single variable per task. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                          X         VARIANT-PRE-COMPILE Link time                                 – Post-build time                           X         VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                          X         VARIANT-PRE-COMPILE Link time                                 – Post-build time                           X         VARIANT-POST-BUILD Dependency
+
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiCoreClass</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreClass</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreClass/ ArtiHardwareCoreClassCurrentApplicationRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectClassParameter_ArtiHwCore_CurrentApplication </VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreClass/ ArtiHardwareCoreClassCurrentTaskRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectClassParameter_ArtiHwCore_CurrentTask</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES>
+
+</ECUC-CONTAINER-VALUE>
+
+=== 10.4.3 ArtiHardwareCoreInstance
+
+[[ECUC_Arti_00063]]
+Definition of EcucParamConfContainerDef ArtiHardware CoreInstance ⌈ Container Name                      ArtiHardwareCoreInstance Parent Container                    ArtiHardware Description                         Description: Represents an instance of an ARTI "Core" object, extending the EcucCore Definition. When using ARTI for debugging or hardware based tracing, this is mandatory (i.e. multiplicity 1..*), else optional. Multiplicity                        0..* Post-Build Variant Multiplicity     true Multiplicity Configuration Class    Pre-compile time                      X      VARIANT-PRE-COMPILE Link time                             – Post-build time                       X      VARIANT-POST-BUILD Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiHardwareCoreInstanceCoreId                             0..1                   [ECUC_Arti_00091]
+    ArtiHardwareCoreInstanceCurrentApplicationRef              0..1                   [ECUC_Arti_00055]
+    ArtiHardwareCoreInstanceCurrentIsrRef                      0..1                   [ECUC_Arti_00057]
+    ArtiHardwareCoreInstanceCurrentTaskRef                     0..1                   [ECUC_Arti_00059]
+    ArtiHardwareCoreInstanceEcucCoreRef                        1                      [ECUC_Arti_00060]
+    ArtiHardwareCoreInstanceGenericComponentRef                0..1                   [ECUC_Arti_00065]
+    ArtiHardwareCoreInstanceLastErrorRef                       0..1                   [ECUC_Arti_00067]
+    ArtiHardwareCoreInstanceRunningTaskPriorityRef             0..1                   [ECUC_Arti_00095]
+    ArtiHardwareCoreInstanceValidRef                           0..1                   [ECUC_Arti_00096]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00091]]
+Definition of EcucIntegerParamDef ArtiHardwareCoreIn- stanceCoreId ⌈ Parameter Name                      ArtiHardwareCoreInstanceCoreId Parent Container                    ArtiHardwareCoreInstance Description                         This parameter represents the "CoreID" as given by the OS, returned by GetCoreID(). Multiplicity                        0..1 Type                                EcucIntegerParamDef Range                               0 .. 65533 Default value                       – Post-Build Variant Multiplicity     false ▽
+
+....
+                                                              △
+    Post-Build Variant Value           true
+    Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE
+                                       Link time                             –
+                                       Post-build time                       X        VARIANT-POST-BUILD
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00055]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance CurrentApplicationRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceCurrentApplicationRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current application" that is running on this core. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           true Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00057]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance CurrentIsrRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceCurrentIsrRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current ISR" that is running on this core. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00059]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance CurrentTaskRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceCurrentTaskRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current task" that is running on this core. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           true Value Configuration Class          Pre-compile time                      X          VARIANT-PRE-COMPILE Link time                             – Post-build time                       X          VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00060]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance EcucCoreRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceEcucCoreRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the EcucCoreDefinition of this core. Multiplicity                       1 Type                               Reference to EcucCoreDefinition Post-Build Variant Value           true Value Configuration Class          Pre-compile time                      X          VARIANT-PRE-COMPILE Link time                             – Post-build time                       X          VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00065]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance GenericComponentRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceGenericComponentRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to an ArtiGenericComponentInstance that extends a core. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                      X          VARIANT-PRE-COMPILE Link time                             – Post-build time                       X          VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                      X          VARIANT-PRE-COMPILE Link time                             – Post-build time                       X          VARIANT-POST-BUILD ▽
+
+....
+                                                              △
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00067]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance LastErrorRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceLastErrorRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "last error" that happened on this core. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00095]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance RunningTaskPriorityRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceRunningTaskPriorityRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "running task priority" that is on this core. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    true Post-Build Variant Value           true Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             – Post-build time                       X        VARIANT-POST-BUILD Dependency
+
+⌋
+
+[[ECUC_Arti_00096]]
+Definition of EcucReferenceDef ArtiHardwareCoreInstance ValidRef ⌈ Parameter Name                     ArtiHardwareCoreInstanceValidRef Parent Container                   ArtiHardwareCoreInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiHwCoreInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiCore0</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreInstance</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreInstance/ ArtiHardwareCoreInstanceCurrentApplicationRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectInstanceParameter_CurrentApplicationOnCore0 </VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreInstance/ ArtiHardwareInstanceCurrentTaskRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectInstanceParameter_CurrentTaskOnCore0</VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiHardware/ArtiHardwareCoreInstance/ ArtiHardwareCoreInstanceEcucCoreRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE"> /Vendor1/Vendor1EcucEcuC/Hardware/Core0</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES> </ECUC-CONTAINER-VALUE>
+
+=== 10.4.4 ArtiOs
+
+[[ECUC_Arti_00071]]
+Definition of EcucParamConfContainerDef ArtiOs ⌈ Container Name                     ArtiOs Parent Container                   Arti Description                        The ArtiOs container contains ARTI extensions to the EcucDefs/Os module. Multiplicity                       0..1 Post-Build Variant Multiplicity    true Multiplicity Configuration Class   Pre-compile time                      X      VARIANT-PRE-COMPILE Link time                             X      VARIANT-LINK-TIME Post-build time                       – Configuration Parameters
+
+Included Parameters
+....
+ Parameter Name                                            Multiplicity            ECUC ID
+ ArtiOsGenericComponentRef                                 0..*                    [ECUC_Arti_00178]
+....
+Included Containers
+....
+ Container Name                      Multiplicity        Dependency
+ ArtiOsAlarmClass                    0..1                Contains the layout of an ArtiOsAlarm object.
+ ArtiOsAlarmInstance                 0..*                Represents an instance of an ArtiOsAlarm object, extending the
+                                                         EcuC OsTaskAlarm.
+ ArtiOsClass                         0..1                Contains the layout of an ARTI "Os" object, extending the EcuC
+                                                         OsOS.
+ ArtiOsContextClass                  0..1                Contains the layout of an ARTI "OsContext" object.
+ ArtiOsContextInstance               0..*                Represents an instance of an "ArtiContext" object.
+ ArtiOsInstance                      0..1                Represents an instance of an ARTI "Os" object, extending the
+                                                         EcuC OsOS.
+ ArtiOsIsrClass                      0..1                Contains the layout of an ARTI "OsIsr" object, extending the Ecu
+                                                         C OsIsr.
+ ArtiOsIsrInstance                   0..*                Represents an instance of an ARTI "OsIsr" object, extending the
+                                                         EcuC OsIsr.
+ ArtiOsMessageContainerClass         0..1                Contains the layout of an ARTI "OsMessageContainer" object.
+                                                         The "OsMessageContainer" object represents an existing
+                                                         combination of OSEK messages.
+ ArtiOsMessageContainerInstance      0..*                Represents an instance of an "ArtiMessageContainer" object.
+ ArtiOsResourceClass                 0..1                Contains the layout of an ArtiOsResource object. The ArtiOs
+                                                         Resource object represents an OSEK resource.
+ ArtiOsResourceInstance              0..*                Represents an instance of an ArtiOsResource object.
+ ArtiOsScheduleTableClass            0..1                Contains the layout of an ArtiOsScheduleTable object.
+ ArtiOsScheduleTableInstance         0..*                Represents an instance of an ArtiOsScheduleTable object,
+                                                         extending the EcuC OsScheduleTable.
+ ArtiOsSpinlockClass                 0..1                Contains the layout of an ArtiOsSpinlock object.
+ ArtiOsSpinlockInstance              0..*                Represents an instance of an ArtiOsSpinlock object, extending
+                                                         the EcuC OsSpinlock.
+ ArtiOsStackClass                    0..1                Contains the layout of an ArtiOsStack object. The ArtiOsStack
+                                                         object defines the memory area of any stack in the system.
+ ArtiOsStackInstance                 0..*                Represents an instance of an ArtiOsStack object.
+ ArtiOsTaskClass                     0..1                Contains the layout of an ARTI "OsTask" object, extending the
+                                                         EcuC OsTask.
+ ArtiOsTaskInstance                  0..*                Represents an instance of an ARTI "OsTask" object, extending
+                                                         the EcuC OsTask.
+....
+⌋
+
+[[ECUC_Arti_00178]]
+Definition of EcucReferenceDef ArtiOsGenericComponent Ref ⌈ Parameter Name                     ArtiOsGenericComponentRef Parent Container                   ArtiOs Description                        Refers to an ArtiGenericComponentClass that relates to the OS. Multiplicity                       0..* Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                    X        VARIANT-PRE-COMPILE Link time                           X        VARIANT-LINK-TIME Post-build time                     – Value Configuration Class          Pre-compile time                    X        VARIANT-PRE-COMPILE Link time                           X        VARIANT-LINK-TIME Post-build time                     – Dependency
+
+⌋ <ECUC-MODULE-CONFIGURATION-VALUES> <SHORT-NAME>Vendor1ArtiOs</SHORT-NAME> <DEFINITION-REF DEST="ECUC-MODULE-DEF"> /AUTOSAR/Arti/ArtiOs</DEFINITION-REF> <CONTAINERS> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsClass_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiOs/ArtiOsClass</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsInstance_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiOs/ArtiOsInstance</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsTaskClass_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiOs/ArtiOsTaskClass</DEFINITION-REF> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsTaskInstance_TaskHighPriority</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiOs/ArtiOsTaskInstance</DEFINITION-REF> <...> </ECUC-CONTAINER-VALUE> <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsTaskInstance_TaskLowPriority</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF"> /AUTOSAR/Arti/ArtiOs/ArtiOsTaskInstance</DEFINITION-REF> <...>
+
+</ECUC-CONTAINER-VALUE> </CONTAINERS> </ECUC-MODULE-CONFIGURATION-VALUES>
+
+=== 10.4.5 ArtiOsAlarmClass
+
+[[ECUC_Arti_00108]]
+Definition of EcucParamConfContainerDef ArtiOsAlarm Class ⌈ Container Name                      ArtiOsAlarmClass Parent Container                    ArtiOs Description                         Contains the layout of an ArtiOsAlarm object. Multiplicity                        0..1 Post-Build Variant Multiplicity     false Multiplicity Configuration Class    Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity            ECUC ID
+    ArtiOsAlarmClassGenericComponentClassRef                    0..1                    [ECUC_Arti_00110]
+    ArtiOsAlarmClassStateRef                                    0..1                    [ECUC_Arti_00111]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00110]]
+Definition of EcucReferenceDef ArtiOsAlarmClassGeneric ComponentClassRef ⌈ Parameter Name                      ArtiOsAlarmClassGenericComponentClassRef Parent Container                    ArtiOsAlarmClass Description                         Refers to an ArtiGenericComponentClass that extends the ArtiOsAlarmClass. Multiplicity                        0..1 Type                                Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00111]]
+Definition of EcucReferenceDef ArtiOsAlarmClassStateRef ⌈ Parameter Name                     ArtiOsAlarmClassStateRef Parent Container                   ArtiOsAlarmClass Description                        Refers to the ArtiObjectClassParameter that declares the attribute ArtiOsAlarmState Ref in ArtiOsAlarmInstances. This attribute specifies if an alarm is "RUNNING" or "STOPPED". The refered ArtiObjectClassParameter does include the mapping from integer to human readable "RUNNING" or "STOPPED". Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+=== 10.4.6 ArtiOsAlarmInstance
+
+[[ECUC_Arti_00109]]
+Definition of EcucParamConfContainerDef ArtiOsAlarmIn- stance ⌈ Container Name                     ArtiOsAlarmInstance Parent Container                   ArtiOs Description                        Represents an instance of an ArtiOsAlarm object, extending the EcuC OsTaskAlarm. Multiplicity                       0..* Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsAlarmInstanceAction                                  0..1                   [ECUC_Arti_00112]
+    ArtiOsAlarmInstanceCounter                                 0..1                   [ECUC_Arti_00113]
+    ArtiOsAlarmInstanceAlarmTimeRef                            0..1                   [ECUC_Arti_00156]
+    ArtiOsAlarmInstanceCycleTimeRef                            0..1                   [ECUC_Arti_00114]
+    ArtiOsAlarmInstanceEcuCRef                                 0..1                   [ECUC_Arti_00115]
+    ArtiOsAlarmInstanceGenericComponentInstanceRef             0..1                   [ECUC_Arti_00116]
+    ArtiOsAlarmInstanceStateRef                                0..1                   [ECUC_Arti_00117]
+    ArtiOsAlarmInstanceValidRef                                0..1                   [ECUC_Arti_00118]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00112]]
+Definition of EcucStringParamDef ArtiOsAlarmInstanceAc- tion ⌈ Parameter Name                      ArtiOsAlarmInstanceAction Parent Container                    ArtiOsAlarmInstance Description                         This attribute provides a string with a description of the action when the alarm expires, e.g. "ActivateTask TaskA". Multiplicity                        0..1 Type                                EcucStringParamDef Default value                       – Regular Expression                  – Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00113]]
+Definition of EcucStringParamDef ArtiOsAlarmInstance Counter ⌈ Parameter Name                      ArtiOsAlarmInstanceCounter Parent Container                    ArtiOsAlarmInstance Description                         This attribute provides a string containing the name of the counter used by this alarm. Multiplicity                        0..1 Type                                EcucStringParamDef Default value                       – Regular Expression                  – Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00156]]
+Definition of EcucReferenceDef ArtiOsAlarmInstanceAlarm TimeRef ⌈ Parameter Name                     ArtiOsAlarmInstanceAlarmTimeRef Parent Container                   ArtiOsAlarmInstance Description                        This attribute specifies how to evaluate the time until the alarm expires next. The time should be represented in seconds. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00114]]
+Definition of EcucReferenceDef ArtiOsAlarmInstanceCycle TimeRef ⌈ Parameter Name                     ArtiOsAlarmInstanceCycleTimeRef Parent Container                   ArtiOsAlarmInstance Description                        This attribute specifies how to evaluate the cycle time for cyclic alarms. The value of "cycle time" is 0 for non-cyclic alarms. The time should be represendet in seconds. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X        VARIANT-PRE-COMPILE Link time                              X        VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00115]]
+Definition of EcucReferenceDef ArtiOsAlarmInstanceEcu CRef ⌈ Parameter Name                     ArtiOsAlarmInstanceEcuCRef Parent Container                   ArtiOsAlarmInstance Description                        Refers to an EcuC OsAlarm that is beeing extended. Multiplicity                       0..1 Type                               Reference to OsAlarm ▽
+
+....
+                                                              △
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00116]]
+Definition of EcucReferenceDef ArtiOsAlarmInstance GenericComponentInstanceRef ⌈ Parameter Name                     ArtiOsAlarmInstanceGenericComponentInstanceRef Parent Container                   ArtiOsAlarmInstance Description                        Refers to an ArtiGenericComponentInstance that extends the ArtiOsAlarmInstance. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00117]]
+Definition of EcucReferenceDef ArtiOsAlarmInstanceState Ref ⌈ Parameter Name                     ArtiOsAlarmInstanceStateRef Parent Container                   ArtiOsAlarmInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "state" of this alarm. The result then is mapped with the typemap of the ArtiOsAlarmStateRef of the ArtiOsAlarmClass. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME ▽
+
+....
+                                                              △
+                                       Post-build time                         –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00118]]
+Definition of EcucReferenceDef ArtiOsAlarmInstanceValid Ref ⌈ Parameter Name                     ArtiOsAlarmInstanceValidRef Parent Container                   ArtiOsAlarmInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this alarm. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X       VARIANT-PRE-COMPILE Link time                               X       VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X       VARIANT-PRE-COMPILE Link time                               X       VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+=== 10.4.7 ArtiOsClass
+
+[[ECUC_Arti_00074]]
+Definition of EcucParamConfContainerDef ArtiOsClass ⌈ Container Name                     ArtiOsClass Parent Container                   ArtiOs Description                        Contains the layout of an ARTI "Os" object, extending the EcuC OsOS. Multiplicity                       0..1 Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                        X       VARIANT-PRE-COMPILE Link time                               X       VARIANT-LINK-TIME Post-build time                         – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity            ECUC ID
+    ArtiOsClassAppModeRef                                       1                       [ECUC_Arti_00072]
+    ArtiOsClassGenericComponentRef                              0..1                    [ECUC_Arti_00076]
+    ArtiOsClassServiceTraceRef                                  0..1                    [ECUC_Arti_00097]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00072]]
+Definition of EcucReferenceDef ArtiOsClassAppModeRef ⌈ Parameter Name                     ArtiOsClassAppModeRef Parent Container                   ArtiOsClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiOsAppModeInstance parameter. Multiplicity                       1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Value           false Value Configuration Class          Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00076]]
+Definition of EcucReferenceDef ArtiOsClassGenericCompo- nentRef ⌈ Parameter Name                     ArtiOsClassGenericComponentRef Parent Container                   ArtiOsClass Description                        Refers to an ArtiGenericComponentClass that extends the OS description. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00097]]
+Definition of EcucReferenceDef ArtiOsClassServiceTraceRef ⌈ Parameter Name                     ArtiOsClassServiceTraceRef Parent Container                   ArtiOsClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiOsInstanceServiceTrace parameter. This attribute indicates the entry or exit of a service routine and the ID of this service routine. The value of this attribute must be evaluated from one single memory location. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false ▽
+
+....
+                                                             △
+    Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE
+                                       Link time                              X      VARIANT-LINK-TIME
+                                       Post-build time                        –
+    Value Configuration Class          Pre-compile time                       X      VARIANT-PRE-COMPILE
+                                       Link time                              X      VARIANT-LINK-TIME
+                                       Post-build time                        –
+    Dependency
+....
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsClass_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsClass</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsClass/ArtiOsClassAppModeRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectClassParameter_ArtiOs_OsAppMode</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES> </ECUC-CONTAINER-VALUE>
+
+=== 10.4.8 ArtiOsContextClass
+
+[[ECUC_Arti_00119]]
+Definition of EcucParamConfContainerDef ArtiOsContext Class ⌈ Container Name                     ArtiOsContextClass Parent Container                   ArtiOs Description                        Contains the layout of an ARTI "OsContext" object. Multiplicity                       0..1 Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsContextClassGenericComponentClassRef                 0..1                   [ECUC_Arti_00121]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00121]]
+Definition of EcucReferenceDef ArtiOsContextClassGeneric ComponentClassRef ⌈ Parameter Name                     ArtiOsContextClassGenericComponentClassRef Parent Container                   ArtiOsContextClass Description                        Refers to an ArtiGenericComponentClass that extends the ArtiOsContextClass. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+=== 10.4.9 ArtiOsContextInstance
+
+[[ECUC_Arti_00120]]
+Definition of EcucParamConfContainerDef ArtiOsContextIn- stance ⌈ Container Name                     ArtiOsContextInstance Parent Container                   ArtiOs Description                        Represents an instance of an "ArtiContext" object. Multiplicity                       0..* Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsContextInstanceAddressRef                            0..1                   [ECUC_Arti_00122]
+    ArtiOsContextInstanceGenericComponentInstanceRef           0..1                   [ECUC_Arti_00123]
+    ArtiOsContextInstanceSizeRef                               0..1                   [ECUC_Arti_00124]
+    ArtiOsContextInstanceValidRef                              0..1                   [ECUC_Arti_00125]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00122]]
+Definition of EcucReferenceDef ArtiOsContextInstanceAd- dressRef ⌈ Parameter Name                     ArtiOsContextInstanceAddressRef Parent Container                   ArtiOsContextInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "address" of this context. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00123]]
+Definition of EcucReferenceDef ArtiOsContextInstance GenericComponentInstanceRef ⌈ Parameter Name                     ArtiOsContextInstanceGenericComponentInstanceRef Parent Container                   ArtiOsContextInstance Description                        Refers to an ArtiGenericComponentInstance that extends the ArtiOsContext. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00124]]
+Definition of EcucReferenceDef ArtiOsContextInstanceSize Ref ⌈ Parameter Name                     ArtiOsContextInstanceSizeRef Parent Container                   ArtiOsContextInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "size" of this context. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter ▽
+
+....
+                                                               △
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00125]]
+Definition of EcucReferenceDef ArtiOsContextInstanceValid Ref ⌈ Parameter Name                     ArtiOsContextInstanceValidRef Parent Container                   ArtiOsContextInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this context. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+=== 10.4.10 ArtiOsInstance
+
+[[ECUC_Arti_00080]]
+Definition of EcucParamConfContainerDef ArtiOsInstance ⌈ Container Name                     ArtiOsInstance Parent Container                   ArtiOs Description                        Represents an instance of an ARTI "Os" object, extending the EcuC OsOS. Multiplicity                       0..1 Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – ▽
+
+....
+                                                           △
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                          Multiplicity            ECUC ID
+    ArtiOsInstanceAppModeRef                                1                       [ECUC_Arti_00073]
+    ArtiOsInstanceEcucRef                                   1                       [ECUC_Arti_00075]
+    ArtiOsInstanceGenericComponentRef                       0..1                    [ECUC_Arti_00078]
+    ArtiOsInstanceHookRef                                   0..*                    [ECUC_Arti_00079]
+    ArtiOsInstanceServiceTraceRef                           0..1                    [ECUC_Arti_00098]
+    ArtiOsInstanceValidRef                                  0..1                    [ECUC_Arti_00099]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00073]]
+Definition of EcucReferenceDef ArtiOsInstanceAppModeRef ⌈ Parameter Name                  ArtiOsInstanceAppModeRef Parent Container                ArtiOsInstance Description                     Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "application mode" of this OS. Multiplicity                    1 Type                            Reference to ArtiObjectInstanceParameter Post-Build Variant Value        false Value Configuration Class       Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00075]]
+Definition of EcucReferenceDef ArtiOsInstanceEcucRef ⌈ Parameter Name                  ArtiOsInstanceEcucRef Parent Container                ArtiOsInstance Description                     Refers to the EcucDefs/Os/OsOS of this OS. Multiplicity                    1 Type                            Reference to OsOS Post-Build Variant Value        false Value Configuration Class       Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00078]]
+Definition of EcucReferenceDef ArtiOsInstanceGenericCom- ponentRef ⌈ Parameter Name                     ArtiOsInstanceGenericComponentRef Parent Container                   ArtiOsInstance Description                        Refers to an ArtiGenericComponentInstance that extends the OS. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00079]]
+Definition of EcucReferenceDef ArtiOsInstanceHookRef ⌈ Parameter Name                     ArtiOsInstanceHookRef Parent Container                   ArtiOsInstance Description                        Refers to a hook defined in the OS. Multiplicity                       0..* Type                               Reference to ArtiHook Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00098]]
+Definition of EcucReferenceDef ArtiOsInstanceServiceTrace Ref ⌈ Parameter Name                     ArtiOsInstanceServiceTraceRef Parent Container                   ArtiOsInstance Description                        Refers to a hook defined in the OS. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X     VARIANT-PRE-COMPILE ▽
+
+....
+                                                              △
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE
+                                       Link time                             X         VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00099]]
+Definition of EcucReferenceDef ArtiOsInstanceValidRef ⌈ Parameter Name                     ArtiOsInstanceValidRef Parent Container                   ArtiOsInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsInstance_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsInstance</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsInstance/ArtiOsInstanceAppModeRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiObjectInstanceParameter_OsAppMode</VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsInstance/ArtiOsInstanceEcucRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1EcucOs/ Vendor1Os</VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsInstance/ArtiOsInstanceHookRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiHook_ArtiOs_TaskStart</VALUE-REF> </ECUC-REFERENCE-VALUE>
+
+<ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsInstance/ArtiOsInstanceHookRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1Arti/ ArtiHook_ArtiOs_TaskStop</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES> </ECUC-CONTAINER-VALUE>
+
+=== 10.4.11 ArtiOsIsrClass
+
+[[ECUC_Arti_00081]]
+Definition of EcucParamConfContainerDef ArtiOsIsrClass ⌈ Container Name                      ArtiOsIsrClass Parent Container                    ArtiOs Description                         Contains the layout of an ARTI "OsIsr" object, extending the EcuC OsIsr. Multiplicity                        0..1 Post-Build Variant Multiplicity     false Multiplicity Configuration Class    Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity           ECUC ID
+    ArtiOsIsrClassGenericComponentRef                           0..1                   [ECUC_Arti_00084]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00084]]
+Definition of EcucReferenceDef ArtiOsIsrClassGenericCom- ponentRef ⌈ Parameter Name                      ArtiOsIsrClassGenericComponentRef Parent Container                    ArtiOsIsrClass Description                         Refers to an optional ArtiGenericComponentClass that extends the OsIsr with additional parameters. Multiplicity                        0..1 Type                                Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME ▽
+
+....
+                                                              △
+                                       Post-build time                        –
+    Dependency
+....
+⌋
+
+=== 10.4.12 ArtiOsIsrInstance
+
+[[ECUC_Arti_00086]]
+Definition of EcucParamConfContainerDef ArtiOsIsrInstance ⌈ Container Name                     ArtiOsIsrInstance Parent Container                   ArtiOs Description                        Represents an instance of an ARTI "OsIsr" object, extending the EcuC OsIsr. Multiplicity                       0..* Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsIsrInstanceCategory                                  0..1                   [ECUC_Arti_00174]
+    ArtiOsIsrInstanceFunction                                  0..1                   [ECUC_Arti_00083]
+    ArtiOsIsrInstanceId                                        1                      [ECUC_Arti_00093]
+    ArtiOsIsrInstanceEcucRef                                   0..1                   [ECUC_Arti_00082]
+    ArtiOsIsrInstanceGenericComponentRef                       0..1                   [ECUC_Arti_00085]
+    ArtiOsIsrInstanceTimingProtectionLastTimeFrameRef          0..1                   [ECUC_Arti_00211]
+    ArtiOsIsrInstanceTimingProtectionUsedBudgetRef             0..1                   [ECUC_Arti_00212]
+    ArtiOsIsrInstanceValidRef                                  0..1                   [ECUC_Arti_00157]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00174]]
+Definition of EcucEnumerationParamDef ArtiOsIsrInstance Category ⌈ Parameter Name                     ArtiOsIsrInstanceCategory Parent Container                   ArtiOsIsrInstance Description                        Specifies category of this ISR. If omitted the instance is related to a CATEGORY_2. Multiplicity                       0..1 Type                               EcucEnumerationParamDef Range                              CATEGORY_1                             – CATEGORY_2                             – ▽
+
+....
+                                                             △
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                     X        All Variants
+                                       Link time                            –
+                                       Post-build time                      –
+    Value Configuration Class          Pre-compile time                     X        All Variants
+                                       Link time                            –
+                                       Post-build time                      –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00083]]
+Definition of EcucFunctionNameDef ArtiOsIsrInstanceFunc- tion ⌈ Parameter Name                     ArtiOsIsrInstanceFunction Parent Container                   ArtiOsIsrInstance Description                        This parameter represents the C function name of the ISR routine. Multiplicity                       0..1 Type                               EcucFunctionNameDef Default value                      – Regular Expression                 – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00093]]
+Definition of EcucIntegerParamDef ArtiOsIsrInstanceId ⌈ Parameter Name                     ArtiOsIsrInstanceId Parent Container                   ArtiOsIsrInstance Description                        This parameter represents the "ISRID" as given by the OS, returned by GetISRID(). Multiplicity                       1 Type                               EcucIntegerParamDef Range                              0 .. 18446744073709551615 Default value                      – Post-Build Variant Value           false Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00082]]
+Definition of EcucReferenceDef ArtiOsIsrInstanceEcucRef ⌈ Parameter Name                     ArtiOsIsrInstanceEcucRef Parent Container                   ArtiOsIsrInstance Description                        Refers to the EcucDefs/Os/OsIsr of this ISR. Multiplicity                       0..1 Type                               Reference to OsIsr Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00085]]
+Definition of EcucReferenceDef ArtiOsIsrInstanceGeneric ComponentRef ⌈ Parameter Name                     ArtiOsIsrInstanceGenericComponentRef Parent Container                   ArtiOsIsrInstance Description                        Refers to an optional ArtiGenericComponentInstance that extends this OsIsr with additional parameters. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00211]]
+Definition of EcucReferenceDef ArtiOsIsrInstanceTimingPro- tectionLastTimeFrameRef ⌈ Parameter Name                     ArtiOsIsrInstanceTimingProtectionLastTimeFrameRef Parent Container                   ArtiOsIsrInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the last time frame related to the OsIsr/OsIsrTimingProtection configuration. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false ▽
+
+....
+                                                              △
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                      X         All Variants
+                                       Link time                             –
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X         All Variants
+                                       Link time                             –
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00212]]
+Definition of EcucReferenceDef ArtiOsIsrInstanceTimingPro- tectionUsedBudgetRef ⌈ Parameter Name                     ArtiOsIsrInstanceTimingProtectionUsedBudgetRef Parent Container                   ArtiOsIsrInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the used budget related to the OsIsr/OsIsrTimingProtection configuration. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X         All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00157]]
+Definition of EcucReferenceDef ArtiOsIsrInstanceValidRef ⌈ Parameter Name                     ArtiOsIsrInstanceValidRef Parent Container                   ArtiOsIsrInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsIsrInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X         VARIANT-PRE-COMPILE Link time                             X         VARIANT-LINK-TIME ▽
+
+....
+                                                            △
+                                       Post-build time                      –
+    Dependency
+....
+⌋
+
+=== 10.4.13 ArtiOsMessageContainerClass
+
+[[ECUC_Arti_00126]]
+Definition of EcucParamConfContainerDef ArtiOsMessage ContainerClass ⌈ Container Name                     ArtiOsMessageContainerClass Parent Container                   ArtiOs Description                        Contains the layout of an ARTI "OsMessageContainer" object. The "OsMessage Container" object represents an existing combination of OSEK messages. Multiplicity                       0..1 Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                     X     VARIANT-PRE-COMPILE Link time                            X     VARIANT-LINK-TIME Post-build time                      – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                           Multiplicity          ECUC ID
+    ArtiOsMessageContainerClassGenericComponentClass         0..1                  [ECUC_Arti_00128]
+    Ref
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00128]]
+Definition of EcucReferenceDef ArtiOsMessageContainer ClassGenericComponentClassRef ⌈ Parameter Name                     ArtiOsMessageContainerClassGenericComponentClassRef Parent Container                   ArtiOsMessageContainerClass Description                        Refers to an ArtiGenericComponentClass that extends the ArtiOsMessageContainer Class. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X     VARIANT-PRE-COMPILE Link time                            X     VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X     VARIANT-PRE-COMPILE Link time                            X     VARIANT-LINK-TIME ▽
+
+....
+                                                              △
+                                       Post-build time                        –
+    Dependency
+....
+⌋
+
+=== 10.4.14 ArtiOsMessageContainerInstance
+
+[[ECUC_Arti_00127]]
+Definition of EcucParamConfContainerDef ArtiOsMessage ContainerInstance ⌈ Container Name                     ArtiOsMessageContainerInstance Parent Container                   ArtiOs Description                        Represents an instance of an "ArtiMessageContainer" object. Multiplicity                       0..* Post-Build Variant Multiplicity    false Multiplicity Configuration Class   Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity            ECUC ID
+    ArtiOsMessageContainerInstanceMsgName                      0..1                    [ECUC_Arti_00129]
+    ArtiOsMessageContainerInstanceMsgType                      0..1                    [ECUC_Arti_00130]
+    ArtiOsMessageContainerInstanceFirstElementRef              0..1                    [ECUC_Arti_00131]
+    ArtiOsMessageContainerInstanceGenericComponent             0..1                    [ECUC_Arti_00132]
+    InstanceRef
+    ArtiOsMessageContainerInstanceQueueCountRef                0..1                    [ECUC_Arti_00133]
+    ArtiOsMessageContainerInstanceQueueSizeRef                 0..1                    [ECUC_Arti_00134]
+    ArtiOsMessageContainerInstanceValidRef                     0..1                    [ECUC_Arti_00135]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00129]]
+Definition of EcucStringParamDef ArtiOsMessageContainer InstanceMsgName ⌈ Parameter Name                     ArtiOsMessageContainerInstanceMsgName Parent Container                   ArtiOsMessageContainerInstance Description                        This attribute provides the name of the message as defined in OIL file. Multiplicity                       0..1 Type                               EcucStringParamDef Default value                      – Regular Expression                 – ▽
+
+....
+                                                              △
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE
+                                       Link time                             X        VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE
+                                       Link time                             X        VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00130]]
+Definition of EcucStringParamDef ArtiOsMessageContainer InstanceMsgType ⌈ Parameter Name                     ArtiOsMessageContainerInstanceMsgType Parent Container                   ArtiOsMessageContainerInstance Description                        This attribute provides the type of the message. Multiplicity                       0..1 Type                               EcucStringParamDef Default value                      – Regular Expression                 – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00131]]
+Definition of EcucReferenceDef ArtiOsMessageContainerIn- stanceFirstElementRef ⌈ Parameter Name                     ArtiOsMessageContainerInstanceFirstElementRef Parent Container                   ArtiOsMessageContainerInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "firstelement" of this "ArtiOsMessageContainer". This attribute provides the formula for evaluation of address of first valid message. This message will be received next. If no message is in the queue the value is zero. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME ▽
+
+....
+                                                             △
+                                       Post-build time                      –
+    Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE
+                                       Link time                            X        VARIANT-LINK-TIME
+                                       Post-build time                      –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00132]]
+Definition of EcucReferenceDef ArtiOsMessageContainerIn- stanceGenericComponentInstanceRef ⌈ Parameter Name                     ArtiOsMessageContainerInstanceGenericComponentInstanceRef Parent Container                   ArtiOsMessageContainerInstance Description                        Refers to an ArtiGenericComponentInstance that extends the ArtiOsMessageContainer Instance. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00133]]
+Definition of EcucReferenceDef ArtiOsMessageContainerIn- stanceQueueCountRef ⌈ Parameter Name                     ArtiOsMessageContainerInstanceQueueCountRef Parent Container                   ArtiOsMessageContainerInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "queuecount" of this "ArtiOsMessageContainer". This attribute provides the number of valid messages in the queue and "1" for unqueued messages. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00134]]
+Definition of EcucReferenceDef ArtiOsMessageContainerIn- stanceQueueSizeRef ⌈ Parameter Name                     ArtiOsMessageContainerInstanceQueueSizeRef Parent Container                   ArtiOsMessageContainerInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "queuesize" of this "ArtiOsMessageContainer". This attribute provides the size of the queue for queued messages and "1" for unqueued messages. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00135]]
+Definition of EcucReferenceDef ArtiOsMessageContainerIn- stanceValidRef ⌈ Parameter Name                     ArtiOsMessageContainerInstanceValidRef Parent Container                   ArtiOsMessageContainerInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsMessageContainerInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X         VARIANT-PRE-COMPILE Link time                              X         VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+=== 10.4.15 ArtiOsResourceClass
+
+[[ECUC_Arti_00136]]
+Definition of EcucParamConfContainerDef ArtiOsResource Class ⌈
+
+....
+    Container Name                     ArtiOsResourceClass
+    Parent Container                   ArtiOs
+    Description                        Contains the layout of an ArtiOsResource object. The ArtiOsResource object
+                                       represents an OSEK resource.
+    Multiplicity                       0..1
+    Post-Build Variant Multiplicity    false
+    Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE
+                                       Link time                              X      VARIANT-LINK-TIME
+                                       Post-build time                        –
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsResourceClassGenericComponentClassRef                0..1                   [ECUC_Arti_00138]
+    ArtiOsResourceClassLockerRef                               0..1                   [ECUC_Arti_00139]
+    ArtiOsResourceClassStateRef                                0..1                   [ECUC_Arti_00140]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00138]]
+Definition of EcucReferenceDef ArtiOsResourceClass GenericComponentClassRef ⌈ Parameter Name                     ArtiOsResourceClassGenericComponentClassRef Parent Container                   ArtiOsResourceClass Description                        Refers to an ArtiGenericComponentClass that extends the ArtiOsResourceClass. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00139]]
+Definition of EcucReferenceDef ArtiOsResourceClassLocker Ref ⌈ Parameter Name                     ArtiOsResourceClassLockerRef Parent Container                   ArtiOsResourceClass Description                        Refers to the ArtiObjectClassParameter that declares the attribute ArtiOsResource LockerRef in ArtiOsResourceInstances. This attribute indicates the locking ArtiOsTask Instance or ArtiOsIsrInstance. ▽
+
+....
+                                                              △
+    Multiplicity                       0..1
+    Type                               Reference to ArtiObjectClassParameter
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE
+                                       Link time                            X        VARIANT-LINK-TIME
+                                       Post-build time                      –
+    Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE
+                                       Link time                            X        VARIANT-LINK-TIME
+                                       Post-build time                      –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00140]]
+Definition of EcucReferenceDef ArtiOsResourceClassState Ref ⌈ Parameter Name                     ArtiOsResourceClassStateRef Parent Container                   ArtiOsResourceClass Description                        Refers to the ArtiObjectClassParameter that declares the attribute ArtiOsResource StateRef in ArtiOsResourceInstances. This attribute represents the state of a resource ("LOCKED"/"UNLOCKED"). The ArtiObjectClassParameter does include the mapping from integer to human readable "LOCKED" or "UNLOCKED". Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+=== 10.4.16 ArtiOsResourceInstance
+
+[[ECUC_Arti_00137]]
+Definition of EcucParamConfContainerDef ArtiOsResource Instance ⌈ Container Name                     ArtiOsResourceInstance Parent Container                   ArtiOs Description                        Represents an instance of an ArtiOsResource object. Multiplicity                       0..* ▽
+
+....
+                                                            △
+    Post-Build Variant Multiplicity    false
+    Multiplicity Configuration Class   Pre-compile time                      X     VARIANT-PRE-COMPILE
+                                       Link time                             X     VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                            Multiplicity          ECUC ID
+    ArtiOsResourceInstancePriority                            0..1                  [ECUC_Arti_00141]
+    ArtiOsResourceInstanceEcuCRef                             0..1                  [ECUC_Arti_00142]
+    ArtiOsResourceInstanceGenericComponentInstanceRef         0..1                  [ECUC_Arti_00143]
+    ArtiOsResourceInstanceLockerRef                           0..1                  [ECUC_Arti_00145]
+    ArtiOsResourceInstanceStateRef                            0..1                  [ECUC_Arti_00144]
+    ArtiOsResourceInstanceValidRef                            0..1                  [ECUC_Arti_00146]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00141]]
+Definition of EcucStringParamDef ArtiOsResourceInstance Priority ⌈ Parameter Name                     ArtiOsResourceInstancePriority Parent Container                   ArtiOsResourceInstance Description                        This attribute has two components that state: that the RESOURCE is used by TASKs only or by TASKs and ISRs, and the priority that will be used when locking the RESOURCE. Multiplicity                       0..1 Type                               EcucStringParamDef Default value                      – Regular Expression                 – Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00142]]
+Definition of EcucReferenceDef ArtiOsResourceInstanceEcu CRef ⌈ Parameter Name                      ArtiOsResourceInstanceEcuCRef Parent Container                    ArtiOsResourceInstance Description                         Refers to an EcuC OsResource that is beeing extended. Multiplicity                        0..1 Type                                Reference to OsResource Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class           Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00143]]
+Definition of EcucReferenceDef ArtiOsResourceInstance GenericComponentInstanceRef ⌈ Parameter Name                      ArtiOsResourceInstanceGenericComponentInstanceRef Parent Container                    ArtiOsResourceInstance Description                         Refers to an ArtiGenericComponentInstance that extends the ArtiOsResourceInstance. Multiplicity                        0..1 Type                                Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class           Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00145]]
+Definition of EcucReferenceDef ArtiOsResourceInstance LockerRef ⌈ Parameter Name                      ArtiOsResourceInstanceLockerRef Parent Container                    ArtiOsResourceInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "locker" of this ArtiOsResource. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false ▽
+
+....
+                                                                △
+    Post-Build Variant Value            false
+    Multiplicity Configuration Class    Pre-compile time                        X         VARIANT-PRE-COMPILE
+                                        Link time                               X         VARIANT-LINK-TIME
+                                        Post-build time                         –
+    Value Configuration Class           Pre-compile time                        X         VARIANT-PRE-COMPILE
+                                        Link time                               X         VARIANT-LINK-TIME
+                                        Post-build time                         –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00144]]
+Definition of EcucReferenceDef ArtiOsResourceInstance StateRef ⌈ Parameter Name                      ArtiOsResourceInstanceStateRef Parent Container                    ArtiOsResourceInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "state" of this ArtiOsResource. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class           Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00146]]
+Definition of EcucReferenceDef ArtiOsResourceInstance ValidRef ⌈ Parameter Name                      ArtiOsResourceInstanceValidRef Parent Container                    ArtiOsResourceInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsResourceInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class           Pre-compile time                        X         VARIANT-PRE-COMPILE ▽
+
+....
+                                                             △
+                                       Link time                              X      VARIANT-LINK-TIME
+                                       Post-build time                        –
+    Dependency
+....
+⌋
+
+=== 10.4.17 ArtiOsScheduleTableClass
+
+[[ECUC_Arti_00182]]
+Definition of EcucParamConfContainerDef ArtiOsSchedule TableClass ⌈ Container Name                     ArtiOsScheduleTableClass Parent Container                   ArtiOs Description                        Contains the layout of an ArtiOsScheduleTable object. Multiplicity                       0..1 Post-Build Variant Multiplicity    false Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsScheduleTableClassCurrentStateRef                    0..1                   [ECUC_Arti_00184]
+    ArtiOsScheduleTableClassGenericComponentClassRef           0..1                   [ECUC_Arti_00183]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00184]]
+Definition of EcucReferenceDef ArtiOsScheduleTableClass CurrentStateRef ⌈ Parameter Name                     ArtiOsScheduleTableClassCurrentStateRef Parent Container                   ArtiOsScheduleTableClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiCurrentScheduleTable StateInstance parameter including the state mapping. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X      All Variants Link time                              – Post-build time                        – Value Configuration Class          Pre-compile time                       X      All Variants Link time                              – Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00183]]
+Definition of EcucReferenceDef ArtiOsScheduleTableClass GenericComponentClassRef ⌈ Parameter Name                     ArtiOsScheduleTableClassGenericComponentClassRef Parent Container                   ArtiOsScheduleTableClass Description                        Refers to an ArtiGenericComponentClass that extends the ArtiOsScheduleTableClass. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X     All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X     All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+=== 10.4.18 ArtiOsScheduleTableInstance
+
+[[ECUC_Arti_00185]]
+Definition of EcucParamConfContainerDef ArtiOsSchedule TableInstance ⌈ Container Name                     ArtiOsScheduleTableInstance Parent Container                   ArtiOs Description                        Represents an instance of an ArtiOsScheduleTable object, extending the EcuC Os ScheduleTable. Multiplicity                       0..* Post-Build Variant Multiplicity    false Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                            Multiplicity          ECUC ID
+    ArtiOsScheduleTableInstanceCoreRef                        0..1                  [ECUC_Arti_00186]
+    ArtiOsScheduleTableInstanceCounterValueRef                0..1                  [ECUC_Arti_00187]
+    ArtiOsScheduleTableInstanceCurrentStateRef                0..1                  [ECUC_Arti_00188]
+    ArtiOsScheduleTableInstanceEcucRef                        0..1                  [ECUC_Arti_00189]
+    ArtiOsScheduleTableInstanceExpiryTimeRef                  0..1                  [ECUC_Arti_00190]
+    ArtiOsScheduleTableInstanceGenericComponentInstance       0..1                  [ECUC_Arti_00191]
+    Ref
+    ArtiOsScheduleTableInstanceNextEventRef                   0..1                  [ECUC_Arti_00224]
+    ArtiOsScheduleTableInstanceNextExpiryPointRef             0..1                  [ECUC_Arti_00192]
+    ArtiOsScheduleTableInstanceNextScheduleTableRef           0..1                  [ECUC_Arti_00193]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00186]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceCoreRef ⌈ Parameter Name                      ArtiOsScheduleTableInstanceCoreRef Parent Container                    ArtiOsScheduleTableInstance Description                         Refers to the ArtiHardwareCoreInstance on which this OsScheduleTable runs. Multiplicity                        0..1 Type                                Reference to ArtiHardwareCoreInstance Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00187]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceCounterValueRef ⌈ Parameter Name                      ArtiOsScheduleTableInstanceCounterValueRef Parent Container                    ArtiOsScheduleTableInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the absolute counter value. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00188]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceCurrentStateRef ⌈ Parameter Name                      ArtiOsScheduleTableInstanceCurrentStateRef Parent Container                    ArtiOsScheduleTableInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current state" of this OsScheduleTable. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false ▽
+
+....
+                                                               △
+    Post-Build Variant Value            false
+    Multiplicity Configuration Class    Pre-compile time                      X        All Variants
+                                        Link time                             –
+                                        Post-build time                       –
+    Value Configuration Class           Pre-compile time                      X        All Variants
+                                        Link time                             –
+                                        Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00189]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceEcucRef ⌈ Parameter Name                      ArtiOsScheduleTableInstanceEcucRef Parent Container                    ArtiOsScheduleTableInstance Description                         Refers to an EcuC OsScheduleTable that is beeing extended. Multiplicity                        0..1 Type                                Reference to OsScheduleTable Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00190]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceExpiryTimeRef ⌈ Parameter Name                      ArtiOsScheduleTableInstanceExpiryTimeRef Parent Container                    ArtiOsScheduleTableInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the expiry time. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – ▽
+
+....
+                                                              △
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00191]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceGenericComponentInstanceRef ⌈ Parameter Name                     ArtiOsScheduleTableInstanceGenericComponentInstanceRef Parent Container                   ArtiOsScheduleTableInstance Description                        Refers to an ArtiGenericComponentInstance that extends the ArtiOsScheduleTable Instance. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00224]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceNextEventRef ⌈ Parameter Name                     ArtiOsScheduleTableInstanceNextEventRef Parent Container                   ArtiOsScheduleTableInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "next event". Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00192]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceNextExpiryPointRef ⌈ Parameter Name                     ArtiOsScheduleTableInstanceNextExpiryPointRef Parent Container                   ArtiOsScheduleTableInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "next expiry point". Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00193]]
+Definition of EcucReferenceDef ArtiOsScheduleTableIn- stanceNextScheduleTableRef ⌈ Parameter Name                     ArtiOsScheduleTableInstanceNextScheduleTableRef Parent Container                   ArtiOsScheduleTableInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "next schedule table". Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+=== 10.4.19 ArtiOsSpinlockClass
+
+[[ECUC_Arti_00194]]
+Definition of EcucParamConfContainerDef ArtiOsSpinlock Class ⌈
+
+....
+    Container Name                       ArtiOsSpinlockClass
+    Parent Container                     ArtiOs
+    Description                          Contains the layout of an ArtiOsSpinlock object.
+    Multiplicity                         0..1
+    Post-Build Variant Multiplicity      false
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                               Multiplicity               ECUC ID
+    ArtiOsScheduleTableClassGenericComponentClassRef             0..1                       [ECUC_Arti_00195]
+    ArtiOsSpinlockClassCurrentOwnerTypeRef                       0..1                       [ECUC_Arti_00197]
+    ArtiOsSpinlockClassCurrentStateRef                           0..1                       [ECUC_Arti_00196]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00195]]
+Definition of EcucReferenceDef ArtiOsScheduleTableClass GenericComponentClassRef ⌈ Parameter Name                       ArtiOsScheduleTableClassGenericComponentClassRef Parent Container                     ArtiOsSpinlockClass Description                          Refers to an ArtiGenericComponentClass that extends the ArtiOsSpinlockClass. Multiplicity                         0..1 Type                                 Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity      false Post-Build Variant Value             false Multiplicity Configuration Class     Pre-compile time                       X       All Variants Link time                              – Post-build time                        – Value Configuration Class            Pre-compile time                       X       All Variants Link time                              – Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00197]]
+Definition of EcucReferenceDef ArtiOsSpinlockClassCurrent OwnerTypeRef ⌈ Parameter Name                       ArtiOsSpinlockClassCurrentOwnerTypeRef Parent Container                     ArtiOsSpinlockClass Description                          Refers to the ArtiObjectClassParameter that defines the ArtiCurrentSpinlockOwner TypeInstance parameter including the type mapping. Multiplicity                         0..1 Type                                 Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity      false Post-Build Variant Value             false ▽
+
+....
+                                                             △
+    Multiplicity Configuration Class   Pre-compile time                     X        All Variants
+                                       Link time                            –
+                                       Post-build time                      –
+    Value Configuration Class          Pre-compile time                     X        All Variants
+                                       Link time                            –
+                                       Post-build time                      –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00196]]
+Definition of EcucReferenceDef ArtiOsSpinlockClassCurrent StateRef ⌈ Parameter Name                     ArtiOsSpinlockClassCurrentStateRef Parent Container                   ArtiOsSpinlockClass Description                        Refers to the ArtiObjectClassParameter that defines the ArtiCurrentSpinlockState Instance parameter including the state mapping. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X        All Variants Link time                            – Post-build time                      – Value Configuration Class          Pre-compile time                     X        All Variants Link time                            – Post-build time                      – Dependency
+
+⌋
+
+=== 10.4.20 ArtiOsSpinlockInstance
+
+[[ECUC_Arti_00198]]
+Definition of EcucParamConfContainerDef ArtiOsSpinlockIn- stance ⌈ Container Name                     ArtiOsSpinlockInstance Parent Container                   ArtiOs Description                        Represents an instance of an ArtiOsSpinlock object, extending the EcuC OsSpinlock. Multiplicity                       0..* Post-Build Variant Multiplicity    false Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity           ECUC ID
+    ArtiOsSpinlockInstanceCurrentOwnerRef                       0..1                   [ECUC_Arti_00199]
+    ArtiOsSpinlockInstanceCurrentOwnerTypeRef                   0..1                   [ECUC_Arti_00200]
+    ArtiOsSpinlockInstanceCurrentStateRef                       0..1                   [ECUC_Arti_00201]
+    ArtiOsSpinlockInstanceEcuCRef                               0..1                   [ECUC_Arti_00202]
+    ArtiOsSpinlockInstanceGenericComponentInstanceRef           0..1                   [ECUC_Arti_00203]
+    ArtiOsSpinlockInstanceLockingCoreRef                        0..1                   [ECUC_Arti_00204]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00199]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstanceCur- rentOwnerRef ⌈ Parameter Name                     ArtiOsSpinlockInstanceCurrentOwnerRef Parent Container                   ArtiOsSpinlockInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the owner ID (task or ISR2). Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X      All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X      All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00200]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstanceCur- rentOwnerTypeRef ⌈ Parameter Name                     ArtiOsSpinlockInstanceCurrentOwnerTypeRef Parent Container                   ArtiOsSpinlockInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current owner type" of this OsSpinlock. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X      All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X      All Variants ▽
+
+....
+                                                              △
+                                       Link time                             –
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00201]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstanceCur- rentStateRef ⌈ Parameter Name                     ArtiOsSpinlockInstanceCurrentStateRef Parent Container                   ArtiOsSpinlockInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current state" of this OsSpinlock. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00202]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstanceEcu CRef ⌈ Parameter Name                     ArtiOsSpinlockInstanceEcuCRef Parent Container                   ArtiOsSpinlockInstance Description                        Refers to an EcuC OsSpinlock that is beeing extended. Multiplicity                       0..1 Type                               Reference to OsSpinlock Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class          Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00203]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstance GenericComponentInstanceRef ⌈ Parameter Name                      ArtiOsSpinlockInstanceGenericComponentInstanceRef Parent Container                    ArtiOsSpinlockInstance Description                         Refers to an ArtiGenericComponentInstance that extends the ArtiOsSpinlockInstance. Multiplicity                        0..1 Type                                Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00204]]
+Definition of EcucReferenceDef ArtiOsSpinlockInstance LockingCoreRef ⌈ Parameter Name                      ArtiOsSpinlockInstanceLockingCoreRef Parent Container                    ArtiOsSpinlockInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the current locking core. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Value Configuration Class           Pre-compile time                      X        All Variants Link time                             – Post-build time                       – Dependency
+
+⌋
+
+=== 10.4.21 ArtiOsStackClass
+
+[[ECUC_Arti_00147]]
+Definition of EcucParamConfContainerDef ArtiOsStackClass ⌈
+
+....
+    Container Name                     ArtiOsStackClass
+    Parent Container                   ArtiOs
+    Description                        Contains the layout of an ArtiOsStack object. The ArtiOsStack object defines the
+                                       memory area of any stack in the system.
+    Multiplicity                       0..1
+    Post-Build Variant Multiplicity    false
+    Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE
+                                       Link time                              X      VARIANT-LINK-TIME
+                                       Post-build time                        –
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                             Multiplicity           ECUC ID
+    ArtiOsStackClassGenericComponentClassRef                   0..1                   [ECUC_Arti_00149]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00149]]
+Definition of EcucReferenceDef ArtiOsStackClassGeneric ComponentClassRef ⌈ Parameter Name                     ArtiOsStackClassGenericComponentClassRef Parent Container                   ArtiOsStackClass Description                        Refers to an ArtiGenericComponentClass that extends the ArtiOsStackClass. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Value Configuration Class          Pre-compile time                       X      VARIANT-PRE-COMPILE Link time                              X      VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+=== 10.4.22 ArtiOsStackInstance
+
+[[ECUC_Arti_00148]]
+Definition of EcucParamConfContainerDef ArtiOsStackIn- stance ⌈
+
+....
+    Container Name                      ArtiOsStackInstance
+    Parent Container                    ArtiOs
+    Description                         Represents an instance of an ArtiOsStack object.
+    Multiplicity                        0..*
+    Post-Build Variant Multiplicity     false
+    Multiplicity Configuration Class    Pre-compile time                       X       VARIANT-PRE-COMPILE
+                                        Link time                              X       VARIANT-LINK-TIME
+                                        Post-build time                        –
+    Configuration Parameters
+
+    Included Parameters
+    Parameter Name                                              Multiplicity            ECUC ID
+    ArtiOsStackInstanceDirection                                0..1                    [ECUC_Arti_00150]
+    ArtiOsStackInstanceBaseAddressRef                           0..1                    [ECUC_Arti_00151]
+    ArtiOsStackInstanceFillPatternRef                           0..1                    [ECUC_Arti_00152]
+    ArtiOsStackInstanceGenericComponentInstanceRef              0..1                    [ECUC_Arti_00153]
+    ArtiOsStackInstanceSizeRef                                  0..1                    [ECUC_Arti_00154]
+    ArtiOsStackInstanceValidRef                                 0..1                    [ECUC_Arti_00155]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00150]]
+Definition of EcucStringParamDef ArtiOsStackInstanceDi- rection ⌈ Parameter Name                      ArtiOsStackInstanceDirection Parent Container                    ArtiOsStackInstance Description                         This attribute specifies the direction of stack growth and may have either "UP" or "DOWN" as its value. UP means growing from lower to higher addresses. DOWN means growing from higher addresses to lower addresses. Multiplicity                        0..1 Type                                EcucStringParamDef Default value                       – Regular Expression                  – Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00151]]
+Definition of EcucReferenceDef ArtiOsStackInstanceBase AddressRef ⌈ Parameter Name                     ArtiOsStackInstanceBaseAddressRef Parent Container                   ArtiOsStackInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "baseaddress" of this ArtiOsStack. This attribute specifies the lowest address of stack memory area, regardless of the stack direction. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                         X         VARIANT-PRE-COMPILE Link time                                X         VARIANT-LINK-TIME Post-build time                          – Value Configuration Class          Pre-compile time                         X         VARIANT-PRE-COMPILE Link time                                X         VARIANT-LINK-TIME Post-build time                          – Dependency
+
+⌋
+
+[[ECUC_Arti_00152]]
+Definition of EcucReferenceDef ArtiOsStackInstanceFillPat- ternRef ⌈ Parameter Name                     ArtiOsStackInstanceFillPatternRef Parent Container                   ArtiOsStackInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "fillpattern" of this ArtiOsStack. If the operating system fills the stack during initialisation, this attribute specifies with which pattern the stack area is initialised. This allows the debugger to evaluate the maximum stack usage. For "stackdirection" "DOWN" the pattern starts at "baseaddress". For "stackdirection" "UP" the pattern starts at "baseaddress" + "size". If no pattern is used, this attribute must be omitted. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                         X         VARIANT-PRE-COMPILE Link time                                X         VARIANT-LINK-TIME Post-build time                          – Value Configuration Class          Pre-compile time                         X         VARIANT-PRE-COMPILE Link time                                X         VARIANT-LINK-TIME Post-build time                          – Dependency
+
+⌋
+
+[[ECUC_Arti_00153]]
+Definition of EcucReferenceDef ArtiOsStackInstanceGeneric ComponentInstanceRef ⌈ Parameter Name                     ArtiOsStackInstanceGenericComponentInstanceRef Parent Container                   ArtiOsStackInstance Description                        Refers to an ArtiGenericComponentInstance that extends the ArtiOsStackInstance. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00154]]
+Definition of EcucReferenceDef ArtiOsStackInstanceSizeRef ⌈ Parameter Name                     ArtiOsStackInstanceSizeRef Parent Container                   ArtiOsStackInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "size" of this ArtiOsStack. This attribute represents the size (in bytes) of the memory area allocated for stack. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00155]]
+Definition of EcucReferenceDef ArtiOsStackInstanceValid Ref ⌈ Parameter Name                     ArtiOsStackInstanceValidRef Parent Container                   ArtiOsStackInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsStackInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). ▽
+
+....
+                                                               △
+    Multiplicity                         0..1
+    Type                                 Reference to ArtiObjectInstanceParameter
+    Post-Build Variant Multiplicity      false
+    Post-Build Variant Value             false
+    Multiplicity Configuration Class     Pre-compile time                      X      VARIANT-PRE-COMPILE
+                                         Link time                             X      VARIANT-LINK-TIME
+                                         Post-build time                       –
+    Value Configuration Class            Pre-compile time                      X      VARIANT-PRE-COMPILE
+                                         Link time                             X      VARIANT-LINK-TIME
+                                         Post-build time                       –
+    Dependency
+....
+⌋
+
+=== 10.4.23 ArtiOsTaskClass
+
+[[ECUC_Arti_00087]]
+Definition of EcucParamConfContainerDef ArtiOsTaskClass ⌈ Container Name                       ArtiOsTaskClass Parent Container                     ArtiOs Description                          Contains the layout of an ARTI "OsTask" object, extending the EcuC OsTask. Multiplicity                         0..1 Post-Build Variant Multiplicity      false Multiplicity Configuration Class     Pre-compile time                      X      VARIANT-PRE-COMPILE Link time                             X      VARIANT-LINK-TIME Post-build time                       – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                              Multiplicity           ECUC ID
+    ArtiOsTaskClassClassGenericComponentRef                     0..1                   [ECUC_Arti_00077]
+    ArtiOsTaskClassContextRef                                   0..1                   [ECUC_Arti_00100]
+    ArtiOsTaskClassCurrentTaskStateRef                          0..1                   [ECUC_Arti_00068]
+    ArtiOsTaskClassPriorityRef                                  0..1                   [ECUC_Arti_00101]
+    ArtiOsTaskClassStackRef                                     0..1                   [ECUC_Arti_00102]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00077]]
+Definition of EcucReferenceDef ArtiOsTaskClassClass GenericComponentRef ⌈ Parameter Name                      ArtiOsTaskClassClassGenericComponentRef Parent Container                    ArtiOsTaskClass Description                         Refers to an ArtiGenericComponentClass that extends the OsTask. Multiplicity                        0..1 Type                                Reference to ArtiGenericComponentClass Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class           Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00100]]
+Definition of EcucReferenceDef ArtiOsTaskClassContextRef ⌈ Parameter Name                      ArtiOsTaskClassContextRef Parent Container                    ArtiOsTaskClass Description                         ArtiOsTaskContextRef in ArtiOsTaskInstances. This attribute contains a reference to the context object that the task is currently using. Multiplicity                        0..1 Type                                Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Value Configuration Class           Pre-compile time                     X        VARIANT-PRE-COMPILE Link time                            X        VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00068]]
+Definition of EcucReferenceDef ArtiOsTaskClassCurrent TaskStateRef ⌈ Parameter Name                      ArtiOsTaskClassCurrentTaskStateRef Parent Container                    ArtiOsTaskClass Description                         Refers to the ArtiObjectClassParameter that defines the ArtiCurrentTaskStateInstance parameter including the task state mapping. Multiplicity                        0..1 Type                                Reference to ArtiObjectClassParameter ▽
+
+....
+                                                               △
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE
+                                       Link time                               X         VARIANT-LINK-TIME
+                                       Post-build time                         –
+    Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE
+                                       Link time                               X         VARIANT-LINK-TIME
+                                       Post-build time                         –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00101]]
+Definition of EcucReferenceDef ArtiOsTaskClassPriorityRef ⌈ Parameter Name                     ArtiOsTaskClassPriorityRef Parent Container                   ArtiOsTaskClass Description                        Refers to the ArtiObjectClassParameter that declares the attribute ArtiOsTaskPriority Ref in ArtiOsTaskInstances. This attribute represents the current priority of the TASK object. The current priority can be different from the static task priority as a result of priority ceiling protocol. The priority displayed is the priority as defined in the OsTask. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00102]]
+Definition of EcucReferenceDef ArtiOsTaskClassStackRef ⌈ Parameter Name                     ArtiOsTaskClassStackRef Parent Container                   ArtiOsTaskClass Description                        Refers to the ArtiObjectClassParameter that declares the attribute ArtiOsTaskStackRef in ArtiOsTaskInstances. This attribute contains a reference to the stack object that the task is currently using. Multiplicity                       0..1 Type                               Reference to ArtiObjectClassParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE ▽
+
+....
+                                                             △
+                                        Link time                             X     VARIANT-LINK-TIME
+                                        Post-build time                       –
+    Dependency
+....
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsTaskClass_Conf</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsTaskClass</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsTaskClass/ ArtiOsTaskClassGenericComponentRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1ArtiGeneric/ ArtiGenericComponentClass_Vendor1Task</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES> </ECUC-CONTAINER-VALUE>
+
+=== 10.4.24 ArtiOsTaskInstance
+
+[[ECUC_Arti_00090]]
+Definition of EcucParamConfContainerDef ArtiOsTaskIn- stance ⌈ Container Name                      ArtiOsTaskInstance Parent Container                    ArtiOs Description                         Represents an instance of an ARTI "OsTask" object, extending the EcuC OsTask. Multiplicity                        0..* Post-Build Variant Multiplicity     false Multiplicity Configuration Class    Pre-compile time                      X     VARIANT-PRE-COMPILE Link time                             X     VARIANT-LINK-TIME Post-build time                       – Configuration Parameters
+
+....
+    Included Parameters
+    Parameter Name                                             Multiplicity          ECUC ID
+    ArtiOsTaskInstanceFunction                                 0..1                  [ECUC_Arti_00089]
+    ArtiOsTaskInstanceContextRef                               0..1                  [ECUC_Arti_00104]
+    ArtiOsTaskInstanceCurrentActivationsRef                    0..1                  [ECUC_Arti_00105]
+    ArtiOsTaskInstanceCurrentTaskStateRef                      0..1                  [ECUC_Arti_00069]
+    ArtiOsTaskInstanceEcucRef                                  1                     [ECUC_Arti_00088]
+    ArtiOsTaskInstanceGenericComponentRef                      0..1                  [ECUC_Arti_00070]
+    ArtiOsTaskInstanceIdRef                                    1                     [ECUC_Arti_00225]
+    ArtiOsTaskInstancePriorityRef                              0..1                  [ECUC_Arti_00106]
+                                                             ▽
+
+                                                               △
+    Included Parameters
+    Parameter Name                                              Multiplicity            ECUC ID
+    ArtiOsTaskInstanceStackRef                                  0..1                    [ECUC_Arti_00107]
+    ArtiOsTaskInstanceTimingProtectionLastTimeFrameRef          0..1                    [ECUC_Arti_00214]
+    ArtiOsTaskInstanceTimingProtectionUsedBudgetRef             0..1                    [ECUC_Arti_00213]
+    ArtiOsTaskInstanceValidRef                                  0..1                    [ECUC_Arti_00103]
+
+    No Included Containers
+....
+⌋
+
+[[ECUC_Arti_00089]]
+Definition of EcucFunctionNameDef ArtiOsTaskInstance Function ⌈ Parameter Name                      ArtiOsTaskInstanceFunction Parent Container                    ArtiOsTaskInstance Description                         This parameter represents the C function name of the task body. Multiplicity                        0..1 Type                                EcucFunctionNameDef Default value                       – Regular Expression                  – Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Dependency
+
+⌋
+
+[[ECUC_Arti_00104]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceContext Ref ⌈ Parameter Name                      ArtiOsTaskInstanceContextRef Parent Container                    ArtiOsTaskInstance Description                         Refers to the ArtiObjectInstanceParameter that contains the evaluation for the ArtiOs Context of this ArtiOsTask. Multiplicity                        0..1 Type                                Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity     false Post-Build Variant Value            false Multiplicity Configuration Class    Pre-compile time                       X       VARIANT-PRE-COMPILE Link time                              X       VARIANT-LINK-TIME Post-build time                        – Value Configuration Class           Pre-compile time                       X       VARIANT-PRE-COMPILE ▽
+
+....
+                                                               △
+                                       Link time                               X         VARIANT-LINK-TIME
+                                       Post-build time                         –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00105]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceCurrent ActivationsRef ⌈ Parameter Name                     ArtiOsTaskInstanceCurrentActivationsRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current activations" of this task. This attribute specifies the number of current activations for the task. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00069]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceCurrent TaskStateRef ⌈ Parameter Name                     ArtiOsTaskInstanceCurrentTaskStateRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "current state" of this task. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Value Configuration Class          Pre-compile time                        X         VARIANT-PRE-COMPILE Link time                               X         VARIANT-LINK-TIME Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00088]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceEcucRef ⌈ Parameter Name                     ArtiOsTaskInstanceEcucRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the EcucDefs/Os/OsTask of this TASK. Multiplicity                       1 Type                               Reference to OsTask Post-Build Variant Value           false Value Configuration Class          Pre-compile time                     X         VARIANT-PRE-COMPILE Link time                            X         VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00070]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceGeneric ComponentRef ⌈ Parameter Name                     ArtiOsTaskInstanceGenericComponentRef Parent Container                   ArtiOsTaskInstance Description                        Refers to an ArtiGenericComponentInstance that extends the OsTask. Multiplicity                       0..1 Type                               Reference to ArtiGenericComponentInstance Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X         VARIANT-PRE-COMPILE Link time                            X         VARIANT-LINK-TIME Post-build time                      – Value Configuration Class          Pre-compile time                     X         VARIANT-PRE-COMPILE Link time                            X         VARIANT-LINK-TIME Post-build time                      – Dependency
+
+⌋
+
+[[ECUC_Arti_00225]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceIdRef ⌈ Parameter Name                     ArtiOsTaskInstanceIdRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "Task ID"; of type TaskType as given by the OSEK OS, returned by GetTaskID(). Multiplicity                       1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                     X         All Variants Link time                            – Post-build time                      – Value Configuration Class          Pre-compile time                     X         VARIANT-PRE-COMPILE ▽
+
+....
+                                                              △
+                                       Link time                             X        VARIANT-LINK-TIME
+                                       Post-build time                       –
+    Dependency
+....
+⌋
+
+[[ECUC_Arti_00106]]
+Definition of EcucReferenceDef ArtiOsTaskInstancePriority Ref ⌈ Parameter Name                     ArtiOsTaskInstancePriorityRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "task priority" of this task. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00107]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceStackRef ⌈ Parameter Name                     ArtiOsTaskInstanceStackRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the ArtiOs Stack of this ArtiOsTask. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Value Configuration Class          Pre-compile time                      X        VARIANT-PRE-COMPILE Link time                             X        VARIANT-LINK-TIME Post-build time                       – Dependency
+
+⌋
+
+[[ECUC_Arti_00214]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceTiming ProtectionLastTimeFrameRef ⌈ Parameter Name                     ArtiOsTaskInstanceTimingProtectionLastTimeFrameRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the last time frame related to the OsTask/OsTaskTimingProtection configuration. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00213]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceTiming ProtectionUsedBudgetRef ⌈ Parameter Name                     ArtiOsTaskInstanceTimingProtectionUsedBudgetRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the used budget related to the OsTask/OsTaskTimingProtection configuration. Multiplicity                       0..1 Type                               Reference to ArtiObjectInstanceParameter Post-Build Variant Multiplicity    false Post-Build Variant Value           false Multiplicity Configuration Class   Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Value Configuration Class          Pre-compile time                        X         All Variants Link time                               – Post-build time                         – Dependency
+
+⌋
+
+[[ECUC_Arti_00103]]
+Definition of EcucReferenceDef ArtiOsTaskInstanceValidRef ⌈ Parameter Name                     ArtiOsTaskInstanceValidRef Parent Container                   ArtiOsTaskInstance Description                        Refers to the ArtiObjectInstanceParameter that contains the evaluation for the "validity" of this ArtiOsTaskInstance. Every object declaration may contain a VALID attribute telling the debugger whether the object’s attributes are currently valid. It may have an integer type of any size. Its possible values are 0 (invalid) and non zero (object is valid). ▽
+
+....
+                                                            △
+    Multiplicity                       0..1
+    Type                               Reference to ArtiObjectInstanceParameter
+    Post-Build Variant Multiplicity    false
+    Post-Build Variant Value           false
+    Multiplicity Configuration Class   Pre-compile time                   X       VARIANT-PRE-COMPILE
+                                       Link time                          X       VARIANT-LINK-TIME
+                                       Post-build time                    –
+    Value Configuration Class          Pre-compile time                   X       VARIANT-PRE-COMPILE
+                                       Link time                          X       VARIANT-LINK-TIME
+                                       Post-build time                    –
+    Dependency
+....
+⌋ <ECUC-CONTAINER-VALUE> <SHORT-NAME>ArtiOsTaskInstance_TaskHighPriority</SHORT-NAME> <DEFINITION-REF DEST="ECUC-PARAM-CONF-CONTAINER-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsTaskInstance</DEFINITION-REF> <REFERENCE-VALUES> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsTaskInstance/ ArtiOsTaskInstanceGenericComponentRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1ArtiGeneric/ ArtiGenericComponentInstance_TaskHighPriority</VALUE-REF> </ECUC-REFERENCE-VALUE> <ECUC-REFERENCE-VALUE> <DEFINITION-REF DEST="ECUC-REFERENCE-DEF">/AUTOSAR/Arti/ ArtiOs/ArtiOsTaskInstance/ ArtiOsTaskInstanceEcucRef</DEFINITION-REF> <VALUE-REF DEST="ECUC-CONTAINER-VALUE">/Vendor1/Vendor1EcucOs/ TaskHighPriority</VALUE-REF> </ECUC-REFERENCE-VALUE> </REFERENCE-VALUES> </ECUC-CONTAINER-VALUE>

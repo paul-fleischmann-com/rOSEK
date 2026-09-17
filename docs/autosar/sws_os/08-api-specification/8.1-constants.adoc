@@ -1,0 +1,39 @@
+== 8.1 Constants
+
+=== 8.1.1 Error codes of type StatusType
+
+The following constants are available in a multi-core environment.
+
+[[SWS_Os_91007]]
+Definition of datatype AppModeType Upstream requirements: SRS_Os_11001
+
+⌈
+....
+    Name             AppModeType
+    Kind             Enumeration
+    Range            DONOTCARE                      –                    –
+    Description      AppMode of the core shall be inherited from another core.
+    Available via    Os.h
+....
+⌋
+
+[[SWS_Os_91002]]
+Definition of datatype TotalNumberOfCores Upstream requirements: SRS_Os_80011
+
+⌈
+....
+    Name             TotalNumberOfCores
+    Kind             Type
+    Derived from     scalar
+    Range            1..65535                       –                            –
+    Description      The total number of cores
+    Available via    Os.h
+....
+⌋
+
+[[SWS_Os_00873]]
+Additional task state Upstream requirements: SRS_Os_13000
+
+⌈The AUTOSAR OS shall provide the symbol BUDGET_EXHAUSTED as additional task state if there is at least one Task configured with OsTaskTimingProtectionDe- ferrableServer=TRUE.⌋
+
+Additional constants are in section 7.15 and [2].

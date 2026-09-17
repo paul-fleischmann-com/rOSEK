@@ -1,0 +1,145 @@
+== 11 Generation of the OS
+
+....
+                          Figure 11.1: Generation activities
+....
+
+=== 11.1 Read in configuration
+
+[[SWS_Os_00172]]
+Upstream requirements: SRS_BSW_00159
+
+⌈The generator shall provide the user the ability of reading the information of a se- lectable configuration file.⌋
+
+=== 11.2 Consistency check
+
+The conistency check can issue warnings or errors. Warnings mean that the generation is completed successfully, only indicating a not advisable configuration. Errors mean that the generation is not performed.
+
+[[SWS_Os_00173]]
+Upstream requirements: SRS_BSW_00167
+
+⌈The generator shall provide the user the ability of performing a consistency check of the current configuration.⌋
+
+[[SWS_Os_00050]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If service protection is required and OsStatus is not equal to EXTENDED (all the associated error handling is provided), the consistency check shall issue an error.⌋
+
+[[SWS_Os_00045]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If timing protection is configured together with OSEK OS Category 1 interrupts, the consistency check shall issue a warning.⌋
+
+[[SWS_Os_00562]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If timing protection is configured together with OsPreTaskHook or OsPost- TaskHook the consistency check shall issue a warning.⌋
+
+[[SWS_Os_00320]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If configured attributes do not match the configured scalability class (e.g. defining an execution time budget in Tasks or Category 2 ISRs and selected scalability class is 1) the consistency check shall issue a warning.⌋
+
+[[SWS_Os_00311]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC3 or SC4, or system is Multi-Core, AND a Task OR Category 2 ISR OR Counters OR Alarms OR ScheduleTables does not belong to exactly one OS-Application the consistency check shall issue an error.⌋
+
+[[SWS_Os_00361]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC3 or SC4, or system is Multi-Core, AND a Category 1 ISR does not belong to exactly one trusted OS-Application the consistency check shall issue an error⌋
+
+[[SWS_Os_00177]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC3 or SC4, or system is Multi-Core, AND an interrupt source that is used by the OS is assigned to an OS-Application, the consistency check shall issue an error.⌋
+
+[[SWS_Os_00303]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsAlarmIncrementCounter is configured as action on alarm expiry AND the alarm is driven directly or indirectly (a cyclic chain of alarm actions with OsAlarmIn- crementCounter) by that Counter, the consistency check shall issue a warning.⌋
+
+[[SWS_Os_00328]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsStatus is STANDARD and OsScalabilityClass is SC3 or SC4 the consis- tency check shall issue an error.⌋
+
+[[SWS_Os_00343]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC3 or SC4, or system is Multi-Core, AND a Task is referenced within a ScheduleTable object AND the OS-Application of the Schedule Table has no access to the Task, the consistency check shall issue an error.⌋
+
+[[SWS_Os_00344]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC3 or SC4, or system is Multi-Core, AND a Task is referenced within an alarm object AND the OS-Application of the alarm has no access to the Task, the consistency check shall issue an error.⌋
+
+[[SWS_Os_00440]]
+Upstream requirements: SRS_Os_11002
+
+⌈If a ScheduleTable has OsScheduleTblSyncStrategy = IMPLICIT and the Os- CounterMaxAllowedValue+1 of the associated Counter is not equal to the dura- tion of the ScheduleTable then the consitency check shall issue an error.⌋
+
+[[SWS_Os_00461]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If OsScalabilityClass is SC2, SC3 or SC4 AND Alarm Callbacks are configured the conistency check shall isuue an error.⌋
+
+[[SWS_Os_00850]]
+Upstream requirements: SRS_BSW_00159
+
+⌈If OsUseResScheduler is TRUE AND the configuration contains a resource called RES_SCHEDULER, the generation tool shall ignore the configured RES_SCHEDULER.⌋
+
+[[SWS_Os_00877]]
+Alarm action and Task property must fit together ⌈If an Alarm uses the action to replenish a budget then the Task referenced by OsAlarm- BudgetReplenishRef must have have OsTaskTimingProtectionDeferrable- Server enabled. If this is not the case the consistency check shall issue an error.⌋
+
+[[SWS_Os_00878]]
+Replenish via expiry point must fit to Task ⌈If an expiry point of a SchuduleTable uses the action to replenish a budget then the Task referenced by OsScheduleTableReplenishTaskRef must have have OsTaskTimingProtec- tionDeferrableServer enabled. If this is not the case the consistency check shall issue an error.⌋
+
+[[SWS_Os_00879]]
+A Deferrable Server needs a execution time budget ⌈If a Task has OsTaskTimingProtectionDeferrableServer enabled (is TRUE), then this Task must also have a valid OsTaskExecutionBudget. Otherwise the consistency check shall issue an error.⌋
+
+[[SWS_Os_00880]]
+A Deferrable Server requires its own priority level ⌈If a Task has OsTaskTimingProtectionDeferrableServer enabled (is TRUE), then on the same core there shall be no other Task(s) configured which use the same Os- TaskPriority. Otherwise the consistency check shall issue an error.⌋
+
+[[SWS_Os_00881]]
+A Deferrable Server cannot use internal OS resources ⌈If a Task has OsTaskTimingProtectionDeferrableServer enabled (is TRUE), then this Task cannot reference a OsResource (via OsTaskResourceRef) which has a OsResourceProperty configured as LINKED. In such cases the consistency check shall issue an error.⌋
+
+=== 11.3 Generating operating system
+
+[[SWS_Os_00179]]
+Upstream requirements: SRS_BSW_00167
+
+⌈If the consistency check of the read-in configuration file has not run free of errors, the generator shall not generate/configure the operating system.⌋
+
+[[SWS_Os_00336]]
+Upstream requirements: SRS_Os_11019
+
+⌈The generator shall generate a relocatable memory section containing the interrupt vector table.⌋
+
+[[SWS_Os_00370]]
+Upstream requirements: SRS_BSW_00159
+
+⌈The generator shall print out information about timers used internally by the OS during generation (e.g. on console, list file).⌋
+
+[[SWS_Os_00393]]
+Upstream requirements: SRS_BSW_00159
+
+⌈The generator shall create conversation macros to convert counter ticks (given as ar- gument) into real time. The format of the macro is OS_TICKS2<Unit>_<Counter>
+
+(ticks) whereas <Unit> is one of NS (nanoseconds), US (microseconds), MS (mil- liseconds) or SEC (seconds) and <Counter> is the name of the Counter; E.g. OS_TICKS2MS_MyCounter())⌋
+
+[[SWS_Os_00815]]
+Upstream requirements: SRS_BSW_00351
+
+⌈The OS code shall wrap each declaration of Task, ISR, trusted functions, alarm callbacks and hook functions with the Memory Mapping Allocation Keywords macros.
+....
+   1   #define OS_START_SEC_<sadm>
+   2   #include "Os_MemMap.h"
+   3
+   4   < Task, ISR, trusted functions or hook functions declaration>
+   5
+   6   #define OS_STOP_SEC_<sadm>
+   7   #include "Os_MemMap.h"
+....
+where <sadm> is the shortName of the SwAddrMethod if configured (e.g. in OsMemo- ryMappingCodeLocationRef).⌋

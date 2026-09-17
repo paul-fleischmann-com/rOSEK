@@ -1,0 +1,757 @@
+== 8.5 IOC
+
+=== 8.5.1 Imported types
+
+In this chapter all types included from the following modules are listed:
+
+[[SWS_Os_91028]]
+Definition of imported datatypes of module Os ⌈ Module                  Header File          Imported Type Gpt                     Gpt.h                Gpt_ChannelType Gpt.h                Gpt_ValueType Std                     Std_Types.h          Std_ReturnType
+
+⌋
+
+[[SWS_Os_00827]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈If an ImplementationDataType is defined with the typeEmitter empty or set to RTE and is used for IOC communication, the IOC shall include Rte_Type.h⌋
+
+[[SWS_Os_00828]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈If an ImplementationDataType is defined with the typeEmitter != RTE and does end with ".h" and is used for IOC communication, the IOC shall include specified header file.⌋
+
+=== 8.5.2 Type definitions
+
+None
+
+=== 8.5.3 Constants
+
+....
+    Name                 Communication    Type                    Errorname / Value   Annotation
+    IOC_E_OK             All, SND/RCV     Std_ReturnType          RTE_E_OK / 0        No error occurred
+    IOC_E_LENGTH         Queued SND       Std_ReturnType          RTE_E_LIMIT / 130   In case of "event"
+                                                                                      (queued) semantic,
+                                                                                      the internal buffer
+                                                                                      within the IOC
+                                                                                      communication
+                                                                                      service is too small
+                                                                                      for the requested
+                                                                                      transmission size.
+    IOC_E_LIMIT          Queued           Std_ReturnType          RTE_E_LIMIT / 130   In case of "event"
+                         SND                                                          (queued) semantic,
+                                                                                      the internal buffer
+                                                                                      within the IOC
+                                                                                      communication
+                                                                                      service is full (Case:
+                                                                                      Receiver slower than
+                                                                                      sender). This error
+                                                                                      produces additionally
+                                                                                      an Overlayed Error on
+                                                                                      the receiver side at
+                                                                                      the next data
+                                                                                      reception.
+                                                  ▽
+
+                                                             △
+    IOC_E_LOST_DATA      Queued                   Std_ReturnType              Overlayed Error     In case of "event"
+                         RCV                                                  RTE_E_LOST_DATA /   (queued) semantic,
+                                                                              64                  this Overlayed Error
+                                                                                                  indicates that the IOC
+                                                                                                  service refuses an
+                                                                                                  IocSend request due
+                                                                                                  to internal buffer
+                                                                                                  overflow.
+    IOC_E_NO_DATA        Queued                   Std_ReturnType              RTE_E_NO_DATA /     In case of "event"
+                         RCV                                                  131                 (queued) semantic,
+                                                                                                  no data is available
+                                                                                                  for reception.
+
+                                              Table 8.1: IOC constants
+....
+
+=== 8.5.4 Function definitions
+
+[[SWS_Os_00805]]
+: Upstream requirements: SRS_Os_80020
+
+⌈The optional length parameter of the API shall be generated if the VariableDataProto- type is of type dynamic and no size indicator is used in the according Application- ArrayDataType.⌋
+
+==== 8.5.4.1 IocInit (DRAFT)
+
+[[SWS_Os_91026]]
+Definition of API function IocInit Status:                DRAFT Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name            IocInit (draft)
+    Syntax                  void IocInit (
+                              void
+                            )
+    Service ID [hex]        0x37
+    Sync/Async              Synchronous
+    Reentrancy              Non Reentrant
+    Parameters (in)         None
+    Parameters (inout)      None
+    Parameters (out)        None
+    Return value            None
+    Description             This service initializes the data structures of the IOC.
+                            Tags: atp.Status=draft
+    Available via           Ioc.h
+....
+⌋
+
+==== 8.5.4.2 IocSend/IocWrite
+
+The IocWrite API call is generated for "data" (unqueued) semantics and the Ioc- Send API call is generated for "event" (queued) semantics.
+
+[[SWS_Os_00718]]
+Definition of API function IocSend_<IocId>[_<SenderId>] Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocSend_<IocId>[_<SenderId>]
+    Syntax               Std_ReturnType IocSend_<IocId>[_<SenderId>] (
+                           <Data> IN,
+                           [uint16 numberOfBytesIN]
+                         )
+    Service ID [hex]     0x1e
+    Sync/Async           Asynchronous
+    Reentrancy           This function is generated individually for each sender. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same sender), but different functions
+                         can be called in parallel.
+    Parameters (in)      IN                             Data value to be sent over a communication identified by the <Ioc
+                                                        Id>. The parameter will be passed by value for primitive data
+                                                        elements and by reference for all other types.
+                                                        Example: Std_ReturnType IocSend_RTE_25 (const uint32 UI_
+                                                        Value); Std_ReturnType IocSend_RTE_42 (const TASKParams3
+                                                        *pStr_Value);
+                         numberOfBytesIN                (optional) number of bytes to be send
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         Std_ReturnType                 IOC_E_OK: The data has been passed successfully to the
+                                                        communication service.
+                                                        IOC_E_LIMIT: IOC internal communication buffer is full (Case:
+                                                        Receiver is slower than sender). This error produces an IOC_E_
+                                                        LOST_DATA Overlayed Error on the receiver side at the next data
+                                                        reception.
+                                                        IOC_E_LENGTH: The <numberOfBytesIN> exceeds either the
+                                                        internal buffer or is equal zero, so no data is send.
+    Description          Performs an "explicit" sender-receiver transmission of data elements with "event" semantic for a
+                         unidirectional 1:1 or N:1 communication between OS-Applications located on the same or on
+                         different cores.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 or N:1 communication.
+                         <SenderId> is used only in N:1 communication. Together with <IocId>, it uniquely identifies the
+                         sender. It is separated from <IocId> with an underscore. In case of 1:1 communication, it shall
+                         be omitted.
+    Available via        Ioc.h
+....
+⌋
+
+[[SWS_Os_91003]]
+Definition of API function IocWrite_<IocId>[_<SenderId>] Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocWrite_<IocId>[_<SenderId>]
+    Syntax               Std_ReturnType IocWrite_<IocId>[_<SenderId>] (
+                           <Data> IN,
+                           [uint16 numberOfBytesIN]
+                         )
+    Service ID [hex]     0x1f
+    Sync/Async           Asynchronous
+    Reentrancy           This function is generated individually for each sender. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same sender), but different functions
+                         can be called in parallel.
+    Parameters (in)      IN                             Data value to be sent over a communication identified by the <Ioc
+                                                        Id>. The parameter will be passed by value for primitive data
+                                                        elements and by reference for all other types.
+                                                        Example: Std_ReturnType IocWrite_RTE_25 (const uint32 UI_
+                                                        Value); Std_ReturnType IocWrite_RTE_42 (const TASKParams3
+                                                        *pStr_Value);
+                         numberOfBytesIN                (optional) number of bytes to be send
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         Std_ReturnType                 IOC_E_OK: The data has been passed successfully to the
+                                                        communication service.
+                                                        IOC_E_LENGTH: The <numberOfBytesIN> exceeds either the
+                                                        internal buffer or is equal zero, so no data is send.
+    Description          Performs an "explicit" sender-receiver transmission of data elements with "data" semantic for a
+                         unidirectional 1:1 or N:1 communication between OS-Applications located on the same or on
+                         different cores.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 or N:1 communication.
+                         <SenderId> is used only in N:1 communication. Together with <IocId>, it uniquely identifies the
+                         sender. It is separated from <IocId> with an underscore. In case of 1:1 communication, it shall
+                         be omitted.
+                         <numberOfBytesIN> specifies the size of the data to be transmitted (in bytes).
+    Available via        Ioc.h
+....
+⌋
+
+General:
+
+[[SWS_Os_00719]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈IocSend/IocWrite is asynchronous in that way it shall not have to wait for the re- ception of the data on the receiving side to return from execution.⌋
+
+[[SWS_Os_00720]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocSend/IocWrite function shall not return until the data given in parameter have been completely physically sent over the communication medium. For example in case of communication over shared RAM, an IocSend/IocWrite shall return when all data have been copied in the target shared RAM.⌋
+
+[[SWS_Os_00721]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" (queued) semantic, the IocSend function shall guarantee the order of delivery. In case of senders from different cores, the order in which messages are received will be determined by the implementation.⌋
+
+[[SWS_Os_00722]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocSend/IocWrite function shall support mechanism to guarantee data- Integrity during transmission. The IocSend/IocWrite function shall solve the crossing of the protection boundaries of OS-Applications. It has to be generated in case of intra-core and inter-core commu- nication.⌋
+
+[[SWS_Os_00820]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocSend/IocWrite resp. IocSendGroup/IocWriteGroup function shall be wrapped with the memory allocation keywords mechanism
+....
+    1
+    2   #define OS_START_SEC_<sadm>
+    3   #include "Os_MemMap.h"
+    4
+    5   <IocSend, IocSendGroup, IocWrite, IocWriteGroup >
+    6
+
+    7   #define OS_STOP_SEC_<sadm>
+    8   #include "Os_MemMap.h"
+....
+where <sadm> is the shortName of the SwAddrMethod referenced by the OsMemo- ryMappingCodeLocationRef of the sending OsApplication configured in OsIoc- SendingOsApplicationRef of the respective OsIocCommunication channel. ⌋
+
+Parameters:
+
+[[SWS_Os_00723]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IN <Data> parameter of the IocSend/IocWrite function shall be passed by value for primitive data types, as an pointer to the array base type for arrays and by reference for all other types.⌋
+
+[[SWS_Os_00724]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈For data passed as an pointer to the array base type or by reference, the IocSend/ IocWrite function shall guarantee upon return that the parameter is safe for re-use.⌋
+
+Returned values:
+
+[[SWS_Os_00725]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocSend/IocWrite function shall return IOC_E_OK if the data was passed suc- cessfully to the communication service.⌋
+
+[[SWS_Os_00726]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic the IocSend function shall return IOC_E_LIMIT if an IOC internal transmission buffer became full (Case: Receiver is slower than sender or/ and configured internal IOC buffer size is too small). If this error occurs the IOC internal buffer could not be filled with the parameter. In that case this error shall produce an IOC_E_LOST_DATAOverlayed Error on the receiver side at the next data reception (s. SWS_Os_00745).⌋
+
+Internal structures:
+
+[[SWS_Os_00727]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic the IOC shall configure its internal transmission buffer size with the value of the attribute OsIocBufferLength.⌋
+
+==== 8.5.4.3 IocSendGroup/IocWriteGroup
+
+The IocWriteGroup API call is generated for "data" (unqueued) semantics and the IocSendGroup API call is generated for "event" (queued) semantics.
+
+[[SWS_Os_00728]]
+Definition of API function IocSendGroup_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name       IocSendGroup_<IocId>
+    Syntax             Std_ReturnType IocSendGroup_<IocId> (
+                         <Data1> IN1,
+                         [uint16 numberOfBytesIN1],
+                         <Data2> IN2,
+                         [uint16 numberOfBytesIN2],
+                         ...
+                       )
+    Service ID [hex]   0x20
+    Sync/Async         Asynchronous
+                                              ▽
+
+                                                            △
+    Reentrancy           This function is generated individually for each sender. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same sender), but different functions
+                         can be called in parallel.
+
+    Parameters (in)      IN1                            List of parameters with data values to be sent over a
+                                                        communication identified by the <IocId>. The parameters will be
+                                                        passed by value for simple data elements and by reference for all
+                                                        other types.
+                                                        Example:
+                                                        Std_ReturnType IocSendGroup_RTE_G1 (const uint32 UI_
+                                                        Value1, const uint16 Value2, const uint8 Value3, const uint16
+                                                        Value4);
+                         numberOfBytesIN1               (optional) number of bytes for parameter IN1 to be send.
+                         IN2                            –
+                         numberOfBytesIN2               –
+                                                        –
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         Std_ReturnType                 IOC_E_OK: The data has been passed successfully to the
+                                                        communication service.
+                                                        IOC_E_LIMIT: IOC internal communication buffer is full (Case:
+                                                        Receiver is slower than sender). This error produces an IOC_E_
+                                                        LOST_DATA Overlayed Error on the receiver side at the next data
+                                                        reception.
+                                                        IOC_E_LENGTH: Al least one of the <numberOfBytesIN<x>>
+                                                        exceeds either the internal buffer or is equal zero, so no data is
+                                                        send.
+    Description          Performs an "explicit" sender-receiver transmission of data elements with "event" semantic for a
+                         unidirectional 1:1 communication between OS-Applications located on the same or on different
+                         cores.
+                         This API involves a group of data elements which values are specified in parameter.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 communication involving many
+                         data elements.
+                         The optional parameter <numberOfBytesIN<x>> specifies the size of the data to be transmitted
+                         (in bytes) for parameter <IN<x>>.
+    Available via        Ioc.h
+....
+⌋
+
+[[SWS_Os_91004]]
+Definition of API function IocWriteGroup_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocWriteGroup_<IocId>
+    Syntax               Std_ReturnType IocWriteGroup_<IocId> (
+                           <Data1> IN1,
+                           [uint16 numberOfBytesIN1],
+                           <Data2> IN2,
+                           [uint16 numberOfBytesIN2],
+                           ...
+                         )
+    Service ID [hex]     0x21
+    Sync/Async           Asynchronous
+                                                            ▽
+
+                                                            △
+    Reentrancy           This function is generated individually for each sender. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same sender), but different functions
+                         can be called in parallel.
+
+    Parameters (in)      IN1                            List of parameters with data values to be sent over a
+                                                        communication identified by the <IocId>. The parameters will be
+                                                        passed by value for simple data elements and by reference for all
+                                                        other types.
+                                                        Example:
+                                                        Std_ReturnType IocWriteGroup_RTE_G1 (const uint32 UI_
+                                                        Value1, const uint16 Value2, const uint8 Value3, const uint16
+                                                        Value4);
+                         numberOfBytesIN1               (optional) number of bytes for parameter IN1 to be send.
+                         IN2                            –
+                         numberOfBytesIN2               –
+                                                        –
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         Std_ReturnType                 IOC_E_OK: The data has been passed successfully to the
+                                                        communication service.
+                                                        IOC_E_LENGTH: Al least one of the <numberOfBytesIN<x>>
+                                                        exceeds either the internal buffer or is equal zero, so no data is
+                                                        send.
+    Description          Performs an "explicit" sender-receiver transmission of data elements with "data" semantic for a
+                         unidirectional 1:1 communication between OS-Applications located on the same or on different
+                         cores.
+                         This API involves a group of data elements which values are specified in parameter.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 communication involving many
+                         data elements.
+                         The optional parameter <numberOfBytesIN<x>> specifies the size of the data to be transmitted
+                         (in bytes) for parameter <IN<x>>.
+    Available via        Ioc.h
+....
+⌋
+
+General:
+
+[[SWS_Os_00729]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈IocSendGroup/IocWriteGroup is asynchronous in that way it shall not have to wait for the reception of the data on the receiving side to return from execution.⌋
+
+[[SWS_Os_00730]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocSendGroup/IocWriteGroup function shall not return until the data given in parameter have been completely physically sent over the communication medium. For example in case of communication over shared RAM, an IocSendGroup/IocWrite- Group shall return when all data have been copied in the target shared RAM.⌋
+
+[[SWS_Os_00731]]
+Upstream requirements: SRS_Os_80020
+
+⌈In case of "event" semantic, the IocSendGroup function shall guarantee the order of delivery.⌋
+
+[[SWS_Os_00732]]
+Upstream requirements: SRS_Os_80020
+
+⌈The IocSendGroup/IocWriteGroup function shall support mechanisms to guar- antee data-Integrity during transmission. The IocSendGroup/IocWriteGroup function shall solve the crossing of the protec- tion boundaries of OS-Applications. It has to be generated in case of intra-core and inter-core communication.⌋
+
+Parameters:
+
+[[SWS_Os_00733]]
+Upstream requirements: SRS_Os_80020
+
+⌈The IN <DataN> parameters of the IocSendGroup/IocWriteGroup function shall be passed by values for primitive data types, as pointer to the array base type for arrays and by references for all other types.⌋
+
+[[SWS_Os_00734]]
+Upstream requirements: SRS_Os_80020
+
+⌈For data passed as an pointer to the array base type or by reference, the IocSend- Group/IocWriteGroup function shall guarantee upon return that the parameter is safe for re-use.⌋
+
+Returned values:
+
+[[SWS_Os_00735]]
+Upstream requirements: SRS_Os_80020
+
+⌈The IocSendGroup/IocWriteGroup function shall return IOC_E_OK if the data was passed successfully to the communication service.⌋
+
+[[SWS_Os_00736]]
+Upstream requirements: SRS_Os_80020
+
+⌈In case of "event" semantic the IocSendGroup function shall return IOC_E_LIMIT if an IOC internal transmission buffer got full (Case: Receiver is slower than sender or/ and configured internal IOC buffer size is too small). If this error occurs the IOC Internal buffer could not be filled with the parameter. In that case this error produces an IOC_E_LOST_DATAOverlayed Error on the receiver side at the next data reception.⌋
+
+Internal structures:
+
+[[SWS_Os_00737]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic the IOC shall configure its internal transmission buffer size with the value of the attribute OsIocBufferLength.⌋
+
+==== 8.5.4.4 IocReceive/IocRead
+
+The IocRead API call is generated for "data" and the IocReceive API call is gener- ated for "events".
+
+[[SWS_Os_00738]]
+Definition of API function IocReceive_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocReceive_<IocId>
+    Syntax               Std_ReturnType IocReceive_<IocId> (
+                           <Data> OUT,
+                           [uint16* numberOfBytesOUT]
+                         )
+    Service ID [hex]     0x22
+    Sync/Async           Synchronous
+    Reentrancy           This function is generated individually for each receiver. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same receiver), but different
+                         functions can be called in parallel.
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     OUT                            Data reference to be filled with the received data element.
+                         numberOfBytesOUT               (optional) data reference to be filled with the length of the
+                                                        received data element in bytes.
+    Return value         Std_ReturnType                 IOC_E_OK: Data was received successfully
+                                                        IOC_E_NO_DATA: No data is available for reception.
+                                                        IOC_E_LOST_DATA: This Overlayed Error indicates that the IOC
+                                                        communication service refused an IOCSend request from sender
+                                                        due to an internal buffer overflow. There is no error in the data
+                                                        returned in parameter.
+    Description          Performs an "explicit" sender-receiver reception of data elements with "event" semantic for a
+                         unidirectional communication between OS-Applications located on the same or on different
+                         cores..
+                         <IocId> is a unique identifier that references a unidirectional 1:1 or N:1 communication.
+    Available via        Ioc.h
+....
+⌋
+
+[[SWS_Os_91005]]
+Definition of API function IocRead_<IocId>[_<ReceiverId>] Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocRead_<IocId>[_<ReceiverId>]
+    Syntax               Std_ReturnType IocRead_<IocId>[_<ReceiverId>] (
+                           <Data> OUT,
+                           [uint16* numberOfBytesOUT]
+                         )
+    Service ID [hex]     0x23
+    Sync/Async           Synchronous
+    Reentrancy           Non Reentrant This function is generated individually for each receiver. The individual function
+                         is not reentrant (if called from different runnable entities that belong to the same receiver), but
+                         different functions can be called in parallel.
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     OUT                            Data reference to be filled with the received data element.
+                         numberOfBytesOUT               (optional) data reference to be filled with the length of the
+                                                        received data element in bytes.
+    Return value         Std_ReturnType                 IOC_E_OK: Data was received successfully
+    Description          Performs an "explicit" sender-receiver reception of data elements with "data" semantic for a
+                         unidirectional communication between OS-Applications located on the same or on different
+                         cores.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 or N:1 communication.
+                         <ReceiverId> is used only in N:M communication. Together with <IocId>, it uniquely identifies
+                         the receiver. It is separated from <IocId> with an underscore. If communication is different from
+                         N:M it shall be omitted.
+    Available via        Ioc.h
+....
+⌋
+
+General:
+
+[[SWS_Os_00739]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈A successful call to the IocReceive/IocRead function indicates that data has been received successfully in the OUT <Data> given in parameter. The IocReceive/IocRead function has to be generated in case of intra-core and inter-core communication.⌋
+
+[[SWS_Os_00822]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocReceive/IocRead resp. IocReceiveGroup/IocReadGroup function shall be wrapped with the memory allocation keywords mechanism
+....
+      1   #define OS_START_SEC_<sadm>
+      2   #include "Os_MemMap.h"
+      3
+      4      <IocReceive, IocReceiveGroup , IocRead, IocReadGroup>
+      5
+      6   #define OS_STOP_SEC_<sadm>
+
+    7   #include "Os_MemMap.h"
+....
+where <sadm> is the shortName of the SwAddrMethod referenced by the OsMemo- ryMappingCodeLocationRef of the reading OsApplication configured in OsIocRe- ceivingOsApplicationRef of the respective OsIocCommunication channel.c() ⌋
+
+[[SWS_Os_00740]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈If the OsIocReceiverPullCB attribute is defined with a callback function name, the IOC shall call this function on the receiving core for each data transmission.⌋
+
+Parameters:
+
+[[SWS_Os_00741]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "data" semantic the IocRead function shall always be able to deliver the last available datum. In case of senders from different cores, the precision of the order might be limited by the hardware and implementation.⌋
+
+[[SWS_Os_00742]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocReceive/IocRead function shall guarantee upon returning from execution that the reference given in parameter is safe for use.⌋
+
+[[SWS_Os_00803]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The OUT <Data> parameter of the IocReceive/IocRead function shall be passed as an pointer to the array base type for arrays and by reference for all other types.⌋
+
+Returned values:
+
+[[SWS_Os_00743]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The IocReceive/IocRead function shall return IOC_E_OK if the data was received successfully in the OUT <Data> parameter.⌋
+
+[[SWS_Os_00744]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic and if no data is available the function IocReceive shall return IOC_E_NO_DATA.⌋
+
+[[SWS_Os_00745]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic an IOC_E_LOST_DATAOverlayed Error shall be returned by the IocReceive function if the IOC communication service refused an IocSend request from sender due to an internal buffer overflow. There is no error in the data returned in parameter.⌋
+
+==== 8.5.4.5 IocReceiveGroup/IocReadGroup
+
+The IocReadGroup API call is generated for "data" and the IocReceiveGroup API call is generated for "events".
+
+[[SWS_Os_00746]]
+Definition of API function IocReceiveGroup_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocReceiveGroup_<IocId>
+    Syntax               Std_ReturnType IocReceiveGroup_<IocId> (
+                           <Data1> OUT1,
+                           [uint16* numberOfBytesOUT1],
+                           <Data2> OUT2,
+                           [uint16* numberOfBytesOUT2],
+                           ...
+                         )
+    Service ID [hex]     0x24
+    Sync/Async           Synchronous
+    Reentrancy           This function is generated individually for each receiver. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same receiver), but different
+                         functions can be called in parallel.
+    Parameters (in)      None
+    Parameters (inout)   None
+
+    Parameters (out)     OUT1                           List of data references to be filled with the received data
+                                                        elements. The specified order of the parameter shall match to the
+                                                        specified order in the corresponding send function.
+                         numberOfBytesOUT1              (optional) data reference to be filled with the length of the
+                                                        received data element (OUT1) in bytes.
+                         OUT2                           –
+                         numberOfBytesOUT2              –
+                                                        –
+    Return value         Std_ReturnType                 IOC_E_OK: Data was received successfully
+                                                        IOC_E_NO_DATA: No data is available for reception.
+                                                        IOC_E_LOST_DATA: This Overlayed Error indicates that the IOC
+                                                        communication service refused an IOCSend request from sender
+                                                        due to an internal buffer overflow. There is no error in the data
+                                                        returned in parameter.
+                                                            ▽
+
+                                                            △
+    Description          Performs an "explicit" sender-receiver transmission of data elements with "event" semantic for a
+                         unidirectional 1:1 communication between OS-Applications located on the same or on different
+                         cores.
+                         This API involves a group of data elements which values are specified in parameter.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 communication involving many
+                         data elements.
+    Available via        Ioc.h
+....
+⌋
+
+[[SWS_Os_91006]]
+Definition of API function IocReadGroup_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocReadGroup_<IocId>
+    Syntax               Std_ReturnType IocReadGroup_<IocId> (
+                           <Data1> OUT1,
+                           [uint16* numberOfBytesOUT1],
+                           <Data2> OUT2,
+                           [uint16* numberOfBytesOUT2],
+                           ...
+                         )
+    Service ID [hex]     0x25
+    Sync/Async           Synchronous
+    Reentrancy           This function is generated individually for each receiver. The individual function is not reentrant
+                         (if called from different runnable entities that belong to the same receiver), but different
+                         functions can be called in parallel.
+    Parameters (in)      None
+    Parameters (inout)   None
+
+    Parameters (out)     OUT1                           List of data references to be filled with the received data
+                                                        elements. The specified order of the parameter shall match to the
+                                                        specified order in the corresponding send function.
+                         numberOfBytesOUT1              (optional) data reference to be filled with the length of the
+                                                        received data element (OUT1) in bytes.
+                         OUT2                           –
+                         numberOfBytesOUT2              –
+                                                        –
+    Return value         Std_ReturnType                 IOC_E_OK: Data was received successfully
+    Description          Performs an "explicit" sender-receiver transmission of data elements with a "data" semantic for
+                         a unidirectional 1:1 communication between OS-Applications located on the same or on
+                         different cores.
+                         This API involves a group of data elements which values are specified in parameter.
+                         <IocId> is a unique identifier that references a unidirectional 1:1 communication involving many
+                         data elements.
+    Available via        Ioc.h
+....
+⌋
+
+General:
+
+[[SWS_Os_00747]]
+Upstream requirements: SRS_Os_80020
+
+⌈A successful call to the IocReceiveGroup/IocReadGroup function indicates that data has been received successfully in the given parameters. The IocReceiveGroup/IocReadGroup function has to be generated in case of intra- core and inter-core communication.⌋
+
+[[SWS_Os_00748]]
+Upstream requirements: SRS_Os_80020
+
+⌈If the OsIocReceiverPullCB attribute is defined with a callback function name, the IOC shall call this function on the receiving core for each data transmission.⌋
+
+Parameters:
+
+[[SWS_Os_00749]]
+Upstream requirements: SRS_Os_80020
+
+⌈In case of "data" semantic the IocReadGroup function shall always be able to deliver the last available datum.⌋
+
+[[SWS_Os_00750]]
+Upstream requirements: SRS_Os_80020
+
+⌈The IocReceiveGroup/IocReadGroup function shall guarantee upon returning from execution that the references given in parameters are safe for use.⌋
+
+[[SWS_Os_00804]]
+Upstream requirements: SRS_Os_80020
+
+⌈The OUT <DataN> parameters of the IocReceiveGroup/ IocReadGroup function shall be passed as pointer to the array base type for arrays and by references for all other types.⌋
+
+Returned values:
+
+[[SWS_Os_00751]]
+Upstream requirements: SRS_Os_80020
+
+⌈The IocReceiveGroup/IocReadGroup function shall return IOC_E_OK if the data was received successfully in the list of references given in parameter.⌋
+
+[[SWS_Os_00752]]
+Upstream requirements: SRS_Os_80020
+
+⌈In case of "event" semantic and if no data is available the function IocReceiveGroup shall return IOC_E_NO_DATA.⌋
+
+[[SWS_Os_00753]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈In case of "event" semantic an IOC_E_LOST_DATAOverlayed Error shall be returned by the IocReceiveGroup function if the IOC communication service refused an Ioc- SendGroup request from sender due to an internal buffer overflow. There is no error in the data returned in parameter.⌋
+
+==== 8.5.4.6 IocEmptyQueue
+
+[[SWS_Os_00754]]
+Definition of API function IocEmptyQueue_<IocId> Upstream requirements: SRS_Os_80020
+
+⌈
+....
+    Service Name         IocEmptyQueue_<IocId>
+    Syntax               Std_ReturnType IocEmptyQueue_<IocId> (
+                           void
+                         )
+    Service ID [hex]     0x26
+    Sync/Async           Synchronous
+    Reentrancy           Non reentrant
+    Parameters (in)      None
+    Parameters (inout)   None
+    Parameters (out)     None
+    Return value         Std_ReturnType               IOC_E_OK: Content of the queue was successfully deleted
+    Description          In case of queued communication identified by the <IocId> in the function name, the content of
+                         the IOC internal communication queue shall be deleted.
+    Available via        Ioc.h
+....
+⌋
+
+General:
+
+[[SWS_Os_00755]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The function IocEmptyQueue_<IocId> shall be present for all IOC elements with queued semantics.⌋
+
+[[SWS_Os_00756]]
+....
+    Upstream requirements: SRS_Os_80020
+....
+⌈The function IocEmptyQueue_<IocId> shall delete all contents from the associated data queue. The IocEmptyQueue should be generated in a more efficient way than an iterative call to an IocReceive function.⌋

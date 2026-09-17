@@ -1,0 +1,91 @@
+== 7.1 Core OS
+
+=== 7.1.1 Background & Rationale
+
+The OSEK/VDX Operating System [2] is widely used in the automotive industry and has been proven in use in all classes of ECUs found in modern vehicles. The concepts that OSEK OS has introduced are widely understood and the automotive industry has many years of collective experience in engineering OSEK OS based systems. OSEK OS is an event-triggered operating system. This provides high flexibility in the design and maintenance of AUTOSAR based systems. Event triggering gives free- dom for the selection of the events to drive scheduling at runtime, for example angular rotation, local time source, global time source, error occurrence etc. For these reasons the core functionality of the AUTOSAR OS shall be based upon the OSEK OS. In particular OSEK OS provides the following features to support concepts in AUTOSAR:
+....
+     • fixed priority-based scheduling
+     • facilities for handling interrupts
+     • only interrupts with higher priority than Tasks
+     • some protection against incorrect use of OS services
+     • a startup interface through StartOS and the StartupHook
+     • a shutdown interface through ShutdownOS and the ShutdownHook
+....
+OSEK OS provides many features in addition to these. Readers should consult the specification [2] for details. Basing AUTOSAR OS on OSEK OS means that legacy applications will be backward compatible - i.e. applications written for OSEK OS will run on AUTOSAR OS. However, some of the features introduced by AUTOSAR OS require restrictions on the use of existing OSEK OS features or extend existing OSEK OS features.
+
+=== 7.1.2 Requirements
+
+[[SWS_Os_00001]]
+....
+    Upstream requirements: SRS_Os_00097, SRS_BSW_00336, SRS_BSW_00345
+....
+⌈The Operating System module shall provide an API that is backward compatible with the OSEK OS API [2].⌋
+
+==== 7.1.2.1 Restrictions on OSEK OS
+
+It is too inefficient to achieve timing and memory protection for alarm callbacks. They are therefore not allowed in specific scalability classes ([SWS_Os_00242])
+
+[[SWS_Os_00242]]
+Upstream requirements: SRS_Os_11016
+
+⌈The Operating System module shall only allow Alarm Callbacks in Scalability Class 1.⌋
+
+OSEK OS is required to provide functionality to handle inter-task (internal) communi- cation according to the OSEK COM specification when internal communication only is required in the system. In AUTOSAR, internal communication is provided by the AUTOSAR RTE or by AUTOSAR COM at least one of which will be present for all AUTOSAR ECUs. AUTOSAR OS, when used in an AUTOSAR system, therefore does not need to support internal communication. An OSEK OS must implement internal communication if the symbol LOCALMES- SAGESONLY is defined. AUTOSAR OS can deprecate the need to implement OSEK COM functionality and maintain compatibility with OSEK suite of specifications by ensuring that AUTOSAR OS always exists in an environment where LOCALMES- SAGESONLY is undefined. OSEK OS has one special Resource called RES_SCHEDULER. This Resource has 2 specific aspects: 1. It is always present in the system, even if it is not configured. This means that the
+....
+     RES_SCHEDULER is always known by the OS.
+....
+2. It has always the highest Task priority. This means a Task which allocates this
+....
+     Resource cannot be preempted by other Tasks.
+....
+Since special cases are always hard to handle (e.g. in this case with respect to timing protection) AUTOSAR OS handles RES_SCHEDULER as any other Resource. This means that the RES_SCHEDULER is not automatically created. Note that on multi-core systems the scheduling happens per core. Chapter 7.9.21 contains more information regarding handling of Resources in such systems. In OSEK OS users must declare Operating System objects with specific macros (e.g. DeclareTask(), . . . ) An AUTOSAR OS implementation shall not depend on such declarations and shall (for backwards compatibility) supply macros without functionality.
+
+==== 7.1.2.2 Undefined Behaviour in OSEK OS
+
+There are a number of cases where the behaviour of OSEK OS is undefined. These cases represent a barrier to portability. AUTOSAR OS tightens the OSEK OS specifi- cation by defining the required behaviour.
+
+[[SWS_Os_00304]]
+Upstream requirements: SRS_BSW_00323
+
+⌈If in a call to SetRelAlarm the parameter "increment" is set to zero, the service shall return E_OS_VALUE in standard and extended status .⌋
+
+[[SWS_Os_00424]]
+Upstream requirements: SRS_Os_00097
+
+⌈The first call to StartOS (for starting the Operating System) shall not return.⌋
+
+[[SWS_Os_00425]]
+Upstream requirements: SRS_Os_00097
+
+⌈If ShutdownOS is called and ShutdownHook returns then the Operating System module shall disable all interrupts and enter an endless loop.⌋
+
+==== 7.1.2.3 Extensions to OSEK OS
+
+[[SWS_Os_00299]]
+Upstream requirements: SRS_Os_11018
+
+⌈The Operating System module shall provide the services DisableAllInter- rupts, EnableAllInterrupts, SuspendAllInterrupts, ResumeAllInter- rupts prior to calling StartOS and after calling ShutdownOS.⌋
+
+It is assumed that the static variables of the functions mentioned in [SWS_Os_00299] are initialized.
+
+[[SWS_Os_00301]]
+Upstream requirements: SRS_Os_11021
+
+⌈The Operating System module shall provide the ability to increment a software Counter as an alternative action on alarm expiry.⌋
+
+The Operating System module provides API service IncrementCounter (see
+[[SWS_Os_00399]]
+) to increment a software Counter.
+
+[[SWS_Os_00476]]
+Upstream requirements: SRS_Os_00097
+
+⌈The Operating System module shall allow to automatically start preconfigured abso- lute alarms during the start of the Operating System.⌋
+
+[[SWS_Os_00476]]
+is an extension to OSEK OS which allows this only for relative alarms.
+
+[[SWS_Os_00566]]
+Upstream requirements: SRS_BSW_00323
+
+⌈The Operating System API shall check in extended mode all pointer arguments for a NULL_PTR and return E_OS_ILLEGAL_ADDRESS in this case unless NULL_PTR is explicitly allowed as a valid pointer address value in the API parameter specification.⌋

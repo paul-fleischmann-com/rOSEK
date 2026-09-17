@@ -1,0 +1,120 @@
+== A Change history of AUTOSAR traceable items
+
+=== A.1 Traceable item history of this document according to AU-
+
+....
+           TOSAR Release R25-11
+....
+
+==== A.1.1 Added Requirements in R25-11
+
+....
+ Number                Heading
+ [SRS_Os_13000]        Deferrable Server
+                        Table A.1: Added Requirements in R25-11
+....
+
+==== A.1.2 Changed Requirements in R25-11
+
+none
+
+==== A.1.3 Deleted Requirements in R25-11
+
+....
+ Number                Heading
+                       In case no task is going to be scheduled on a specific core, the OS shall
+....
+[[SRS_Os_80022]]
+....
+                       execute a user selectable operation
+                       The OS shall execute an operation which can be selected at runtime, in case
+....
+[[SRS_Os_80023]]
+....
+                       no task is going to be scheduled on a specific core
+                        Table A.2: Deleted Requirements in R25-11
+....
+
+=== A.2 Traceable item history of this document according to AU-
+
+....
+           TOSAR Release R24-11
+....
+
+==== A.2.1 Added Requirements in R24-11
+
+none
+
+==== A.2.2 Changed Requirements in R24-11
+
+....
+ Number                Heading
+ [SRS_Os_11001]        The OS shall provide partitions which allow for fault isolation capabilities
+ [SRS_Os_11008]        Timing Fault Detection and Prevention of Propagation
+                       In case of a protection error, the OS shall provide an error reaction on OS-,
+....
+[[SRS_Os_11014]]
+....
+                       OS-Application and task/ISR-level
+ [SRS_Os_11022]        The OS shall provide a mechanism to terminate OS-Application
+                       Table A.3: Changed Requirements in R24-11
+....
+
+==== A.2.3 Deleted Requirements in R24-11
+
+....
+ Number                Heading
+                       The OS shall provide a mechanism by which a terminated OS-Application
+....
+[[SRS_Os_11023]]
+....
+                       can be restarted
+                        Table A.4: Deleted Requirements in R24-11
+....
+
+=== A.3 Traceable item history of this document according to AU-
+
+....
+           TOSAR Release R23-11
+....
+
+==== A.3.1 Added Requirements in R23-11
+
+none
+
+==== A.3.2 Changed Requirements in R23-11
+
+none
+
+==== A.3.3 Deleted Requirements in R23-11
+
+none
+
+=== A.4 Traceable item history of this document according to AU-
+
+....
+           TOSAR Release R22-11
+....
+
+==== A.4.1 Added Requirements in R22-11
+
+none
+
+==== A.4.2 Changed Requirements in R22-11
+
+....
+ Number                Heading
+ [SRS_Os_12001]        The OS shall create an ARTI module description file
+ [SRS_Os_12002]        The OS code shall incorporate ARTI hooks
+ [SRS_Os_80006]        Initialization/Start-up of the system shall be synchronized
+                       Table A.5: Changed Requirements in R22-11
+....
+
+==== A.4.3 Deleted Requirements in R22-11
+
+....
+ Number                Heading
+ [SRS_Os_80026]        It shall be possible to start any of the cores in a multi core system
+ [SRS_Os_80027]        It shall be possible to initialize any of the cores in a multi core system
+                        Table A.6: Deleted Requirements in R22-11
+....
