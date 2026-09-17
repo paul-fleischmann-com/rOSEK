@@ -25,6 +25,9 @@ Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
 | GitHub Issues/Milestones
 | Phasen 0–4 als Milestones, Arbeitspakete als Issues, siehe Repo `paul-fleischmann-com/rOSEK`.
 
+| `.github/workflows/ci.yml`
+| build/host-test/lint für den Rust-Kernel-Workspace (Issue #6), in echtem CI grün. `host-test` erkennt, dass `rosek-core` noch nicht existiert, und meldet das neutral statt fehlzuschlagen. Branch-Protection auf `master` noch nicht aktiviert (Repo-Settings-Änderung, Rückfrage beim User ausstehend).
+
 | `src/rust/rosek-port-am335x/`, `src/rust/rosek-board-beaglebone-black/`
 | Erste zwei Workspace-Crates: Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus (Issue #1); flache 1:1-MMU-Abbildung mit DDR als Normal-cacheable und allem anderen als Device-Memory, MMU+Caches aktiviert (Issue #2); UART0-Treiber (115200 8N1, gepollt) mit Boot-Meldung beim Start (Issue #3); USR-LED-Lebenszeichen-Blink über GPIO1 *und* GPIO2 Pins 21–24 (Issue #4 — PLAN.md nennt nur GPIO1, das offizielle BeagleBone-Black-Device-Tree aber GPIO2; auf User-Wunsch werden beide angesteuert statt sich für eines zu entscheiden); selbstständiger Panic-Handler mit UART-Diagnose + schnellerem Fehler-Blink (Issue #5) — Phase 0 (Boot-Fundament) damit vollständig.
 
