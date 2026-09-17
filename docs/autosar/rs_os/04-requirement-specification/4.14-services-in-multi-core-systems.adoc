@@ -9,31 +9,124 @@ BSW modules. The AUTOSAR_SWS_Multi-Core defines from which module which service 
 === 4.14.2 Requirements
 
 [[SRS_Os_80013]]
-The behaviour of services shall be identical to single core sys- tems ⌈ The behaviour of services (e.g. task activation) should be identical to single Description:    core systems when the originating and the manipulated object (e.g. a task) reside on the same core. Known services for SC systems should behave identically on a MC system Rationale:      when used locally, i.e. without crossing core boundaries. Use Case:       – Dependencies:   OS Specification, BSW Specifications Supporting Material:
+.The behaviour of services shall be identical to single core systems
+[cols="1,4a"]
+|===
+|Description
+| The behaviour of services (e.g. task activation) should be identical to single core systems when the originating and the manipulated object (e.g. a task) reside on the same core.
 
-⌋
+|Rationale
+| Known services for SC systems should behave identically on a MC system when used locally, i.e. without crossing core boundaries.
+
+|Use Case
+| –
+
+|Dependencies
+| OS Specification, BSW Specifications
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_80015]]
-The MC extensions shall provide a mechanism to activate tasks on different cores ⌈ The MC extensions shall provide a mechanism to activate tasks on different Description: cores, in different OsApplications. The offline relocation of tasks between cores in different projects (e.g. low cost and high-end vehicles) shall be possible without reprogramming all task Rationale:      activations. Moreover, it shall be possible for the system integrator to assign sub-functionality to a core with free processing power. Use Case:       Usage of third-party SW delivered as object code. Dependencies:   OS Specification Supporting      – Material:
+.The MC extensions shall provide a mechanism to activate tasks on different cores
+[cols="1,4a"]
+|===
+|Description
+| The MC extensions shall provide a mechanism to activate tasks on different cores, in different OsApplications.
 
-⌋
+|Rationale
+| The offline relocation of tasks between cores in different projects (e.g. low cost and high-end vehicles) shall be possible without reprogramming all task activations. Moreover, it shall be possible for the system integrator to assign sub-functionality to a core with free processing power.
+
+|Use Case
+| Usage of third-party SW delivered as object code.
+
+|Dependencies
+| OS Specification
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_80016]]
-Event mechanism shall work across cores ⌈ The MC extensions shall provide a mechanism to send an event to a task on a Description: different core, in different OsApplications If events are used and a task is moved to a different core (offline), it shall still be Rationale: possible to use events. Use Case:       Monitoring/safety concept. Dependencies:   OS Specification Supporting Material:
+.Event mechanism shall work across cores
+[cols="1,4a"]
+|===
+|Description
+| The MC extensions shall provide a mechanism to send an event to a task on a different core, in different OsApplications
 
-⌋
+|Rationale
+| If events are used and a task is moved to a different core (offline), it shall still be possible to use events.
+
+|Use Case
+| Monitoring/safety concept.
+
+|Dependencies
+| OS Specification
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_80018]]
-A method to synchronize tasks on more than one core shall be provided ⌈ Description:    A method to synchronize tasks on more than one core shall be provided. Necessity to synchronize tasks across cores in time. This can be done by Rationale:      several means, e.g. alarms activating tasks across cores, by synchronizing counters or by using shared hardware timers. Use Case:       Synchronized applications Dependencies:   OS Specification Supporting      – Material:
+.A method to synchronize tasks on more than one core shall be provided
+[cols="1,4a"]
+|===
+|Description
+| A method to synchronize tasks on more than one core shall be provided.
 
-⌋
+|Rationale
+| Necessity to synchronize tasks across cores in time. This can be done by several means, e.g. alarms activating tasks across cores, by synchronizing counters or by using shared hardware timers.
+
+|Use Case
+| Synchronized applications
+
+|Dependencies
+| OS Specification
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_80020]]
-A data exchange mechanism shall be provided ⌈ A data exchange mechanism shall be provided that guaranties data Description: consistency independent from the HW To minimize the HW dependency of the RTE a exchange mechanism is Rationale: required that can be used by the RTE. Use Case:       Data exchange in a MC system. Dependencies:   – Supporting      – Material:
+.A data exchange mechanism shall be provided
+[cols="1,4a"]
+|===
+|Description
+| A data exchange mechanism shall be provided that guaranties data consistency independent from the HW
 
-⌋
+|Rationale
+| To minimize the HW dependency of the RTE a exchange mechanism is required that can be used by the RTE.
+
+|Use Case
+| Data exchange in a MC system.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_80021]]
-The MC extension of the AUTOSAR environment shall support a mutual exclusion mechanism between cores that shall not cause deadlocks ⌈ The MC extension of the AUTOSAR environment shall support a mutual exclusion mechanism between cores that shall not cause deadlocks, if Description: configured and used properly. The mechanism shall be usable from task and ISR level. In a MC system, a mutual exclusion mechanism is needed, to synchronize Rationale:      different cores. This mutual exclusion mechanism shall support the user to prevent from building deadlocks. Use Case:       Concurrent access to shared resources • OS specification Dependencies: • HW support required Supporting      – Material:
+.The MC extension of the AUTOSAR environment shall support a mutual exclusion mechanism between cores that shall not cause deadlocks
+[cols="1,4a"]
+|===
+|Description
+| The MC extension of the AUTOSAR environment shall support a mutual exclusion mechanism between cores that shall not cause deadlocks, if configured and used properly. The mechanism shall be usable from task and ISR level.
 
-⌋
+|Rationale
+| In a MC system, a mutual exclusion mechanism is needed, to synchronize different cores. This mutual exclusion mechanism shall support the user to prevent from building deadlocks.
+
+|Use Case
+| Concurrent access to shared resources
+
+|Dependencies
+a|
+* OS specification
+
+* HW support required
+
+|Supporting Material
+| –
+|===

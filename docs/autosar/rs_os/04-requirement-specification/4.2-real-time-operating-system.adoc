@@ -9,51 +9,100 @@ into a monolithic OS/communication/drivers structure is not possible under archi
 === 4.2.2 Core Operating System requirements
 
 [[SRS_Os_00097]]
-The OS shall provide an API that is backward compatible to the API of OSEK OS ⌈ The OS shall provide an API that is backward compatible to the API of OSEK Description:    OS [3]. Valid requirements shall be integrated as an extension of the functionality provided by OSEK OS. Rationale:      Guarantee migration progress Use Case:       Existing driver software can be reused as its interface to the OS is not changed. Dependencies:   – Supporting      [STD_OSEK_OS], see [3] Material:
+.The OS shall provide an API that is backward compatible to the API of OSEK OS
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide an API that is backward compatible to the API of OSEK OS [3]. Valid requirements shall be integrated as an extension of the functionality provided by OSEK OS.
 
-⌋
+|Rationale
+| Guarantee migration progress
+
+|Use Case
+| Existing driver software can be reused as its interface to the OS is not changed.
+
+|Dependencies
+| –
+
+|Supporting Material
+| [STD_OSEK_OS], see [3]
+|===
 
 [[SRS_Os_11001]]
-The OS shall provide partitions which allow for fault isolation capabilities ⌈ The OS shall provide partitions (Fault Containment Regions) which allow for Description: fault isolation capabilities. AUTOSAR permits mutliple logical applications to co-exist on the same processor. The existing specification of OSEK OS [3] is not aware of multiple logical applications residing on a single processor. There is therefore no facility for the containment of faults. A fault in one application could propagate to another application resident on the same processor. For example, an error in one software component or basic software module may result in a fault being detected in another software component and/or basic software module whose only relation to the faulty part is that it is resident on the same processor. OSEK OS has the following rules OS object manipulation: • Tasks and ISRs are the executable objects managed by the OS. • Standard resources can be manipulated by only those task/ISRs that declare this at configuration time. Rationale: • Events can be set by any task or ISR. Events can only be waited on or cleared by those tasks that declare this at configuration time. • Alarms can be manipulated by any task or ISR.
+.The OS shall provide partitions which allow for fault isolation capabilities
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide partitions (Fault Containment Regions) which allow for fault isolation capabilities.
 
-....
-                    In AUTOSAR:
+|Rationale
+a|
+AUTOSAR permits mutliple logical applications to co-exist on the same processor. The existing specification of OSEK OS [3] is not aware of multiple logical applications residing on a single processor. There is therefore no facility for the containment of faults. A fault in one application could propagate to another application resident on the same processor. For example, an error in one software component or basic software module may result in a fault being detected in another software component and/or basic software module whose only relation to the faulty part is that it is resident on the same processor. OSEK OS has the following rules OS object manipulation:
 
-                     • Extending this general scheme to table-based schedules ([SRS_Os_00098])
-                       means that Schedule Tables can be manipulated by any task or ISR.
+* Tasks and ISRs are the executable objects managed by the OS.
 
-                    This loose ownership of OS objects (tasks, ISRs, alarms, events, schedule
-                    tables, resources) makes it difficult to contain certain classes of faults at
-                                                            ▽
-                                                 ▽
+* Standard resources can be manipulated by only those task/ISRs that declare
 
-                                                △
-                                                           △
-                    runtime, for example one software component incorrectly cancelling an alarm
-                    belonging to another software component. It is therefore necessary to define
-                    the relationship between OS objects and the software components or basic
-                    software module to which they belong so that fault containment can be
-                    achieved at runtime.
-                    The OS shall provide a higher-level abstraction to allow the user to group
-                    existing OS objects (tasks, ISRs etc.) so that objects in the group can be
-                    manipulated only by objects in the same group. Such a group is called an
-                    OS-Application.
-                    Furthermore, defining an OS-Application allows a memory protection domain to
-                    be provided (see [SRS_Os_11005]).
-                    Under a failure condition the fault handling mechanism needs to stop all objects
-    Use Case:       associated with a software component from executing.
-    Dependencies:   –
-    Supporting      –
-    Material:
-....
-⌋
+this at configuration time.
+
+* Events can be set by any task or ISR. Events can only be waited on or
+
+cleared by those tasks that declare this at configuration time.
+
+* Alarms can be manipulated by any task or ISR.
+
+In AUTOSAR:
+
+* Extending this general scheme to table-based schedules (<<SRS_Os_00098>>)
+
+means that Schedule Tables can be manipulated by any task or ISR. This loose ownership of OS objects (tasks, ISRs, alarms, events, schedule tables, resources) makes it difficult to contain certain classes of faults at
+
+|Use Case
+| Under a failure condition the fault handling mechanism needs to stop all objects associated with a software component from executing.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_11018]]
-The OS shall provide interrupt mask functions ⌈ The OS shall provide interrupt mask functions before calling StartOS() and Description:    after a ShutdownOS() call. These functions are already defined in OSEK OS [3] and the usage is now extended. Rationale:      Needed by SPAL. The SPAL drivers are required to manipulate the interrupt mask before, during Use Case: and after normal OS operation. Dependencies:   C initialization has to be performed before these functions can be used. Supporting Material:
+.The OS shall provide interrupt mask functions
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide interrupt mask functions before calling StartOS() and after a ShutdownOS() call. These functions are already defined in OSEK OS [3] and the usage is now extended.
 
-⌋
+|Rationale
+| Needed by SPAL.
+
+|Use Case
+| The SPAL drivers are required to manipulate the interrupt mask before, during and after normal OS operation.
+
+|Dependencies
+| C initialization has to be performed before these functions can be used.
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_11019]]
-The AUTOSAR OS generation tool shall create the interrupt vector table ⌈ Description:    The AUTOSAR OS generation tool shall create the interrupt vector table for. Each ECU will need to have an interrupt vector table. The operating system configuration already contains details about all interrupts used by the system. Rationale:      The AUTOSAR OS generation tool shall be the final tool in the development process that generates the interrupt vector table. Use Case:       Integration of other modules. Dependencies:   – Supporting      – Material:
+.The AUTOSAR OS generation tool shall create the interrupt vector table
+[cols="1,4a"]
+|===
+|Description
+| The AUTOSAR OS generation tool shall create the interrupt vector table for.
 
-⌋
+|Rationale
+| Each ECU will need to have an interrupt vector table. The operating system configuration already contains details about all interrupts used by the system. The AUTOSAR OS generation tool shall be the final tool in the development process that generates the interrupt vector table.
+
+|Use Case
+| Integration of other modules.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===

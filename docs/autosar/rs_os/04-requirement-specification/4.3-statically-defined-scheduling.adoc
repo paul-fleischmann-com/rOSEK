@@ -7,29 +7,61 @@ In many applications it is necessary to statically define the activation of a se
 === 4.3.2 Requirements
 
 [[SRS_Os_00098]]
-The Operating System shall provide statically configurable schedule tables based on time tables as an optional service ⌈ The Operating System shall provide statically configurable schedule tables Description: based on time tables as an optional service. Requirement of Standard Core users. Table based schedules are more efficient and easier to understand than tasks activated by OSEK alarm services. Adding a table-based scheduling mechanism approach as an extension to Rationale:      OSEK OS [3] provides users with the ability to construct an OSEKtime-like dispatcher table without needing to introduce the unnecessary restrictions of the stack-based scheduling policy or an additional OS specification. Release a number of tasks synchronously with a statically defined inter-arrival Use Case: time. Dependencies:   – Supporting      – Material:
+.The Operating System shall provide statically configurable schedule tables based on time tables as an optional service
+[cols="1,4a"]
+|===
+|Description
+| The Operating System shall provide statically configurable schedule tables based on time tables as an optional service.
 
-⌋
+|Rationale
+| Requirement of Standard Core users. Table based schedules are more efficient and easier to understand than tasks activated by OSEK alarm services. Adding a table-based scheduling mechanism approach as an extension to OSEK OS [3] provides users with the ability to construct an OSEKtime-like dispatcher table without needing to introduce the unnecessary restrictions of the stack-based scheduling policy or an additional OS specification.
+
+|Use Case
+| Release a number of tasks synchronously with a statically defined inter-arrival time.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_00099]]
-The Operating System shall provide a mechanism which allows switching between different schedule tables ⌈
+.The Operating System shall provide a mechanism which allows switching between different schedule tables
+[cols="1,4a"]
+|===
+|Description
+| The Operating System shall provide a mechanism which allows switching between different schedule tables.
 
-....
-    Description:    The Operating System shall provide a mechanism which allows switching
-                    between different schedule tables.
-                    For different application states (e.g. init, start-up, pre-start, normal operation,
-    Rationale:      diagnosis, pre-sleep, shut down) different schedules are necessary.
-    Use Case:       ECU modes controlled by ECU State Manager
-    Dependencies:   [SRS_Os_00098]
-                                                  ▽
+|Rationale
+| For different application states (e.g. init, start-up, pre-start, normal operation, diagnosis, pre-sleep, shut down) different schedules are necessary.
 
-                                                 △
-    Supporting      –
-    Material:
-....
-⌋
+|Use Case
+| ECU modes controlled by ECU State Manager
+
+|Dependencies
+| <<SRS_Os_00098>>
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_11002]]
-The operating system shall provide the ability to synchronize the processing of schedule tables with a global system time base ⌈ The operating system shall provide the ability to synchronize the processing of Description:    schedule tables with a global system time base. It shall support immediate (hard) synchronization and gradually adapting (smooth) synchronization. It is necessary for some distributed applications to be synchronized to a global Rationale:      (to the relevant applications) timebase. This type of feature is needed for users coming to the AUTOSAR OS from OSEKtime. Users migrating from OSEKtime dispatcher tables can replicate the similar Use Case:       functionality with schedule tables without needing to introduce an additional OS specification. Dependencies:   – Supporting Material:
+.The operating system shall provide the ability to synchronize the processing of schedule tables with a global system time base
+[cols="1,4a"]
+|===
+|Description
+| The operating system shall provide the ability to synchronize the processing of schedule tables with a global system time base. It shall support immediate (hard) synchronization and gradually adapting (smooth) synchronization.
 
-⌋
+|Rationale
+| It is necessary for some distributed applications to be synchronized to a global (to the relevant applications) timebase. This type of feature is needed for users coming to the AUTOSAR OS from OSEKtime.
+
+|Use Case
+| Users migrating from OSEKtime dispatcher tables can replicate the similar functionality with schedule tables without needing to introduce an additional OS specification.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===

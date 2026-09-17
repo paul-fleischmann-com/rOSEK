@@ -7,39 +7,44 @@ This section contains high-level requirements on the system configuration with r
 === 4.13.2 Requirements
 
 [[SRS_Os_80008]]
-It shall be a common OS configuration across multiple cores ⌈
+.It shall be a common OS configuration across multiple cores
+[cols="1,4a"]
+|===
+|Description
+| Disjunctive object IDs have to be generated, if objects are to be addressed across cores.
 
-....
-    Description:    Disjunctive object IDs have to be generated, if objects are to be addressed
-                    across cores.
-                    If, e.g. tasks are activated across cores, IDs have to be unique across cores.
-    Rationale:      This results in a common configuration and affects flashing/programming
-                    strategies.
-    Use Case:       Activating tasks or setting events across cores
-                    OS specification
-                    [SRS_Os_80001]
-    Dependencies:
-                    [SRS_Os_80015]
-                    [SRS_Os_80016]
-    Supporting      Multi-Core Concept document
-    Material:
-....
-⌋
+|Rationale
+| If, e.g. tasks are activated across cores, IDs have to be unique across cores. This results in a common configuration and affects flashing/programming strategies.
+
+|Use Case
+| Activating tasks or setting events across cores
+
+|Dependencies
+| OS specification <<SRS_Os_80001>> <<SRS_Os_80015>> <<SRS_Os_80016>>
+
+|Supporting Material
+| Multi-Core Concept document
+|===
 
 [[SRS_Os_80011]]
-The number of cores that the operating system manages shall be configurable offline ⌈
+.The number of cores that the operating system manages shall be configurable offline
+[cols="1,4a"]
+|===
+|Description
+| The number of cores that the operating system manages shall be configurable offline.
 
-....
-    Description:    The number of cores that the operating system manages shall be configurable
-                    offline.
-                    The operating system specification shall not be limited to a certain number of
-    Rationale:
-                    cores.
-    Use Case:       Use of the operating system in projects with different numbers of cores.
-                       • Configuration specification (e.g. System template)
-    Dependencies:
-                       • Boot procedure (e.g. ECU State manager)
-    Supporting      –
-    Material:
-....
-⌋
+|Rationale
+| The operating system specification shall not be limited to a certain number of cores.
+
+|Use Case
+| Use of the operating system in projects with different numbers of cores.
+
+|Dependencies
+a|
+* Configuration specification (e.g. System template)
+
+* Boot procedure (e.g. ECU State manager)
+
+|Supporting Material
+| –
+|===

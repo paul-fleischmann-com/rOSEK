@@ -7,11 +7,7 @@ Upstream requirements: SRS_BSW_00101
 
 ⌈The Operating System module shall handle all the initialization and configuration of timers used directly by the Operating System module and not handled by the GPT driver.⌋
 
-The Operating System module provides API service GetCounterValue (see
-[[SWS_Os_00383]]
-) to read the current count value of a Counter (returning either the hardware timer ticks if Counter is driven by hardware or the software ticks when user drives Counter). The Operating System module provides API service GetElapsedValue (see
-[[SWS_Os_00392]]
-) to get the number of ticks between the current tick value and a previously read tick value.
+The Operating System module provides API service GetCounterValue (see <<SWS_Os_00383>>) to read the current count value of a Counter (returning either the hardware timer ticks if Counter is driven by hardware or the software ticks when user drives Counter). The Operating System module provides API service GetElapsedValue (see <<SWS_Os_00392>>) to get the number of ticks between the current tick value and a previously read tick value.
 
 [[SWS_Os_00384]]
 ⌈The Operating System module shall adjust the read out values of hardware timers (which drive counters) in such that the lowest value is zero and con- secutive reads return an increasing count value until the timer wraps at its modulus.⌋

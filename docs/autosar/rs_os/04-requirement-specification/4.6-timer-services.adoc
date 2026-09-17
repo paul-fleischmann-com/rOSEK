@@ -2,18 +2,46 @@
 
 === 4.6.1 Functional Overview
 
-Timer Services provide software timers for use in application and basic software. The core of a timing mechanism is already provided by the counters and alarms in OSEK OS [3]. Introducing an almost identical mechanism, in the form of Timer Ser- vices, is therefore unnecessary. However, to provide general purpose software timing a few supplementary features need to be added to AUTOSAR OS. These are described in [SRS_Os_11020] and
-[[SRS_Os_11021]]
-.
+Timer Services provide software timers for use in application and basic software. The core of a timing mechanism is already provided by the counters and alarms in OSEK OS [3]. Introducing an almost identical mechanism, in the form of Timer Services, is therefore unnecessary. However, to provide general purpose software timing a few supplementary features need to be added to AUTOSAR OS. These are described in <<SRS_Os_11020>> and <<SRS_Os_11021>>.
 
 === 4.6.2 Functional Requirements
 
 [[SRS_Os_11020]]
-The OS shall provide a standard interface to tick a software counter ⌈ Description:    The OS shall provide a standard interface to tick a software counter. OSEK OS [3] does not define the interface between counters and alarms. This creates a problem when porting applications between different vendors’ Rationale: implementations. Defining this interface in AUTOSAR OS removes this portability problem. Use Case:       – Dependencies:   – Supporting      – Material:
+.The OS shall provide a standard interface to tick a software counter
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide a standard interface to tick a software counter.
 
-⌋
+|Rationale
+| OSEK OS [3] does not define the interface between counters and alarms. This creates a problem when porting applications between different vendors’ implementations. Defining this interface in AUTOSAR OS removes this portability problem.
+
+|Use Case
+| –
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_11021]]
-The OS shall provide a mechanism to cascade multiple software counters from a single hardware counter. ⌈ The OS shall provide a mechanism to cascade multiple software counters from Description: a single hardware counter. If counters with different resolutions are required it may not be possible (e.g. because of limited hardware timers) or desirable (e.g. because of interrupt Rationale:      interference) to use multiple hardware timer sources. In many cases a lower resolution software counter can be driven from a higher resolution counter by ticking the lower resolution counter from the higher resolution counter. Drive a 1ms software counter by a 1ms timer interrupt and a 100ms counter Use Case: from the 1ms counter. This requirement implies that an implementation must support more than one counter (otherwise cascading would not be possible). Specification of the lower Dependencies: limit on the number of counters that must be supported by an implementation is provided in the AUTOSAR OS SWS. Supporting      – Material:
+.The OS shall provide a mechanism to cascade multiple software counters from a single hardware counter.
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide a mechanism to cascade multiple software counters from a single hardware counter.
 
-⌋
+|Rationale
+| If counters with different resolutions are required it may not be possible (e.g. because of limited hardware timers) or desirable (e.g. because of interrupt interference) to use multiple hardware timer sources. In many cases a lower resolution software counter can be driven from a higher resolution counter by ticking the lower resolution counter from the higher resolution counter.
+
+|Use Case
+| Drive a 1ms software counter by a 1ms timer interrupt and a 100ms counter from the 1ms counter.
+
+|Dependencies
+| This requirement implies that an implementation must support more than one counter (otherwise cascading would not be possible). Specification of the lower limit on the number of counters that must be supported by an implementation is provided in the AUTOSAR OS SWS.
+
+|Supporting Material
+| –
+|===

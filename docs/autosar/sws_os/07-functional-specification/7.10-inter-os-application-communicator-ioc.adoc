@@ -31,8 +31,7 @@ DRAFT Upstream requirements: SRS_Os_80020
 
 ⌈The OS Generator shall provide configuration parameters allowing IOC communica- tion code ("IOC mode") to be generated separately from OS code (("OS mode").⌋
 
-[[SWS_Os_00831]]
-means that the OS Generator shall be able to produce only OS code or only IOC code in a single invocation.
+<<SWS_Os_00831>> means that the OS Generator shall be able to produce only OS code or only IOC code in a single invocation.
 
 [[SWS_Os_00832]]
 DRAFT Upstream requirements: SRS_Os_80020

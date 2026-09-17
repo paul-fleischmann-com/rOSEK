@@ -7,18 +7,21 @@ For a particular application, the operating system can be configured such that i
 === 4.7.2 Functional Requirements
 
 [[SRS_Os_11016]]
-The OS implementation shall offer scalability which is config- urable by a generation tool ⌈ The OS shall provide the following configurations with at least the specified features (additional features may be included): Class1 : OSEK OS [3] + Planned Schedules Description: Class2 : Class1 + Timing Protection Class3 : Class1 + Memory Protection Class4 : Class1+ Class2 + Class3 ▽
+.The OS implementation shall offer scalability which is configurable by a generation tool
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide the following configurations with at least the specified features (additional features may be included): Class1 : OSEK OS [3] + Planned Schedules Class2 : Class1 + Timing Protection Class3 : Class1 + Memory Protection Class4 : Class1+ Class2 + Class3
 
-....
-                                                △
-                    Hardware support is required for Classes 3 and 4. Mandating this functionality
-                    would prevent AUTOSAR OS from being implemented on many commonly
-    Rationale:      used microcontrollers.
-                    Implementations may choose different strategies for implementation, with a
-                    corresponding increase in performance, if some features are not required.
-    Use Case:       –
-    Dependencies:   [SRS_Os_11012]
-    Supporting      –
-    Material:
-....
-⌋
+|Rationale
+| Hardware support is required for Classes 3 and 4. Mandating this functionality would prevent AUTOSAR OS from being implemented on many commonly used microcontrollers. Implementations may choose different strategies for implementation, with a corresponding increase in performance, if some features are not required.
+
+|Use Case
+| –
+
+|Dependencies
+| <<SRS_Os_11012>>
+
+|Supporting Material
+| –
+|===

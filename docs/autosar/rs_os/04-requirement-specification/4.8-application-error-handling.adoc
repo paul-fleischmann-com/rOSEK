@@ -7,24 +7,21 @@ Some errors affecting an application may not lead to protection violations that 
 === 4.8.2 Functional Requirements
 
 [[SRS_Os_11022]]
-The OS shall provide a mechanism to terminate OS-Application ⌈ The OS shall provide a mechanism by which an OS-Application can be terminated as a single unit and all resources held by the OS-Application and managed by the OS are released. Description: Termination shall prevent any task owned by the OS-Application from running and any interrupt handled by an ISR owned by the OS-Application from occuring. ▽
+.The OS shall provide a mechanism to terminate OS-Application
+[cols="1,4a"]
+|===
+|Description
+| The OS shall provide a mechanism by which an OS-Application can be terminated as a single unit and all resources held by the OS-Application and managed by the OS are released. Termination shall prevent any task owned by the OS-Application from running and any interrupt handled by an ISR owned by the OS-Application from occuring.
 
-....
-                                                  △
-                      Error handling for AUTOSAR software components requires that the OS can
-                      terminate an OS-Application.
-                      When an application comprises multiple tasks/ISRs it is not possible in the core
-                      OS to stop the application atomically unless the OS itself is shut down.
-    Rationale:
-                      Shutdown is not practical when there are other OS-Applications for which
-                      termination is not required.
-                      Therefore, the OS must provide a mechanism to terminate an OS-Application
-                      that does not affect other OS-Applications.
-                      Error reaction in an OS-Application in response to the detection of an internal
-    Use Case:
-                      error.
-    Dependencies:     –
-    Supporting        –
-    Material:
-....
-⌋
+|Rationale
+| Error handling for AUTOSAR software components requires that the OS can terminate an OS-Application. When an application comprises multiple tasks/ISRs it is not possible in the core OS to stop the application atomically unless the OS itself is shut down. Shutdown is not practical when there are other OS-Applications for which termination is not required. Therefore, the OS must provide a mechanism to terminate an OS-Application that does not affect other OS-Applications.
+
+|Use Case
+| Error reaction in an OS-Application in response to the detection of an internal error.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===

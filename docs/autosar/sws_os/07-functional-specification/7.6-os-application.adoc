@@ -55,15 +55,9 @@ Upstream requirements: SRS_Os_11001
 
 ⌈Trusted OS-Applications may offer services ("trusted services") to other (even non- trusted) OS-Applications.⌋
 
-The Operating System module provides the services GetApplicationID and GetCurrentApplicationID (see [SWS_Os_00016]) to determine the configured resp. currently executing OS-Application (a unique identifier shall be allocated to each application). The Operating System module provides the service CheckObjectOwnership (see [SWS_Os_00017]) to determine to which OS-Application a given Task, ISR, Counter, Alarm or ScheduleTable belongs. The Operating System module provides the service CheckObjectAccess (see
-[[SWS_Os_00256]]
-) to determine which OS-Applications are allowed to use the IDs of a Task, Resource, Counter, Alarm or ScheduleTable in API calls. The Operating System module provides the service TerminateApplication (see
-[[SWS_Os_00258]]
-) to terminate the OS-Application to which the calling Task/Category
+The Operating System module provides the services GetApplicationID and GetCurrentApplicationID (see [SWS_Os_00016]) to determine the configured resp. currently executing OS-Application (a unique identifier shall be allocated to each application). The Operating System module provides the service CheckObjectOwnership (see [SWS_Os_00017]) to determine to which OS-Application a given Task, ISR, Counter, Alarm or ScheduleTable belongs. The Operating System module provides the service CheckObjectAccess (see <<SWS_Os_00256>>) to determine which OS-Applications are allowed to use the IDs of a Task, Resource, Counter, Alarm or ScheduleTable in API calls. The Operating System module provides the service TerminateApplication (see <<SWS_Os_00258>>) to terminate the OS-Application to which the calling Task/Category
 
-2 ISR/application specific error hook belongs. (This is an OS-Application level variant of the TerminateTask service) The Operating System provides the service TerminateApplication (see
-[[SWS_Os_00258]]
-) to terminate another OS-Application AND calls to this service shall be ignored if the caller does not belong to a trusted OS-Application.
+2 ISR/application specific error hook belongs. (This is an OS-Application level variant of the TerminateTask service) The Operating System provides the service TerminateApplication (see <<SWS_Os_00258>>) to terminate another OS-Application AND calls to this service shall be ignored if the caller does not belong to a trusted OS-Application.
 
 [[SWS_Os_00447]]
 ....
@@ -84,9 +78,7 @@ The Operating System module provides the services GetApplicationID and GetCurren
 ....
 ⌈The Operating System module shall prevent access of OS-Applications, trusted or non-trusted, to objects not belonging to this OS-Application, except access rights for such objects are explicitly granted by configuration.⌋
 
-The Operating System provides the service GetApplicationState (see
-[[SWS_Os_00499]]
-) to request the current state of an OS-Application.
+The Operating System provides the service GetApplicationState (see <<SWS_Os_00499>>) to request the current state of an OS-Application.
 
 [[SWS_Os_00500]]
 ....

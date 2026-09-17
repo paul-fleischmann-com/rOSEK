@@ -37,9 +37,7 @@ Upstream requirements: SRS_Os_00098
 [[SWS_Os_00876]]
 Replenish of execution budget by expiry point Upstream requirements: SRS_Os_00098
 
-⌈An expiry point shall contain a (possibly empty) set of Taskss to replenish their exe- cution budget. The replenishment is allowed only for tasks with OsTaskTimingPro- tectionDeferrableServer=TRUE and is done by means of BudgetReplenish (see
-[[SWS_Os_91035]]
-)⌋
+⌈An expiry point shall contain a (possibly empty) set of Taskss to replenish their exe- cution budget. The replenishment is allowed only for tasks with OsTaskTimingPro- tectionDeferrableServer=TRUE and is done by means of BudgetReplenish (see <<SWS_Os_91035>>)⌋
 
 Note: For details about the background of [SWS_Os_00876] see 7.7.2.1.1.
 
@@ -163,36 +161,26 @@ Upstream requirements: SRS_Os_00098
 
 ==== 7.3.2.5 Controlling ScheduleTable Processing
 
-The application is responsible for starting and stopping the processing of a Schedule Table. The Operating System module provides the service StartScheduleTableAbs (see
-[[SWS_Os_00358]]
-) to start the processing of a ScheduleTable at an absolute value "Start" on the underlying Counter. (The Initial Expiry Point has to be processed when the value of the underlying Counter equals Start + InitialOffset). The Operating System module provides the service StartScheduleTableRel (see
-[[SWS_Os_00347]]
-) to start the processing of a ScheduleTable at "Offset" relative to the "Now" value on the underlying Counter (The Initial Expiry Point shall be processed when the value of the underlying Counter equals Now + Offset + InitialOffset). The figure below illustrates the two different methods for a ScheduleTable driven by a Counter with a modulus of 65536 (i.e. an OsCounterMaxAllowedValue = 65535).
+The application is responsible for starting and stopping the processing of a Schedule Table. The Operating System module provides the service StartScheduleTableAbs (see <<SWS_Os_00358>>) to start the processing of a ScheduleTable at an absolute value "Start" on the underlying Counter. (The Initial Expiry Point has to be processed when the value of the underlying Counter equals Start + InitialOffset). The Operating System module provides the service StartScheduleTableRel (see <<SWS_Os_00347>>) to start the processing of a ScheduleTable at "Offset" relative to the "Now" value on the underlying Counter (The Initial Expiry Point shall be processed when the value of the underlying Counter equals Now + Offset + InitialOffset). The figure below illustrates the two different methods for a ScheduleTable driven by a Counter with a modulus of 65536 (i.e. an OsCounterMaxAllowedValue = 65535).
 
 ....
        Figure 7.3: Starting a ScheduleTable at an Absolute and a Relative Count
 ....
-The Operating System module provides the service StopScheduleTable (see
-[[SWS_Os_00006]]
-) to cancel the processing of a ScheduleTable immediately at any point while the ScheduleTable is running.
+The Operating System module provides the service StopScheduleTable (see <<SWS_Os_00006>>) to cancel the processing of a ScheduleTable immediately at any point while the ScheduleTable is running.
 
 [[SWS_Os_00428]]
 Upstream requirements: SRS_Os_00098
 
 ⌈If ScheduleTable processing has been cancelled before reaching the Final Expiry Point and is subsequently restarted then [SWS_Os_00358]/[SWS_Os_00347] means that the re-start occurs from the start of the ScheduleTable.⌋
 
-The Operating System module provides the service NextScheduleTable (see
-[[SWS_Os_00191]]
-) to switch the processing from one ScheduleTable to another ScheduleTable.
+The Operating System module provides the service NextScheduleTable (see <<SWS_Os_00191>>) to switch the processing from one ScheduleTable to another ScheduleTable.
 
 [[SWS_Os_00414]]
 Upstream requirements: SRS_Os_00099
 
 ⌈When a ScheduleTable switch is requested, the OS shall continue to process expiry points on the current ScheduleTable. After the Final Expiry Point there will be a delay equivalent to Final Delay ticks before processing the switched-to ScheduleTable. The initial expiry point will be processed after initial offset.⌋
 
-The Operating System module provides the service GetScheduleTableStatus (see
-[[SWS_Os_00227]]
-) to query the state of a ScheduleTable. ScheduleTables can be configured (see chapter 10) to start automatically during start of the Operating System module (like Tasks and Alarms in OSEK OS). OSEK OS defines a specific order: Autostart of Tasks is performed before autostart of alarms. AUTOSAR OS extends this with ScheduleTables.
+The Operating System module provides the service GetScheduleTableStatus (see <<SWS_Os_00227>>) to query the state of a ScheduleTable. ScheduleTables can be configured (see chapter 10) to start automatically during start of the Operating System module (like Tasks and Alarms in OSEK OS). OSEK OS defines a specific order: Autostart of Tasks is performed before autostart of alarms. AUTOSAR OS extends this with ScheduleTables.
 
 [[SWS_Os_00510]]
 Upstream requirements: SRS_Os_00098

@@ -118,9 +118,7 @@ Upstream requirements: SRS_Os_11002
 
 ===== 7.4.2.2.2 Providing a Synchronization Count
 
-The Operating System module must be told the value of the synchronization Counter. Since the ScheduleTable duration is equal to the modulus of the synchronization Counter, the Operating System module can use this to determine the drift between the current count value on the ScheduleTable time and the synchronization count and decide whether (or not) any action to achieve synchronization is required. The Operating System module provides the service SyncScheduleTable (see
-[[SWS_Os_00199]]
-) to provide the ScheduleTable with a synchronization count and start synchronization.
+The Operating System module must be told the value of the synchronization Counter. Since the ScheduleTable duration is equal to the modulus of the synchronization Counter, the Operating System module can use this to determine the drift between the current count value on the ScheduleTable time and the synchronization count and decide whether (or not) any action to achieve synchronization is required. The Operating System module provides the service SyncScheduleTable (see <<SWS_Os_00199>>) to provide the ScheduleTable with a synchronization count and start synchronization.
 
 ===== 7.4.2.2.3 Specifying Synchronization Bounds
 
@@ -214,8 +212,4 @@ Figure 7.8 shows explicit synchronization of a ScheduleTable. It assumes the fol
 
                  Figure 7.8: Explicit ScheduleTable Synchronization
 ....
-The Operating System module provides the service SetScheduleTableAsync (see
-[[SWS_Os_00422]]
-) to cancel synchronization being performed at adjustable expiry points on a ScheduleTable. The Operating System module provides the service GetScheduleTableStatus (see
-[[SWS_Os_00227]]
-) to query the state of a ScheduleTable also with respect to syn- chronization.
+The Operating System module provides the service SetScheduleTableAsync (see <<SWS_Os_00422>>) to cancel synchronization being performed at adjustable expiry points on a ScheduleTable. The Operating System module provides the service GetScheduleTableStatus (see <<SWS_Os_00227>>) to query the state of a ScheduleTable also with respect to syn- chronization.

@@ -948,8 +948,7 @@ Definition of API function GetScheduleTableStatus Upstream requirements: SRS_Os_
 
 === 8.4.17 IncrementCounter
 
-[[SWS_Os_00399]]
-Definition of API function IncrementCounter ⌈ Service Name         IncrementCounter Syntax               StatusType IncrementCounter ( CounterType CounterID ) Service ID [hex]     0x0f Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      CounterID                    The Counter to be incremented Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No errors E_OS_ID (only in EXTENDED status): The CounterID was not valid or counter is implemented in hardware and can not be incremented by software Description          This service increments a software counter. Available via        Os.h
+<<SWS_Os_00399>> Definition of API function IncrementCounter ⌈ Service Name         IncrementCounter Syntax               StatusType IncrementCounter ( CounterType CounterID ) Service ID [hex]     0x0f Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      CounterID                    The Counter to be incremented Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No errors E_OS_ID (only in EXTENDED status): The CounterID was not valid or counter is implemented in hardware and can not be incremented by software Description          This service increments a software counter. Available via        Os.h
 
 ⌋
 
@@ -1007,9 +1006,7 @@ Definition of API function GetCounterValue ⌈ Service Name         GetCounterVa
 ....
     Upstream requirements: SRS_Os_11020
 ....
-⌈Caveats of GetCounterValue: Note that for counters of OsCounterType = HARDWARE the real timer value (the - possibly adjusted - hardware value, see
-[[SWS_Os_00384]]
-) is returned, whereas for counters of OsCounterType = SOFTWARE the current "software" tick value is returned.⌋
+⌈Caveats of GetCounterValue: Note that for counters of OsCounterType = HARDWARE the real timer value (the - possibly adjusted - hardware value, see <<SWS_Os_00384>>) is returned, whereas for counters of OsCounterType = SOFTWARE the current "software" tick value is returned.⌋
 
 [[SWS_Os_00532]]
 ....
@@ -2092,8 +2089,7 @@ this interrupt just happened while the call to StartOS is processed. In such cas
 
 8.4.38 BudgetReplenish
 
-[[SWS_Os_91035]]
-Definition of API function BudgetReplenish ⌈ Service Name         BudgetReplenish Syntax               StatusType BudgetReplenish ( TaskType id ) Service ID [hex]     0x38 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      id                           The id of the Task whose budget is replenished Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No error E_OS_ID: If id is no Task Id OR if Task is no Deferrable Server. E_OS_ACCESS: Calling application is not owner/has no access to Task OR id is Task Id of caller Task. Description          This API replenishes the execution budget of the given Task. Available via        Os.h
+<<SWS_Os_91035>> Definition of API function BudgetReplenish ⌈ Service Name         BudgetReplenish Syntax               StatusType BudgetReplenish ( TaskType id ) Service ID [hex]     0x38 Sync/Async           Synchronous Reentrancy           Reentrant Parameters (in)      id                           The id of the Task whose budget is replenished Parameters (inout)   None Parameters (out)     None Return value         StatusType                   E_OK: No error E_OS_ID: If id is no Task Id OR if Task is no Deferrable Server. E_OS_ACCESS: Calling application is not owner/has no access to Task OR id is Task Id of caller Task. Description          This API replenishes the execution budget of the given Task. Available via        Os.h
 
 ⌋
 

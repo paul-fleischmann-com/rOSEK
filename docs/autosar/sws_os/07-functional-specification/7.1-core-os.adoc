@@ -73,17 +73,14 @@ Upstream requirements: SRS_Os_11021
 
 ⌈The Operating System module shall provide the ability to increment a software Counter as an alternative action on alarm expiry.⌋
 
-The Operating System module provides API service IncrementCounter (see
-[[SWS_Os_00399]]
-) to increment a software Counter.
+The Operating System module provides API service IncrementCounter (see <<SWS_Os_00399>>) to increment a software Counter.
 
 [[SWS_Os_00476]]
 Upstream requirements: SRS_Os_00097
 
 ⌈The Operating System module shall allow to automatically start preconfigured abso- lute alarms during the start of the Operating System.⌋
 
-[[SWS_Os_00476]]
-is an extension to OSEK OS which allows this only for relative alarms.
+<<SWS_Os_00476>> is an extension to OSEK OS which allows this only for relative alarms.
 
 [[SWS_Os_00566]]
 Upstream requirements: SRS_BSW_00323

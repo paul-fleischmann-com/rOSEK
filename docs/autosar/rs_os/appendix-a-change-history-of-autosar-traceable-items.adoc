@@ -24,12 +24,12 @@ none
  Number                Heading
                        In case no task is going to be scheduled on a specific core, the OS shall
 ....
-[[SRS_Os_80022]]
+[SRS_Os_80022]
 ....
                        execute a user selectable operation
                        The OS shall execute an operation which can be selected at runtime, in case
 ....
-[[SRS_Os_80023]]
+[SRS_Os_80023]
 ....
                        no task is going to be scheduled on a specific core
                         Table A.2: Deleted Requirements in R25-11
@@ -53,7 +53,7 @@ none
  [SRS_Os_11008]        Timing Fault Detection and Prevention of Propagation
                        In case of a protection error, the OS shall provide an error reaction on OS-,
 ....
-[[SRS_Os_11014]]
+[SRS_Os_11014]
 ....
                        OS-Application and task/ISR-level
  [SRS_Os_11022]        The OS shall provide a mechanism to terminate OS-Application
@@ -66,7 +66,7 @@ none
  Number                Heading
                        The OS shall provide a mechanism by which a terminated OS-Application
 ....
-[[SRS_Os_11023]]
+[SRS_Os_11023]
 ....
                        can be restarted
                         Table A.4: Deleted Requirements in R24-11

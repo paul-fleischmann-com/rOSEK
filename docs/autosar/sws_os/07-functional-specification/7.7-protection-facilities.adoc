@@ -301,8 +301,7 @@ Entering BUDGET_EXHAUSTED Upstream requirements: SRS_Os_11008, SRS_Os_11013
 
 ⌈If a Task is in state RUNNING and OsTaskExecutionBudget has been exhausted and OsTaskTimingProtectionDeferrableServer=TRUE is configured for that Task: As soon as the Task is neither suspending/disabling any interrupts nor hold- ing any OS resource or spinlock, the Operating System module shall deschedule it, put it in the new state BUDGET_EXHAUSTED and schedule another Task.⌋
 
-[[SWS_Os_00871]]
-effectively mean that the Tasks current budget can be lower than zero. This can e.g. happen when the budget is exhasuted but a switch to the BUD- GET_EXHAUSTED state is delayed because the Task still holds a OS resource (or simi- lar object). Timing Protection: ISRs
+<<SWS_Os_00871>> effectively mean that the Tasks current budget can be lower than zero. This can e.g. happen when the budget is exhasuted but a switch to the BUD- GET_EXHAUSTED state is delayed because the Task still holds a OS resource (or simi- lar object). Timing Protection: ISRs
 
 [[SWS_Os_00210]]
 Upstream requirements: SRS_Os_11013
@@ -592,16 +591,14 @@ Upstream requirements: SRS_Os_11001
 
 ⌈CheckTaskMemoryAccess and CheckISRMemoryAccess check the memory ac- cess. Memory access checking is possible for all OS-Applications and from all OS- Applications and does not need granted rights.⌋
 
-[[SWS_Os_00449]]
-is an exception to [SWS_Os_00056].
+<<SWS_Os_00449>> is an exception to [SWS_Os_00056].
 
 [[SWS_Os_00450]]
 Upstream requirements: SRS_Os_11001
 
 ⌈CheckObjectAccess checks the access rights for Operating System objects. Checking object access is possible for all OS-Applications and from all OS-Applications and does not need granted rights.⌋
 
-[[SWS_Os_00450]]
-is an exception to [SWS_Os_00056].
+<<SWS_Os_00450>> is an exception to [SWS_Os_00056].
 
 === 7.7.4 Protecting the Hardware used by the OS
 
@@ -680,9 +677,7 @@ Upstream requirements: SRS_Os_11001
 
 ⌈The Operating System module shall allow exporting services from trusted OS- Applications.⌋
 
-The Operating System module provides the service CallTrustedFunction (see
-[[SWS_Os_00097]]
-) to call a trusted function from a (trusted or non-trusted) OS- Application.
+The Operating System module provides the service CallTrustedFunction (see <<SWS_Os_00097>>) to call a trusted function from a (trusted or non-trusted) OS- Application.
 
 [[SWS_Os_00100]]
 Upstream requirements: SRS_BSW_00323

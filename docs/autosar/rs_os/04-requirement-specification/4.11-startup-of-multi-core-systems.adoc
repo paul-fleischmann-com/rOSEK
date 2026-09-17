@@ -14,6 +14,28 @@ The wakeup mechanism and bootstrap requirements vary across different microcon- 
 === 4.11.2 Requirements
 
 [[SRS_Os_80006]]
-Initialization/Start-up of the system shall be synchronized ⌈ Description:    Initialization/Start-up of the system shall be synchronized. To support a wide spectrum of hardware it is necessary to synchronize the software of the different cores at certain points. Otherwise one cannot rely on Rationale: the state of the other core. (While one core already executes a task, the other is still in the initialization phase.) Use Case:       Boot strapping of a MC system. • OS specification • ECU State Manager Dependencies: • HW • Applies only to cores managed by AUTOSAR Os. Supporting      – Material:
+.Initialization/Start-up of the system shall be synchronized
+[cols="1,4a"]
+|===
+|Description
+| Initialization/Start-up of the system shall be synchronized.
 
-⌋
+|Rationale
+| To support a wide spectrum of hardware it is necessary to synchronize the software of the different cores at certain points. Otherwise one cannot rely on the state of the other core. (While one core already executes a task, the other is still in the initialization phase.)
+
+|Use Case
+| Boot strapping of a MC system.
+
+|Dependencies
+a|
+* OS specification
+
+* ECU State Manager
+
+* HW
+
+* Applies only to cores managed by AUTOSAR Os.
+
+|Supporting Material
+| –
+|===

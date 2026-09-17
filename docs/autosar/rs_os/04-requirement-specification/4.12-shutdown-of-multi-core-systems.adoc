@@ -7,6 +7,21 @@ Similar to the startup, the shutdown behavior of a Multi-Core system is differen
 === 4.12.2 Requirements
 
 [[SRS_Os_80007]]
-Shutdown procedure shall be triggered by any core ⌈ Description:    The shutdown procedure can be triggered from any core. In case of an error, the related handler may require system shutdown. This Rationale: must be possible by any core. Use Case:       Protection hook returns PRO_SHUTDOWN Dependencies:   OS specification Supporting      – Material:
+.Shutdown procedure shall be triggered by any core
+[cols="1,4a"]
+|===
+|Description
+| The shutdown procedure can be triggered from any core.
 
-⌋
+|Rationale
+| In case of an error, the related handler may require system shutdown. This must be possible by any core.
+
+|Use Case
+| Protection hook returns PRO_SHUTDOWN
+
+|Dependencies
+| OS specification
+
+|Supporting Material
+| –
+|===

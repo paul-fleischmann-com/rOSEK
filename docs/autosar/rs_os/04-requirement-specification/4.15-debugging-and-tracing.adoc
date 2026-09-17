@@ -3,23 +3,63 @@
 === 4.15.1 ARTI Support
 
 [[SRS_Os_12001]]
-The OS shall create an ARTI module description file ⌈ If the OS configuration is set to use ARTI, the OS generator shall create an Description: ARTI module description file Debugging tools need internal information to visualize the state of the software. Rationale:      Components and modules implementing this requirement shall provide the necessary state information that can be used by internal and external tools. Use Case:       Debugging the software. Dependencies:   – Supporting      – Material:
+.The OS shall create an ARTI module description file
+[cols="1,4a"]
+|===
+|Description
+| If the OS configuration is set to use ARTI, the OS generator shall create an ARTI module description file
 
-⌋
+|Rationale
+| Debugging tools need internal information to visualize the state of the software. Components and modules implementing this requirement shall provide the necessary state information that can be used by internal and external tools.
+
+|Use Case
+| Debugging the software.
+
+|Dependencies
+| –
+
+|Supporting Material
+| –
+|===
 
 [[SRS_Os_12003]]
-ARTI module description file shall support all ORTI containers ⌈ All information specified in the OSEK ORTI standard shall be provided in the Description: ARTI module description file. Rationale:      To maintain backward compatibility of OSEK-Realtime-Interface Use Case:       Displaying information of the state of an application during debugging. Dependencies:   AUTOSAR shall support debugging of software on the target and onboard Supporting      – Material:
+.ARTI module description file shall support all ORTI containers
+[cols="1,4a"]
+|===
+|Description
+| All information specified in the OSEK ORTI standard shall be provided in the ARTI module description file.
 
-⌋
+|Rationale
+| To maintain backward compatibility of OSEK-Realtime-Interface
+
+|Use Case
+| Displaying information of the state of an application during debugging.
+
+|Dependencies
+| AUTOSAR shall support debugging of software on the target and onboard
+
+|Supporting Material
+| –
+|===
 
 === 4.15.2 Tracing Support
 
 [[SRS_Os_12002]]
-The OS code shall incorporate ARTI hooks ⌈ If the OS configuration is set to use ARTI, its code shall incorporate ARTI Description:    hooks. The OS generator shall expose the hooks and the traceable variables in an ARTI module description. Tracing and timing analysis tools need internal information to visualize and inspect the run-time behavior of the software. Components and modules Rationale: implementing this requirement shall provide the necessary details and hooks that can be used by tools. Use Case:       Run-time tracing the software, profiling, timing measurement. This requirement depends on the requirement "The generator of a module shall Dependencies: create an ARTI module description file". ▽
+.The OS code shall incorporate ARTI hooks
+[cols="1,4a"]
+|===
+|Description
+| If the OS configuration is set to use ARTI, its code shall incorporate ARTI hooks. The OS generator shall expose the hooks and the traceable variables in an ARTI module description.
 
-....
-                     △
-    Supporting   –
-    Material:
-....
-⌋
+|Rationale
+| Tracing and timing analysis tools need internal information to visualize and inspect the run-time behavior of the software. Components and modules implementing this requirement shall provide the necessary details and hooks that can be used by tools.
+
+|Use Case
+| Run-time tracing the software, profiling, timing measurement.
+
+|Dependencies
+| This requirement depends on the requirement "The generator of a module shall create an ARTI module description file".
+
+|Supporting Material
+| –
+|===

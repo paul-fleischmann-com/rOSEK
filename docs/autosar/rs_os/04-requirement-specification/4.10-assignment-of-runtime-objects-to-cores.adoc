@@ -7,23 +7,36 @@ One major question when defining a Multi-Core system is whether runtime objects 
 === 4.10.2 Requirements
 
 [[SRS_Os_80005]]
-OsApplications and as a result TASKS and OsISRs shall be assigned statically to cores ⌈
+.OsApplications and as a result TASKS and OsISRs shall be assigned statically to cores
+[cols="1,4a"]
+|===
+|Description
+| OsApplications and as a result TASKS and OsISRs shall be assigned statically to cores.
 
-....
-    Description:    OsApplications and as a result TASKS and OsISRs shall be assigned statically
-                    to cores.
-                     • If TASKS or OsISRs can change the core during runtime, the real-time
-                       capability might be violated.
-                       • If tasks of a single OsApplication can be bound to different cores the
-                         shutdown of an OsApplication becomes hard. Valid mechanisms would be
-    Rationale:           required.
-                       • To fulfill requirement [BSW00009] and [BSW00010] it shall be possible to
-                         access EVENTS and TASKS of different OsApplications.
-                       • In case of Multi-Core OSApplications shall be used irrespective of the
-                         scalability class. (see AUTOSAR_SWS_OS).
-    Use Case:       –
-    Dependencies:   OS specification; [SRS_Os_80003], [SRS_Os_80015], [SRS_Os_80016]
-    Supporting      AUTOSAR_SWS_OS
-    Material:
-....
-⌋
+|Rationale
+a|
+* If TASKS or OsISRs can change the core during runtime, the real-time
+
+capability might be violated.
+
+* If tasks of a single OsApplication can be bound to different cores the
+
+shutdown of an OsApplication becomes hard. Valid mechanisms would be required.
+
+* To fulfill requirement [BSW00009] and [BSW00010] it shall be possible to
+
+access EVENTS and TASKS of different OsApplications.
+
+* In case of Multi-Core OSApplications shall be used irrespective of the
+
+scalability class. (see AUTOSAR_SWS_OS).
+
+|Use Case
+| –
+
+|Dependencies
+| OS specification; <<SRS_Os_80003>>, <<SRS_Os_80015>>, <<SRS_Os_80016>>
+
+|Supporting Material
+| AUTOSAR_SWS_OS
+|===
