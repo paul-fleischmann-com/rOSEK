@@ -100,11 +100,16 @@ impl<'a> Iterator for Lexer<'a> {
                     self.bump();
                 }
                 let text = &self.src[start..self.pos];
-                // Malformed numbers (overflow) surface as a lexer-level
-                // token the parser will reject with a clear "expected a
-                // value" error, rather than panicking here.
-                let n: u32 = text.parse().unwrap_or(u32::MAX);
-                Token::Number(n)
+                // A digit run that doesn't fit u32 (overflow) is emitted as
+                // an Ident instead of silently clamping to u32::MAX, which
+                // would make the parser accept a wrong value without any
+                // diagnostic. As an Ident, it correctly fails wherever a
+                // Number was required ("PRIORITY must be a number") instead
+                // of being silently wrong.
+                match text.parse::<u32>() {
+                    Ok(n) => Token::Number(n),
+                    Err(_) => Token::Ident(text),
+                }
             }
             b if Self::is_ident_start(b) => {
                 self.bump();

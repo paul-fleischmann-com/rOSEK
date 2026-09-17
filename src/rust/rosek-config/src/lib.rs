@@ -444,4 +444,25 @@ mod tests {
             parse("TASK T { PRIORITY = 1; SCHEDULE = FULL; APPLICATION = 42; };").unwrap_err();
         assert!(err.message.contains("APPLICATION must be an identifier"));
     }
+
+    /// Regression test: the lexer used to silently clamp an overflowing
+    /// digit run to `u32::MAX` and hand the parser a *valid*-looking
+    /// `Token::Number`, so a `.cfg` with e.g. `PRIORITY = 99999999999;`
+    /// would parse successfully with a wrong value instead of failing.
+    /// Fixed by emitting overflowing digit runs as `Token::Ident` instead,
+    /// which correctly fails value-type checking.
+    #[test]
+    fn rejects_priority_that_overflows_u32() {
+        let err = parse("TASK T { PRIORITY = 99999999999; SCHEDULE = FULL; APPLICATION = A; };")
+            .unwrap_err();
+        assert!(err.message.contains("PRIORITY must be a number"));
+    }
+
+    #[test]
+    fn tabs_and_crlf_are_whitespace() {
+        let src =
+            "TASK\tT\t{\r\n\tPRIORITY\t=\t1;\r\n\tSCHEDULE = FULL;\r\n\tAPPLICATION = A;\r\n};";
+        let config = parse(src).unwrap();
+        assert_eq!(config.tasks[0].name, "T");
+    }
 }

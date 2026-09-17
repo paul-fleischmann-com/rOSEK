@@ -133,6 +133,55 @@ mod tests {
     }
 
     #[test]
+    fn os_application_with_no_referencing_task_is_fine() {
+        // An OS-Application that no TASK currently references is not an
+        // error - only the reverse (a TASK pointing at a nonexistent
+        // OS-Application) is.
+        let mut config = sample_config();
+        config.os_applications.push(OsApplication {
+            name: "UnusedApp".into(),
+            trusted: false,
+        });
+        let src = generate(&config).unwrap();
+        assert!(src.contains(r#"name: "UnusedApp", trusted: false"#));
+    }
+
+    #[test]
+    fn generates_multiple_tasks_and_applications_in_declaration_order() {
+        let config = Config {
+            tasks: vec![
+                Task {
+                    name: "A".into(),
+                    priority: 1,
+                    schedule: Schedule::Full,
+                    application: "App1".into(),
+                },
+                Task {
+                    name: "B".into(),
+                    priority: 2,
+                    schedule: Schedule::Non,
+                    application: "App2".into(),
+                },
+            ],
+            os_applications: vec![
+                OsApplication {
+                    name: "App1".into(),
+                    trusted: true,
+                },
+                OsApplication {
+                    name: "App2".into(),
+                    trusted: false,
+                },
+            ],
+        };
+        let src = generate(&config).unwrap();
+        let a_pos = src.find(r#"name: "A""#).unwrap();
+        let b_pos = src.find(r#"name: "B""#).unwrap();
+        assert!(a_pos < b_pos, "tasks should appear in declaration order");
+        assert!(src.contains("ScheduleConfig::Non"));
+    }
+
+    #[test]
     fn rejects_task_referencing_unknown_application() {
         let mut config = sample_config();
         config.tasks[0].application = "DoesNotExist".into();
