@@ -85,20 +85,25 @@ impl UserLeds {
 
 /// Crude busy-wait: no timer driver exists yet (later phases), and a
 /// life-sign blink only needs to be roughly human-visible, not precisely
-/// timed.
-fn delay(loops: u32) {
+/// timed. `pub` so the panic handler (issue #5) can blink at a different,
+/// distinguishable rate without duplicating this loop.
+pub fn delay(loops: u32) {
     for _ in 0..loops {
         unsafe { core::arch::asm!("nop") };
     }
 }
 
+/// Roughly human-visible at ~1 GHz with no timer to calibrate against yet.
+/// `pub` so the panic handler (issue #5) can blink at a visibly different
+/// (faster) rate to distinguish "panicked" from "running normally" by eye.
+pub const HEARTBEAT_HALF_PERIOD_LOOPS: u32 = 6_000_000;
+
 /// Blinks all USR LEDs on/off forever as a life sign. Never returns.
 pub fn blink_forever(leds: &mut UserLeds) -> ! {
-    const HALF_PERIOD_LOOPS: u32 = 6_000_000; // roughly human-visible at ~1 GHz, no timer to calibrate against yet
     loop {
         leds.all_on();
-        delay(HALF_PERIOD_LOOPS);
+        delay(HEARTBEAT_HALF_PERIOD_LOOPS);
         leds.all_off();
-        delay(HALF_PERIOD_LOOPS);
+        delay(HEARTBEAT_HALF_PERIOD_LOOPS);
     }
 }
