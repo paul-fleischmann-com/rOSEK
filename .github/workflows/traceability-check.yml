@@ -1,0 +1,28 @@
+name: Traceability Check
+
+# Fails the build if any requirement link in docs/req42/ points at a
+# docs/autosar/ file or anchor that doesn't exist. See tools/check-traceability.py
+# and docs/req42/README.adoc, section "Traceability" / "Verifikation".
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "docs/req42/**"
+      - "docs/autosar/**"
+      - "tools/check-traceability.py"
+      - ".github/workflows/traceability-check.yml"
+  pull_request:
+    paths:
+      - "docs/req42/**"
+      - "docs/autosar/**"
+      - "tools/check-traceability.py"
+      - ".github/workflows/traceability-check.yml"
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/check-traceability.py

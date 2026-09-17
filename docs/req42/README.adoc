@@ -38,7 +38,7 @@ Requirements laufen in rOSEK durch drei Ebenen, jede mit einer anderen Fragestel
 === Verlinkungskonvention
 
 * Jede Story, die auf AUTOSAR zurückgeht, verlinkt *beide* Ebenen wo vorhanden (SWS_Os_* *und* SRS_Os_*), nicht nur eine — RS_OS liefert die Begründung, SWS_OS die technische Präzisierung.
-* Links zeigen immer auf Datei *und* Anchor, nicht nur auf die Datei: `link:../autosar/<sws_os\|rs_os>/<pfad>.adoc#<ID>[<ID>]`. Ein Link ohne Anchor-Fragment ist nur zulässig, wenn kein einzelnes Requirement, sondern ein ganzes Kapitel gemeint ist (z. B. Verweis auf ein Konfigurationskapitel als Ganzes).
+* Links zeigen immer auf Datei *und* Anchor, nicht nur auf die Datei: Schema `\link:../autosar/<sws_os oder rs_os>/<pfad>.adoc#<ID>[<ID>]`. Ein Link ohne Anchor-Fragment ist nur zulässig, wenn kein einzelnes Requirement, sondern ein ganzes Kapitel gemeint ist (z. B. Verweis auf ein Konfigurationskapitel als Ganzes).
 * Requirement-IDs werden nicht neu abgeschrieben oder paraphrasiert kopiert — der Volltext bleibt in `docs/autosar/`, hier wird nur zitiert/verlinkt.
 
 === Ausnahme: Phase 0 (Boot-Fundament)
@@ -47,20 +47,16 @@ Board-Bootstrapping (Vektortabelle, MMU-Flat-Mapping, UART/GPIO-Treiber) hat **k
 
 === Verifikation
 
-Jeder `link:`-Verweis auf `docs/autosar/` muss auf eine tatsächlich existierende `[[ID]]`-Anchor-Definition zeigen. Das lässt sich prüfen mit:
+Jeder `link:`-Verweis auf `docs/autosar/` muss auf eine tatsächlich existierende `[[ID]]`-Anchor-Definition zeigen, und der BCC1-relevante Requirement-Umfang sollte sichtbar bleiben, auch wenn noch nicht jede einzelne AUTOSAR-Anforderung referenziert ist. Beides prüft:
 
-[source,python]
+[source,bash]
 ----
-import re
-text = open('docs/req42/04-product-backlog.adoc', encoding='utf-8').read()
-for l in re.findall(r'link:(\.\./autosar/[^\[\]]+?)\[', text):
-    path, _, anchor = l.partition('#')
-    content = open('docs/' + path.replace('../', ''), encoding='utf-8').read()
-    if anchor and f'[[{anchor}]]' not in content:
-        print("BROKEN:", l)
+python3 tools/check-traceability.py
 ----
 
-Neue Stories mit AUTOSAR-Bezug sollten vor dem Commit auf diese Weise geprüft werden, ebenso wie das Gesamtdokument mit `asciidoctor docs/req42/README.adoc` fehlerfrei rendern muss.
+Das Skript meldet (a) jeden kaputten `link:...#ID`-Verweis unter `docs/req42/` (Exit-Code 1, falls vorhanden — CI-tauglich) und (b) eine Coverage-Übersicht je BCC1-relevantem SWS_OS-/RS_OS-Kapitel: wie viele der dort definierten Requirements bereits von einer req42-Story referenziert werden und welche (noch) nicht. Coverage-Lücken sind rein informativ und lassen das Skript nicht fehlschlagen — req42 muss BCC1 nur *mindestens* abdecken, nicht jedes Einzelrequirement zitieren.
+
+Neue Stories mit AUTOSAR-Bezug sollten vor dem Commit mit diesem Skript geprüft werden, ebenso wie das Gesamtdokument mit `asciidoctor docs/req42/README.adoc` fehlerfrei rendern muss.
 
 == Kapitel
 
