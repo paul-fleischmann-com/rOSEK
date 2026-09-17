@@ -1,0 +1,138 @@
+{
+  "checksum": "sha256:1947f1268e815656a1a014a5de26ad698262cccf7d577cdd36626f61918035b1",
+  "timestamp": "2026-09-17T08:49:58Z",
+  "model_hash": "sha256:2b777ed1fcbee5b16af021c0d1d01aea7b82eeb3ecee7da2cd6d860479175860",
+  "drawio_hash": "sha256:0f9d58a75445206db37f5cc08bdb08aaeb831968cffd0bf3746d9020d4d08952",
+  "elements": {
+    "api_layer": {
+      "title": "API-Layer",
+      "description": "ActivateTask, Schedule, GetTaskID, ... — die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)",
+      "kind": "layer"
+    },
+    "beaglebone_black": {
+      "title": "BeagleBone Black (AM335x)",
+      "description": "Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot.",
+      "kind": "hardware",
+      "link": "../../PLAN.md#zielhardware"
+    },
+    "hal_port_layer": {
+      "title": "HAL/Port-Layer (AM335x)",
+      "description": "MMU, INTC, DMTimer, UART0, GPIO1 — alles AM335x-Spezifische",
+      "kind": "layer"
+    },
+    "kernel_core": {
+      "title": "Kernel Core",
+      "description": "Scheduler, OS-Applications, Memory-Protection-Logik — architekturneutral gehalten, wo möglich",
+      "kind": "layer"
+    },
+    "rosek_board_bbb": {
+      "title": "rosek-board-beaglebone-black",
+      "description": "Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind.",
+      "technology": "Rust",
+      "kind": "crate",
+      "link": "../../PLAN.md#portierbarkeit-core--port--derivat"
+    },
+    "rosek_core": {
+      "title": "rosek-core",
+      "description": "Komplett architektur- und boardneutral: Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarbeitung. Kennt nur Rust-Traits (HAL), keine Register.",
+      "technology": "Rust",
+      "kind": "crate",
+      "link": "../../PLAN.md#portierbarkeit-core--port--derivat"
+    },
+    "rosek_hal": {
+      "title": "rosek-hal",
+      "description": "Definiert die Trait-Schnittstellen, die rosek-core braucht: Timer, InterruptController, Mmu, Uart, Gpio.",
+      "technology": "Rust (Trait-Definitionen)",
+      "kind": "crate",
+      "link": "../../PLAN.md#portierbarkeit-core--port--derivat"
+    },
+    "rosek_port_am335x": {
+      "title": "rosek-port-am335x",
+      "description": "Implementierung der HAL-Traits für die AM335x-SoC-Familie: Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt für alle Boards mit diesem SoC.",
+      "technology": "Rust",
+      "kind": "crate",
+      "link": "../../PLAN.md#portierbarkeit-core--port--derivat"
+    },
+    "static_config_layer": {
+      "title": "Static-Config-Layer",
+      "description": "OIL-ähnliche .cfg-Datei -\u003e build.rs -\u003e generierte Rust-Konstanten, keine dynamische Allokation zur Laufzeit",
+      "kind": "layer"
+    }
+  },
+  "relationships": [
+    {
+      "from": "api_layer",
+      "to": "kernel_core",
+      "index": 0,
+      "label": "API-Aufrufe",
+      "kind": "calls"
+    },
+    {
+      "from": "kernel_core",
+      "to": "hal_port_layer",
+      "index": 1,
+      "label": "HAL-Traits",
+      "kind": "calls"
+    },
+    {
+      "from": "static_config_layer",
+      "to": "kernel_core",
+      "index": 2,
+      "label": "Tasks/OS-Apps/Resources",
+      "kind": "generates"
+    },
+    {
+      "from": "static_config_layer",
+      "to": "hal_port_layer",
+      "index": 3,
+      "label": "Register-/Pin-Konstanten",
+      "kind": "generates"
+    },
+    {
+      "from": "rosek_core",
+      "to": "rosek_hal",
+      "index": 4,
+      "label": "Timer, InterruptController, Mmu, Uart, Gpio",
+      "kind": "usesTraits"
+    },
+    {
+      "from": "rosek_port_am335x",
+      "to": "rosek_hal",
+      "index": 5,
+      "label": "AM335x-Register",
+      "kind": "implements"
+    },
+    {
+      "from": "rosek_board_bbb",
+      "to": "rosek_port_am335x",
+      "index": 6,
+      "label": "SoC-Familie AM335x",
+      "kind": "dependsOn"
+    },
+    {
+      "from": "rosek_board_bbb",
+      "to": "rosek_core",
+      "index": 7,
+      "label": "bindet Kernel Core ein",
+      "kind": "dependsOn"
+    },
+    {
+      "from": "rosek_board_bbb",
+      "to": "beaglebone_black",
+      "index": 8,
+      "label": "Raw-Binary via u-boot",
+      "kind": "runsOn"
+    }
+  ],
+  "rendered_elements": {
+    "api_layer": true,
+    "beaglebone_black": true,
+    "hal_port_layer": true,
+    "kernel_core": true,
+    "rosek_board_bbb": true,
+    "rosek_core": true,
+    "rosek_hal": true,
+    "rosek_port_am335x": true,
+    "static_config_layer": true
+  }
+}

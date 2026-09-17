@@ -1,0 +1,34 @@
+= rOSEK Architektur (arc42)
+:toc:
+:sectnums:
+
+Software-Architekturdokumentation für rOSEK nach dem https://arc42.org[arc42-Template] (P. Hruschka / G. Starke).
+
+Ausgangsbasis:: PLAN.md (Projektplan), link:../req42/README.adoc[Requirements (req42)] und die konvertierte AUTOSAR-Spezifikation unter link:../autosar/sws_os/README.adoc[SWS_OS]/link:../autosar/rs_os/README.adoc[RS_OS]
+Bausteinsicht-Tooling:: https://github.com/docToolchain/Bausteinsicht[docToolchain/Bausteinsicht] — Architekturmodell in link:architecture.jsonc[architecture.jsonc], daraus generierte Diagramme/Tabellen unter link:generated/[generated/]. Details siehe Kapitel 5.
+
+== Kapitel
+
+include::01-introduction-and-goals.adoc[leveloffset=+1]
+
+include::02-constraints.adoc[leveloffset=+1]
+
+include::03-context-and-scope.adoc[leveloffset=+1]
+
+include::04-solution-strategy.adoc[leveloffset=+1]
+
+include::05-bausteinsicht.adoc[leveloffset=+1]
+
+include::06-runtime-view.adoc[leveloffset=+1]
+
+include::07-deployment-view.adoc[leveloffset=+1]
+
+include::08-concepts.adoc[leveloffset=+1]
+
+include::09-architecture-decisions.adoc[leveloffset=+1]
+
+include::10-quality-requirements.adoc[leveloffset=+1]
+
+include::11-risks-and-technical-debt.adoc[leveloffset=+1]
+
+include::12-glossary.adoc[leveloffset=+1]

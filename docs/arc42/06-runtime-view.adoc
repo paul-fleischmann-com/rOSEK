@@ -1,0 +1,12 @@
+[[section-runtime-view]]
+== Runtime View
+
+Wird mit dem Scheduler (Phase 3) und den Alarmen (Phase 4) konkret ausgestaltet; an dieser Stelle die grundsätzliche Reihenfolge aus PLAN.md, Abschnitt "Startpunkt-Entscheidung: AUTOSAR-Erweiterungen zuerst":
+
+. Boot/HAL (Phase 0) — Vektortabelle, MMU-Flat-Mapping, UART/LED, Panic-Handler
+. Config-Pipeline (Phase 1) — `.cfg` to `build.rs` to Rust-Konstanten
+. OS-Application/Memory-Protection-Gerüst (Phase 2) — Schutzdomänen entstehen *vor* dem Scheduler
+. Scheduler eingebettet in die Schutzdomänen (Phase 3) — Basic Tasks laufen innerhalb der in Phase 2 geschaffenen Grenzen, nicht davor
+. Alarme/Events (Phase 4)
+
+Runtime-Sequenzen (z. B. Task-Aktivierung über einen Alarm, Data-Abort-Reaktion) werden ergänzt, sobald der Scheduler (Phase 3) implementiert ist — vorher wären sie unbelegte Spekulation statt Architekturdokumentation.

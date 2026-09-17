@@ -1,0 +1,6 @@
+[[section-quality-requirements-arc42]]
+== Quality Requirements
+
+Siehe link:../req42/06-quality-requirements.adoc[req42 Quality Requirements] für die vollständige Liste mit Begründung (Determinismus, Fehler-Eindämmung, Beobachtbarkeit, Portabilität, Ressourcen-Sparsamkeit, Testbarkeit) — hier nicht dupliziert, um Drift zwischen Requirements- und Architekturdokumentation zu vermeiden.
+
+Architektonisch am stärksten wirksam: **Fehler-Eindämmung** (erzwingt die Schutzdomänen-Trennung aus <<section-bausteinsicht>>) und **Portabilität** (erzwingt die Core/Port/Board-Trennung, maschinell geprüft über `bausteinsicht lint`-Regel C01).

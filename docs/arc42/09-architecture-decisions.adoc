@@ -1,0 +1,26 @@
+[[section-architecture-decisions]]
+== Architecture Decisions
+
+Formale ADRs (Architecture Decision Records) werden angelegt, sobald eine Entscheidung ansteht, die mehrere echte Alternativen mit Konsequenzen abwägt. Bereits getroffene, in PLAN.md begründete Grundsatzentscheidungen bis hierhin:
+
+[cols="2,3", options="header"]
+|===
+| Entscheidung | Begründung (Kurzfassung, siehe PLAN.md für Details)
+
+| Clean-Room statt ERIKA-Fork
+| ERIKA Enterprise ist dual GPLv2/kommerziell lizenziert — würde Lizenzpflichten übernehmen. PLAN.md "Scope-Abgrenzung"
+
+| Schutzarchitektur ab Phase 0, nicht nachgerüstet
+| OS-Applications/Memory Protection setzen voraus, dass es Tasks/Scheduler gibt — Reihenfolge bleibt Boot to Config to Schutzgerüst to Scheduler *darin*. PLAN.md "Startpunkt-Entscheidung"
+
+| Core/Port/Board als Cargo-Workspace, nicht als Feature-Flags
+| Portabilität soll strukturell erzwungen werden (kein Compile-Time-`#[cfg]`-Wildwuchs). PLAN.md "Portierbarkeit"
+
+| Kein QEMU-Testpfad
+| Kein AM335x/BeagleBone-Maschinenmodell in QEMU verfügbar. PLAN.md "Build- und Toolchain-Setup"
+
+| Bausteinsicht statt handgezeichneter Diagramme für Kapitel 5
+| Diagramm und Modell bleiben synchron, Lint-Regeln (z. B. C01) erzwingen die Core/Port/Board-Trennung maschinell statt nur dokumentarisch. Issue #29
+|===
+
+Offene Entscheidungen: siehe PLAN.md, Abschnitt "Offene Punkte für Rücksprache" (Lizenz, Config-Syntax, Anzahl Demo-OS-Applications).

@@ -1,0 +1,10 @@
+[[section-constraints]]
+== Architecture Constraints
+
+Siehe link:../req42/07-constraints.adoc[req42 Constraints] für die vollständige, begründete Liste (Zielhardware, keine dynamische Allokation, kein ERIKA-Code, kein QEMU-Testpfad, Nightly-Rust/`armv7a-none-eabi`, Boot nur über bestehendes u-boot).
+
+Architekturrelevant hiervon insbesondere:
+
+* **Single-Core Cortex-A8, kein NEON** — schließt datenparallele Optimierungen aus, prägt die HAL-Schnittstellen (kein Multi-Core-Interrupt-Routing in dieser Ausbaustufe)
+* **Keine dynamische Allokation** — erzwingt die Static-Config-Layer als eigene Architekturschicht (siehe <<section-bausteinsicht>>)
+* **Core/Port/Board-Trennung** — als harte Architektur-Constraint in link:architecture.jsonc[architecture.jsonc] als Lint-Regel `C01` hinterlegt (rosek-core/rosek-hal dürfen nicht von SoC-/Board-spezifischen Crates abhängen)

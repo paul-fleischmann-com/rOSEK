@@ -1,0 +1,32 @@
+=== Core/Port/Board-Aufteilung
+
+[cols="2,1,1,3"]
+|===
+| Element | Kind | Technology | Description
+
+| BeagleBone Black (AM335x)
+| hardware
+| 
+| Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot.
+
+| rosek-board-beaglebone-black
+| crate
+| Rust
+| Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind.
+
+| rosek-core
+| crate
+| Rust
+| Komplett architektur- und boardneutral: Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarbeitung. Kennt nur Rust-Traits (HAL), keine Register.
+
+| rosek-hal
+| crate
+| Rust (Trait-Definitionen)
+| Definiert die Trait-Schnittstellen, die rosek-core braucht: Timer, InterruptController, Mmu, Uart, Gpio.
+
+| rosek-port-am335x
+| crate
+| Rust
+| Implementierung der HAL-Traits für die AM335x-SoC-Familie: Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt für alle Boards mit diesem SoC.
+
+|===

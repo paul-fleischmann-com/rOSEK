@@ -1,0 +1,12 @@
+C4Context
+    title Schichtenarchitektur
+
+    System(api_layer, "API-Layer", "ActivateTask, Schedule, GetTaskID, ... — die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)")
+    System(hal_port_layer, "HAL/Port-Layer (AM335x)", "MMU, INTC, DMTimer, UART0, GPIO1 — alles AM335x-Spezifische")
+    System(kernel_core, "Kernel Core", "Scheduler, OS-Applications, Memory-Protection-Logik — architekturneutral gehalten, wo möglich")
+    System(static_config_layer, "Static-Config-Layer", "OIL-ähnliche .cfg-Datei -> build.rs -> generierte Rust-Konstanten, keine dynamische Allokation zur Laufzeit")
+
+    Rel(api_layer, kernel_core, "API-Aufrufe")
+    Rel(kernel_core, hal_port_layer, "HAL-Traits")
+    Rel(static_config_layer, kernel_core, "Tasks/OS-Apps/Resources")
+    Rel(static_config_layer, hal_port_layer, "Register-/Pin-Konstanten")

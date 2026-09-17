@@ -1,0 +1,85 @@
+name: Architecture Diagrams
+
+# Regenerates docs/arc42/generated/ from docs/arc42/architecture.jsonc via
+# Bausteinsicht (https://github.com/docToolchain/Bausteinsicht) and commits
+# the result. Separate from the Rust build/test/lint pipeline described in
+# PLAN.md, since it never touches the kernel toolchain.
+#
+# All commands below were verified manually against this exact model
+# (docs/arc42/architecture.jsonc) before being put into this workflow.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "docs/arc42/architecture.jsonc"
+      - ".github/workflows/architecture-diagrams.yml"
+  pull_request:
+    paths:
+      - "docs/arc42/architecture.jsonc"
+      - ".github/workflows/architecture-diagrams.yml"
+  workflow_dispatch: {}
+
+env:
+  BAUSTEINSICHT_VERSION: "1.2.1"
+  DRAWIO_VERSION: "31.4.5"
+
+permissions:
+  contents: write
+
+jobs:
+  export-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Bausteinsicht CLI
+        run: |
+          curl -sL -o bausteinsicht.tar.gz "https://github.com/docToolchain/Bausteinsicht/releases/download/v${BAUSTEINSICHT_VERSION}/Bausteinsicht_${BAUSTEINSICHT_VERSION}_linux_amd64.tar.gz"
+          tar xzf bausteinsicht.tar.gz
+          sudo mv bausteinsicht /usr/local/bin/
+          bausteinsicht --version
+
+      - name: Install draw.io CLI (headless export backend)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libasound2
+          curl -sL -o drawio.deb "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-amd64-${DRAWIO_VERSION}.deb"
+          sudo apt-get install -y -qq ./drawio.deb
+          drawio --version
+
+      - name: Validate architecture model
+        working-directory: docs/arc42
+        run: bausteinsicht validate --model architecture.jsonc
+
+      - name: Lint architecture constraints
+        working-directory: docs/arc42
+        run: bausteinsicht lint --model architecture.jsonc
+
+      - name: Sync draw.io diagram from model
+        working-directory: docs/arc42
+        run: bausteinsicht sync --model architecture.jsonc
+
+      - name: Export diagrams and tables per view
+        working-directory: docs/arc42
+        run: |
+          mkdir -p generated
+          for view in layers crates; do
+            bausteinsicht export-diagram --model architecture.jsonc --diagram-format mermaid --view "$view" --output generated
+            bausteinsicht export-table   --model architecture.jsonc --view "$view" --table-format adoc --output generated
+            xvfb-run -a bausteinsicht export --model architecture.jsonc --image-format png --view "$view" --output generated
+            xvfb-run -a bausteinsicht export --model architecture.jsonc --image-format svg --view "$view" --output generated
+          done
+
+      - name: Commit regenerated diagrams
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/arc42/generated docs/arc42/architecture.drawio docs/arc42/template.drawio
+          if git diff --staged --quiet; then
+            echo "No diagram changes to commit."
+          else
+            git commit -m "chore: regenerate architecture diagrams [skip ci]"
+            git push
+          fi
+        if: github.event_name != 'pull_request'

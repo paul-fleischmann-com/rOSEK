@@ -1,0 +1,66 @@
+[[section-bausteinsicht]]
+== Building Block View
+
+Dieses Kapitel ist **nicht händisch geschrieben**: Die Diagramme (PNG/SVG über die draw.io-CLI, sowie Mermaid-Quelltext) und Elementtabellen sind mit https://github.com/docToolchain/Bausteinsicht[Bausteinsicht] direkt aus link:architecture.jsonc[architecture.jsonc] generiert und liegen unverändert unter link:generated/[generated/]. Der GitHub-Actions-Workflow link:../../.github/workflows/architecture-diagrams.yml[architecture-diagrams.yml] führt genau diese Befehle bei jeder Änderung an `architecture.jsonc` automatisch aus und committed das Ergebnis zurück.
+
+[source,bash]
+----
+# einmalig (template.drawio ist bereits committed, nur nötig nach spec-Änderungen):
+# bausteinsicht generate-template --model architecture.jsonc --style c4 --output template.drawio
+
+bausteinsicht validate --model architecture.jsonc      # Model is valid.
+bausteinsicht lint     --model architecture.jsonc      # All constraints passed.
+bausteinsicht sync     --model architecture.jsonc      # nutzt template.drawio automatisch (gleiches Verzeichnis)
+for view in layers crates; do
+  bausteinsicht export-diagram --model architecture.jsonc --diagram-format mermaid --view "$view" --output generated
+  bausteinsicht export-table   --model architecture.jsonc --view "$view" --table-format adoc --output generated
+  xvfb-run -a bausteinsicht export --model architecture.jsonc --image-format png --view "$view" --output generated
+  xvfb-run -a bausteinsicht export --model architecture.jsonc --image-format svg --view "$view" --output generated
+done
+----
+
+`export` (PNG/SVG) ruft intern die draw.io-CLI auf und braucht daher einen X-Server — in CI über `xvfb-run`, lokal reicht eine normale Desktop-Session.
+
+=== Ebene 1: Schichtenarchitektur
+
+Deckt PLAN.md, Abschnitt "Architektur", ab (dort als Mermaid-Flowchart skizziert — hier als generiertes C4-Modell mit Constraint-Prüfung).
+
+[mermaid]
+----
+include::generated/layers.mmd[]
+----
+
+draw.io-Version (PNG/SVG, Quelle für interaktives Bearbeiten): link:generated/architecture-layers.png[PNG], link:generated/architecture-layers.svg[SVG] — das automatische Bausteinsicht-Layout überlappt bei dieser Modellform noch Boxen/Labels (siehe <<section-risks-and-technical-debt>>), daher hier das sauber lesbare Mermaid-Diagramm als Haupt-Darstellung.
+
+include::generated/layers-elements.adoc[leveloffset=+1]
+
+=== Ebene 2: Core/Port/Board-Aufteilung
+
+Deckt PLAN.md, Abschnitt "Portierbarkeit: Core / Port / Derivat", ab. Die Trennung zwischen "portable" (`rosek-core`, `rosek-hal`) und "concrete" (`rosek-port-am335x`, `rosek-board-beaglebone-black`) ist nicht nur beschrieben, sondern als Lint-Regel `C01` im Modell hinterlegt und mit `bausteinsicht lint` maschinell geprüft (aktuell: bestanden — es gibt keine verbotene Abhängigkeit von portablen auf konkrete Crates).
+
+[mermaid]
+----
+include::generated/crates.mmd[]
+----
+
+draw.io-Version (PNG/SVG, Quelle für interaktives Bearbeiten): link:generated/architecture-crates.png[PNG], link:generated/architecture-crates.svg[SVG] — gleiche Layout-Einschränkung wie oben.
+
+include::generated/crates-elements.adoc[leveloffset=+1]
+
+=== Architekturregeln (`bausteinsicht lint`)
+
+[cols="1,4", options="header"]
+|===
+| ID | Regel
+
+| C01
+| `rosek-core`/`rosek-hal` (Tag "portable") dürfen nicht von SoC-/Board-spezifischen Crates (Tag "concrete") abhängen — Portierbarkeitsprinzip: ein neues Target bedeutet einen neuen `rosek-port-*`/`rosek-board-*`, nie eine Änderung an `rosek-core`.
+
+| C02
+| Jedes Crate muss seine Technologie deklarieren.
+
+| C03
+| Keine zirkulären Abhängigkeiten zwischen Schichten oder Crates.
+|===
+
+NOTE: Ein neues Ziel (weiterer SoC oder weiteres Board) wird im Modell durch einen zusätzlichen `crate`-Eintrag mit Tag `concrete` sowie den passenden `implements`-/`dependsOn`-Relationships abgebildet — `bausteinsicht lint` schlägt automatisch fehl, falls dabei versehentlich eine Abhängigkeit von `rosek-core` oder `rosek-hal` auf das neue Ziel eingeführt wird.

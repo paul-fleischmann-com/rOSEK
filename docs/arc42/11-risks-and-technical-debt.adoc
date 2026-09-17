@@ -1,0 +1,9 @@
+[[section-risks-and-technical-debt]]
+== Risks and Technical Debt
+
+Siehe link:../req42/12-risks-assumptions.adoc[req42 Risks & Assumptions] für die vollständige Liste (Hardware-Verfügbarkeit, offene Lizenzentscheidung, AUTOSAR-Versionsdrift, Bus-Factor 1, Toolchain-Instabilität).
+
+Architekturspezifisch ergänzend:
+
+* **Bausteinsicht-Auto-Layout überlappt bei dieser Modellform**: Mit generiertem C4-Template (`bausteinsicht generate-template --style c4`) und `bausteinsicht layout` (sowohl `TB` als auch `LR` getestet) bleiben Box-Titel/Beschreibungen und parallele Relationship-Labels in den PNG/SVG-Exporten überlappend, weil mehrere Geschwister-Elemente mit je einer Beziehung in einer Reihe liegen. Verifiziert, kein Bedienfehler. Rein visuell — Modellinhalt, Validierung (`validate`) und Constraints (`lint`) sind davon unberührt. Workaround: Mermaid-Export (`export-diagram --diagram-format mermaid`) ist unbetroffen und dient als primäre Diagrammdarstellung in <<section-bausteinsicht>>; PNG/SVG bleiben als editierbare draw.io-Quelle verlinkt. Manuelles Nacharrangieren in draw.io (dann `sync` zurück ins Modell) würde das beheben, ist aber manueller Aufwand außerhalb des automatisierten Pfads.
+* **Kapitel 6 (Runtime View) ist noch dünn**: Belastbare Sequenzen setzen einen implementierten Scheduler voraus (Phase 3) — wird nachgezogen, keine Lücke, die vorher sinnvoll zu schließen wäre.

@@ -1,0 +1,27 @@
+=== Schichtenarchitektur
+
+[cols="2,1,1,3"]
+|===
+| Element | Kind | Technology | Description
+
+| API-Layer
+| layer
+| 
+| ActivateTask, Schedule, GetTaskID, ... — die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)
+
+| HAL/Port-Layer (AM335x)
+| layer
+| 
+| MMU, INTC, DMTimer, UART0, GPIO1 — alles AM335x-Spezifische
+
+| Kernel Core
+| layer
+| 
+| Scheduler, OS-Applications, Memory-Protection-Logik — architekturneutral gehalten, wo möglich
+
+| Static-Config-Layer
+| layer
+| 
+| OIL-ähnliche .cfg-Datei -> build.rs -> generierte Rust-Konstanten, keine dynamische Allokation zur Laufzeit
+
+|===

@@ -1,0 +1,23 @@
+[[section-deployment-view]]
+== Deployment View
+
+Ein einziger Deployment-Knoten in dieser Ausbaustufe: die BeagleBone Black selbst (siehe `beaglebone_black`-Element in link:architecture.jsonc[architecture.jsonc]).
+
+[cols="1,3", options="header"]
+|===
+| Schritt | Beschreibung
+
+| Build
+| `cargo build` gegen Target `armv7a-none-eabi` (soft float), `build-std` über `.cargo/config.toml`, Nightly-Rust
+
+| Binärformat
+| ELF to Raw-Binary via `cargo objcopy`, eigenes Linker-Script `linker.ld`
+
+| Übertragung
+| Raw-Binary auf SD-Karte/eMMC ablegen (manuell in dieser Ausbaustufe, siehe PLAN.md "Testinfrastruktur" — kein automatisierter Hardware-Flash in CI)
+
+| Start
+| Bestehendes u-boot lädt das Raw-Binary und springt per `go`-Kommando an die Einsprungadresse — kein eigener MLO/X-Loader
+|===
+
+CI/CD (siehe PLAN.md, Abschnitt "CI/CD: GitHub Actions") deckt nur Build und Host-Tests ab, nicht das Deployment auf die Hardware selbst.

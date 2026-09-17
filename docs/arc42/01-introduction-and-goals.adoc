@@ -1,0 +1,16 @@
+[[section-introduction-and-goals]]
+== Introduction and Goals
+
+Siehe link:../req42/01-business-goals.adoc[req42 Business Goals] für die vollständige Begründung. Kurzfassung:
+
+* AUTOSAR-OS-konformer Realtime-Kernel als Nachweis tiefen AUTOSAR-Verständnisses (Clean-Room-Implementierung nach SWS_OS, kein ERIKA-Fork)
+* Portfolio-Projekt für Embedded-/Automotive-Architektur-Bewerbungen im DACH-Raum
+* Von Anfang an portabel entworfen (Core/HAL/Port/Board), nicht nachträglich
+
+=== Qualitätsziele
+
+Siehe link:../req42/06-quality-requirements.adoc[req42 Quality Requirements]: Determinismus, Fehler-Eindämmung, Beobachtbarkeit, Portabilität, Ressourcen-Sparsamkeit, Testbarkeit.
+
+=== Stakeholder
+
+Siehe link:../req42/02-stakeholder.adoc[req42 Stakeholder].

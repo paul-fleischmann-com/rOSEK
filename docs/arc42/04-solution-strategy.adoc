@@ -1,0 +1,8 @@
+[[section-solution-strategy]]
+== Solution Strategy
+
+* **Schutzarchitektur zuerst, nicht nachgerüstet**: OS-Applications und Memory Protection werden von Phase 0 an mitgedacht; der Scheduler entsteht *innerhalb* dieser Schutzdomänen (siehe PLAN.md, Abschnitt "Startpunkt-Entscheidung: AUTOSAR-Erweiterungen zuerst").
+* **Portabilität durch Schichtentrennung**: vier Schichten (API/Core/HAL/Static-Config) und eine Crate-Aufteilung (Core/HAL/Port/Board), sodass ein neues Ziel nie `rosek-core` ändert — siehe <<section-bausteinsicht>>.
+* **Statische Konfiguration statt Laufzeit-Allokation**: alle Tasks/OS-Applications/Resources/Alarme werden zur Compile-Zeit über `build.rs` in Rust-Konstanten übersetzt (AUTOSAR-Prinzip), siehe link:../req42/04-product-backlog.adoc#_epic_1_phase_1_static_config_pipeline[req42 EPIC 1].
+* **Clean-Room statt Portierung**: Implementierung aus der AUTOSAR-OS-Spezifikation, nicht aus bestehendem Code — siehe link:../autosar/sws_os/README.adoc[SWS_OS] und link:../autosar/rs_os/README.adoc[RS_OS].
+* **Phasenweise, auf Hardware verifizierbare Ergebnisse**: jede Phase liefert ein auf der BeagleBone Black vorführbares Ergebnis (siehe link:../req42/11-roadmap.adoc[req42 Roadmap]), statt eines rein simulierten Zwischenstands (kein QEMU-Pfad verfügbar).

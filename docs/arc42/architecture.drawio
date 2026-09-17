@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="bausteinsicht" compressed="false">
+  <diagram id="view-layers" name="Schichtenarchitektur">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" page="1" pageWidth="1169" pageHeight="827" background="#ffffff">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <object id="layers--api_layer" bausteinsicht_id="api_layer" bausteinsicht_kind="layer" tooltip="ActivateTask, Schedule, GetTaskID, ... — die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="40" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="layers--api_layer-title" value="API-Layer" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--api_layer">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="layers--api_layer-desc" value="ActivateTask, Schedule, GetTaskID, ... — die AUTOSAR-OS-Services (Teilmenge, wachsend mit den Phasen)" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--api_layer">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="layers--hal_port_layer" bausteinsicht_id="hal_port_layer" bausteinsicht_kind="layer" tooltip="MMU, INTC, DMTimer, UART0, GPIO1 — alles AM335x-Spezifische">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="220" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="layers--hal_port_layer-title" value="HAL/Port-Layer (AM335x)" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--hal_port_layer">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="layers--hal_port_layer-desc" value="MMU, INTC, DMTimer, UART0, GPIO1 — alles AM335x-Spezifische" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--hal_port_layer">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="layers--kernel_core" bausteinsicht_id="kernel_core" bausteinsicht_kind="layer" tooltip="Scheduler, OS-Applications, Memory-Protection-Logik — architekturneutral gehalten, wo möglich">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="400" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="layers--kernel_core-title" value="Kernel Core" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--kernel_core">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="layers--kernel_core-desc" value="Scheduler, OS-Applications, Memory-Protection-Logik — architekturneutral gehalten, wo möglich" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--kernel_core">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="layers--static_config_layer" bausteinsicht_id="static_config_layer" bausteinsicht_kind="layer" tooltip="OIL-ähnliche .cfg-Datei -&gt; build.rs -&gt; generierte Rust-Konstanten, keine dynamische Allokation zur Laufzeit">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="580" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="layers--static_config_layer-title" value="Static-Config-Layer" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--static_config_layer">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="layers--static_config_layer-desc" value="OIL-ähnliche .cfg-Datei -&gt; build.rs -&gt; generierte Rust-Konstanten, keine dynamische Allokation zur Laufzeit" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="layers--static_config_layer">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-layers--api_layer-layers--kernel_core-0" value="API-Aufrufe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="layers--api_layer" target="layers--kernel_core" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-layers--kernel_core-layers--hal_port_layer-1" value="HAL-Traits" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="layers--kernel_core" target="layers--hal_port_layer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-layers--static_config_layer-layers--hal_port_layer-3" value="Register-/Pin-Konstanten" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="layers--static_config_layer" target="layers--hal_port_layer" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-layers--static_config_layer-layers--kernel_core-2" value="Tasks/OS-Apps/Resources" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="layers--static_config_layer" target="layers--kernel_core" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <object label="&lt;b&gt;Schichtenarchitektur&lt;/b&gt;&lt;br&gt;Die vier logischen Schichten aus PLAN.md &amp;#34;Architektur&amp;#34;: API-Layer, Kernel Core, HAL/Port-Layer, Static-Config-Layer.&lt;br&gt;&lt;br&gt;&lt;font point-size=&quot;9&quot;&gt;Source: architecture.jsonc&lt;br&gt;Last synced: 2026-09-17 10:49&lt;br&gt;Generated by Bausteinsicht&lt;/font&gt;" id="metadata-layers">
+          <mxCell style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;fontColor=#333333;fontSize=10;align=left;verticalAlign=top;" vertex="1" parent="1">
+            <mxGeometry x="40" y="180" width="420" height="120" as="geometry"/>
+          </mxCell>
+        </object>
+        <object label="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#d5e8d4&quot;&gt;■&lt;/font&gt; Schicht" id="legend-layers">
+          <mxCell style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;fontColor=#333333;fontSize=10;align=left;verticalAlign=top;" vertex="1" parent="1">
+            <mxGeometry x="530" y="180" width="210" height="120" as="geometry"/>
+          </mxCell>
+        </object>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="view-crates" name="Core/Port/Board-Aufteilung">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" page="1" pageWidth="1169" pageHeight="827" background="#ffffff">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <object id="crates--beaglebone_black" bausteinsicht_id="beaglebone_black" bausteinsicht_kind="hardware" tooltip="Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot." link="../../PLAN.md#zielhardware">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="310" y="160" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="crates--beaglebone_black-title" value="BeagleBone Black (AM335x)" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--beaglebone_black">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--beaglebone_black-desc" value="Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot." style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--beaglebone_black">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="crates--rosek_board_bbb" bausteinsicht_id="rosek_board_bbb" bausteinsicht_kind="crate" technology="Rust" tooltip="Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind." link="../../PLAN.md#portierbarkeit-core--port--derivat">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="40" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="crates--rosek_board_bbb-title" value="rosek-board-beaglebone-black" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_board_bbb">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_board_bbb-tech" value="[Rust]" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#666666;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_board_bbb">
+          <mxGeometry x="0" y="24" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_board_bbb-desc" value="Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführ…" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_board_bbb">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="crates--rosek_core" bausteinsicht_id="rosek_core" bausteinsicht_kind="crate" technology="Rust" tooltip="Komplett architektur- und boardneutral: Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarbeitung. Kennt nur Rust-Traits (HAL), keine Register." link="../../PLAN.md#portierbarkeit-core--port--derivat">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="220" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="crates--rosek_core-title" value="rosek-core" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_core">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_core-tech" value="[Rust]" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#666666;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_core">
+          <mxGeometry x="0" y="24" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_core-desc" value="Komplett architektur- und boardneutral: Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarb…" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_core">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="crates--rosek_hal" bausteinsicht_id="rosek_hal" bausteinsicht_kind="crate" technology="Rust (Trait-Definitionen)" tooltip="Definiert die Trait-Schnittstellen, die rosek-core braucht: Timer, InterruptController, Mmu, Uart, Gpio." link="../../PLAN.md#portierbarkeit-core--port--derivat">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="400" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="crates--rosek_hal-title" value="rosek-hal" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_hal">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_hal-tech" value="[Rust (Trait-Definitionen)]" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#666666;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_hal">
+          <mxGeometry x="0" y="24" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_hal-desc" value="Definiert die Trait-Schnittstellen, die rosek-core braucht: Timer, InterruptController, Mmu, Uart, Gpio." style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_hal">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <object id="crates--rosek_port_am335x" bausteinsicht_id="rosek_port_am335x" bausteinsicht_kind="crate" technology="Rust" tooltip="Implementierung der HAL-Traits für die AM335x-SoC-Familie: Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt für alle Boards mit diesem SoC." link="../../PLAN.md#portierbarkeit-core--port--derivat">
+          <mxCell style="fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#000000;fontSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;container=1;rounded=1" vertex="1" parent="1">
+            <mxGeometry x="580" y="40" width="120" height="60" as="geometry"/>
+          </mxCell>
+        </object>
+        <mxCell id="crates--rosek_port_am335x-title" value="rosek-port-am335x" style="text;html=1;fontSize=13;fontStyle=1;fontColor=#82b366;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_port_am335x">
+          <mxGeometry x="0" y="0" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_port_am335x-tech" value="[Rust]" style="text;html=1;fontSize=10;fontStyle=2;fontColor=#666666;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_port_am335x">
+          <mxGeometry x="0" y="24" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="crates--rosek_port_am335x-desc" value="Implementierung der HAL-Traits für die AM335x-SoC-Familie: Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt …" style="text;html=1;whiteSpace=wrap;fontSize=10;fontColor=#555555;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;pointerEvents=0;overflow=hidden;" vertex="1" connectable="0" parent="crates--rosek_port_am335x">
+          <mxGeometry x="0" y="42" width="120" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-crates--rosek_board_bbb-crates--rosek_port_am335x-6" value="SoC-Familie AM335x" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="crates--rosek_board_bbb" target="crates--rosek_port_am335x" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-crates--rosek_core-crates--rosek_hal-4" value="Timer, InterruptController, Mmu, Uart, Gpio" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="crates--rosek_core" target="crates--rosek_hal" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-crates--rosek_board_bbb-crates--rosek_core-7" value="bindet Kernel Core ein" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="crates--rosek_board_bbb" target="crates--rosek_core" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-crates--rosek_board_bbb-crates--beaglebone_black-8" value="Raw-Binary via u-boot" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="crates--rosek_board_bbb" target="crates--beaglebone_black" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="rel-crates--rosek_port_am335x-crates--rosek_hal-5" value="AM335x-Register" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#707070;fontColor=#707070;fontSize=11;strokeWidth=1.5;" edge="1" source="crates--rosek_port_am335x" target="crates--rosek_hal" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <object label="&lt;b&gt;Core/Port/Board-Aufteilung&lt;/b&gt;&lt;br&gt;Die Cargo-Workspace-Aufteilung aus PLAN.md &amp;#34;Portierbarkeit: Core / Port / Derivat&amp;#34;: rosek-core und rosek-hal sind board-/architekturneutral, rosek-port-am335x und rosek-board-beaglebone-black sind konkret.&lt;br&gt;&lt;br&gt;&lt;font point-size=&quot;9&quot;&gt;Source: architecture.jsonc&lt;br&gt;Last synced: 2026-09-17 10:49&lt;br&gt;Generated by Bausteinsicht&lt;/font&gt;" id="metadata-crates">
+          <mxCell style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;fontColor=#333333;fontSize=10;align=left;verticalAlign=top;" vertex="1" parent="1">
+            <mxGeometry x="40" y="300" width="420" height="120" as="geometry"/>
+          </mxCell>
+        </object>
+        <object label="&lt;b&gt;Legend&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#d5e8d4&quot;&gt;■&lt;/font&gt; Rust Crate&lt;br&gt;&lt;font color=&quot;#d5e8d4&quot;&gt;■&lt;/font&gt; Zielhardware" id="legend-crates">
+          <mxCell style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;fontColor=#333333;fontSize=10;align=left;verticalAlign=top;" vertex="1" parent="1">
+            <mxGeometry x="530" y="300" width="210" height="120" as="geometry"/>
+          </mxCell>
+        </object>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

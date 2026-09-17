@@ -1,0 +1,27 @@
+[[section-context-and-scope]]
+== Context and Scope
+
+Siehe link:../req42/03-scope.adoc[req42 Scope] für In-/Out-of-Scope und die Schnittstellentabelle (UART0, GPIO1, u-boot, MMU, DMTimer).
+
+=== Fachlicher Kontext
+
+rOSEK ist ein eigenständiger Kernel, kein Aufsatz auf ein bestehendes Betriebssystem. Es gibt keine Laufzeit-Umgebung, in die rOSEK eingebettet wird — u-boot übergibt die Kontrolle einmalig beim Systemstart per Raw-Binary-Sprung, danach läuft rOSEK exklusiv auf der Hardware.
+
+=== Technischer Kontext
+
+[cols="1,3", options="header"]
+|===
+| Schnittstelle | Richtung/Protokoll
+
+| u-boot to rOSEK
+| Einmaliger Sprung an die Einsprungadresse nach Laden des Raw-Binary von SD/eMMC (`go`-Kommando)
+
+| rOSEK to UART0
+| Textausgabe, 115200 8N1, über USB-Seriell-Kabel am J1-Header
+
+| rOSEK to GPIO1 (User-LEDs)
+| Digitalausgabe, USR0–3
+
+| rOSEK to MMU/INTC/DMTimer
+| Direkte Register-Programmierung über `rosek-port-am335x` (siehe <<section-bausteinsicht>>)
+|===
