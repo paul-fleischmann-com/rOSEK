@@ -5,25 +5,29 @@
 //! `board_main`, the symbol that startup code branches to once it's safe to
 //! run arbitrary Rust.
 //!
-//! For this issue (#1: Vektortabelle + Stacks pro CPU-Modus) `board_main`
-//! deliberately does nothing but park - UART output, LED life-sign and the
-//! real panic handler are separate, not-yet-implemented issues (#3, #4, #5;
-//! see PLAN.md "Meilensteine" Phase 0 and docs/req42/04-product-backlog.adoc
-//! EPIC 0).
+//! After that, `board_main` enables the flat MMU mapping
+//! (`rosek-port-am335x::mmu`, issue #2) and then parks - UART output, LED
+//! life-sign and the real panic handler are separate, not-yet-implemented
+//! issues (#3, #4, #5; see PLAN.md "Meilensteine" Phase 0 and
+//! docs/req42/04-product-backlog.adoc EPIC 0).
 
 #![no_std]
 #![no_main]
 
 // Pulls in rosek-port-am335x::startup's `global_asm!` (vector table, `_start`)
-// as part of this binary's link graph. Nothing here calls into it directly -
-// `_start` is the linker ENTRY point (see linker.ld) and reaches `board_main`
-// by branching to it directly from assembly, not through a Rust call.
+// as part of this binary's link graph; `_start` is the linker ENTRY point
+// (see linker.ld) and reaches `board_main` by branching to it directly from
+// assembly, not through a Rust call.
 use rosek_port_am335x as _;
 
 /// Branched to from `rosek-port-am335x::startup::_start` once the vector
 /// table, VBAR, all per-CPU-mode stacks and `.bss` are set up.
 #[no_mangle]
 pub extern "C" fn board_main() -> ! {
+    // Safe here specifically: interrupts are still masked (set by _start,
+    // never unmasked since) and this is the only call site, ever.
+    unsafe { rosek_port_am335x::mmu::enable_flat_mapping() };
+
     idle()
 }
 
