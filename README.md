@@ -26,8 +26,10 @@ Ein neues Target = ein neuer `rosek-port-*` (neuer SoC) oder `rosek-board-*`
 
 ## Status
 
-Planungsphase. Siehe [PLAN.md](./PLAN.md) für Architektur, Meilensteine
-und offene Entscheidungen.
+Phase 0 (Boot-Fundament) in Arbeit. Siehe [PLAN.md](./PLAN.md) für
+Architektur, Meilensteine und offene Entscheidungen, sowie
+[docs/req42/](./docs/req42/) und [docs/arc42/](./docs/arc42/) für
+Requirements und Architekturdokumentation.
 
 ## Zielhardware (erstes Target)
 

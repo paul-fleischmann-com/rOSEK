@@ -1,0 +1,9 @@
+[package]
+name = "rosek-port-am335x"
+version = "0.1.0"
+edition = "2021"
+description = "HAL implementation for the TI AM335x SoC family (Cortex-A8, ARMv7-A). See PLAN.md \"Portierbarkeit: Core / Port / Derivat\"."
+
+[lib]
+test = false
+doctest = false

@@ -1,0 +1,15 @@
+[package]
+name = "rosek-board-beaglebone-black"
+version = "0.1.0"
+edition = "2021"
+description = "Board support for the BeagleBone Black (TI AM335x). Pin-Muxing, Taktkonfiguration, Speicherkarte — see PLAN.md \"Portierbarkeit: Core / Port / Derivat\"."
+build = "build.rs"
+
+[[bin]]
+name = "rosek"
+path = "src/main.rs"
+test = false
+doctest = false
+
+[dependencies]
+rosek-port-am335x = { path = "../rosek-port-am335x" }

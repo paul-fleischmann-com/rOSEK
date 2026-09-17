@@ -1,0 +1,45 @@
+//! rOSEK entry point for the BeagleBone Black.
+//!
+//! Everything up to here (vector table, per-CPU-mode stacks, `.bss` zeroing)
+//! is `rosek-port-am335x::startup`'s job. This crate only has to provide
+//! `board_main`, the symbol that startup code branches to once it's safe to
+//! run arbitrary Rust.
+//!
+//! For this issue (#1: Vektortabelle + Stacks pro CPU-Modus) `board_main`
+//! deliberately does nothing but park - UART output, LED life-sign and the
+//! real panic handler are separate, not-yet-implemented issues (#3, #4, #5;
+//! see PLAN.md "Meilensteine" Phase 0 and docs/req42/04-product-backlog.adoc
+//! EPIC 0).
+
+#![no_std]
+#![no_main]
+
+// Pulls in rosek-port-am335x::startup's `global_asm!` (vector table, `_start`)
+// as part of this binary's link graph. Nothing here calls into it directly -
+// `_start` is the linker ENTRY point (see linker.ld) and reaches `board_main`
+// by branching to it directly from assembly, not through a Rust call.
+use rosek_port_am335x as _;
+
+/// Branched to from `rosek-port-am335x::startup::_start` once the vector
+/// table, VBAR, all per-CPU-mode stacks and `.bss` are set up.
+#[no_mangle]
+pub extern "C" fn board_main() -> ! {
+    idle()
+}
+
+/// Placeholder only - every `#![no_std]` binary needs *some* panic handler
+/// to compile, but a real one (UART diagnostic + LED signal) is issue #5's
+/// job, not this issue's.
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    idle()
+}
+
+/// `wfi` (Wait For Interrupt) instead of a bare spin loop: halts the core
+/// until *some* event/interrupt occurs instead of burning cycles at full
+/// clock, even though nothing is unmasked to actually act on one yet.
+fn idle() -> ! {
+    loop {
+        unsafe { core::arch::asm!("wfi") }
+    }
+}

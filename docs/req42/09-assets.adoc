@@ -24,11 +24,15 @@ Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
 
 | GitHub Issues/Milestones
 | Phasen 0–4 als Milestones, Arbeitspakete als Issues, siehe Repo `paul-fleischmann-com/rOSEK`.
+
+| `src/rust/rosek-port-am335x/`, `src/rust/rosek-board-beaglebone-black/`
+| Erste zwei Workspace-Crates (Issue #1): Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus; `board_main` bisher nur `wfi`-Idle-Loop.
+
+| `src/rust/Cargo.toml`, `src/rust/rust-toolchain.toml`, `src/rust/.cargo/config.toml`, `src/rust/rosek-board-beaglebone-black/linker.ld`
+| Workspace- und Build-Grundgerüst, Target `armv7a-none-eabi`, Nightly `nightly-2022-11-22` (siehe PLAN.md "Build- und Toolchain-Setup"). Cargo-Befehle müssen aus `src/rust/` (oder einem Unterverzeichnis davon) heraus laufen, da `rust-toolchain.toml`/`.cargo/config.toml` nur beim Hochlaufen vom aktuellen Verzeichnis aus gefunden werden.
 |===
 
-Noch nicht vorhanden (laut PLAN.md "Build- und Toolchain-Setup" angekündigt, aber nicht Teil dieses Repo-Standes):
+Noch nicht vorhanden:
 
-* Cargo-Workspace mit `rosek-core`/`rosek-hal`/`rosek-port-am335x`/`rosek-board-beaglebone-black`
-* `.cargo/config.toml`, `linker.ld`, CI-Workflow unter `.github/workflows/`
-
-Diese Lücke ist konsistent mit dem aktuellen Projektstand (Planungsphase, siehe README.md "Status") und keine Unstimmigkeit dieses Requirements-Kapitels.
+* `rosek-core`, `rosek-hal` (folgen mit ihren eigenen Issues ab Phase 1)
+* CI-Workflow unter `.github/workflows/` für Build/Host-Test/Lint (Issue #6 — bislang existieren nur die dokumentationsbezogenen Workflows `architecture-diagrams.yml` und `traceability-check.yml`)
