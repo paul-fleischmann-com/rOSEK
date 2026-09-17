@@ -5,12 +5,13 @@
 //! docs/arc42/05-bausteinsicht.adoc for this crate's exact scope.
 //!
 //! Filled in incrementally per PLAN.md "Meilensteine" Phase 0:
-//! [`startup`] (vector table + per-CPU-mode stacks, issue #1) and [`mmu`]
-//! (flat identity mapping, issue #2) so far. UART and GPIO follow as their
-//! own issues (#3-#4).
+//! [`startup`] (vector table + per-CPU-mode stacks, issue #1), [`mmu`]
+//! (flat identity mapping, issue #2) and [`uart`] (UART0 console, issue #3)
+//! so far. GPIO follows as its own issue (#4).
 
 #![no_std]
 #![feature(asm_const)]
 
 pub mod mmu;
 pub mod startup;
+pub mod uart;

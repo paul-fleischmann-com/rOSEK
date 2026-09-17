@@ -6,13 +6,16 @@
 //! run arbitrary Rust.
 //!
 //! After that, `board_main` enables the flat MMU mapping
-//! (`rosek-port-am335x::mmu`, issue #2) and then parks - UART output, LED
+//! (`rosek-port-am335x::mmu`, issue #2), initialises UART0 and prints a
+//! boot message (`rosek-port-am335x::uart`, issue #3), then parks - LED
 //! life-sign and the real panic handler are separate, not-yet-implemented
-//! issues (#3, #4, #5; see PLAN.md "Meilensteine" Phase 0 and
+//! issues (#4, #5; see PLAN.md "Meilensteine" Phase 0 and
 //! docs/req42/04-product-backlog.adoc EPIC 0).
 
 #![no_std]
 #![no_main]
+
+use core::fmt::Write as _;
 
 // Pulls in rosek-port-am335x::startup's `global_asm!` (vector table, `_start`)
 // as part of this binary's link graph; `_start` is the linker ENTRY point
@@ -25,8 +28,14 @@ use rosek_port_am335x as _;
 #[no_mangle]
 pub extern "C" fn board_main() -> ! {
     // Safe here specifically: interrupts are still masked (set by _start,
-    // never unmasked since) and this is the only call site, ever.
+    // never unmasked since) and both are the only call site, ever.
     unsafe { rosek_port_am335x::mmu::enable_flat_mapping() };
+    let mut uart = unsafe { rosek_port_am335x::uart::Uart0::init() };
+
+    let _ = writeln!(
+        uart,
+        "rOSEK: boot fundament up (MMU flat-mapped, UART0 115200 8N1)"
+    );
 
     idle()
 }

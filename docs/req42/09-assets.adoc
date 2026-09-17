@@ -26,7 +26,7 @@ Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
 | Phasen 0–4 als Milestones, Arbeitspakete als Issues, siehe Repo `paul-fleischmann-com/rOSEK`.
 
 | `src/rust/rosek-port-am335x/`, `src/rust/rosek-board-beaglebone-black/`
-| Erste zwei Workspace-Crates: Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus (Issue #1); flache 1:1-MMU-Abbildung mit DDR als Normal-cacheable und allem anderen als Device-Memory, MMU+Caches aktiviert (Issue #2). `board_main` danach weiterhin nur `wfi`-Idle-Loop.
+| Erste zwei Workspace-Crates: Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus (Issue #1); flache 1:1-MMU-Abbildung mit DDR als Normal-cacheable und allem anderen als Device-Memory, MMU+Caches aktiviert (Issue #2); UART0-Treiber (115200 8N1, gepollt) mit Boot-Meldung beim Start (Issue #3). `board_main` danach weiterhin nur `wfi`-Idle-Loop.
 
 | `src/rust/Cargo.toml`, `src/rust/rust-toolchain.toml`, `src/rust/.cargo/config.toml`, `src/rust/rosek-board-beaglebone-black/linker.ld`
 | Workspace- und Build-Grundgerüst, Target `armv7a-none-eabi`, Nightly `nightly-2022-11-22` (siehe PLAN.md "Build- und Toolchain-Setup"). Cargo-Befehle müssen aus `src/rust/` (oder einem Unterverzeichnis davon) heraus laufen, da `rust-toolchain.toml`/`.cargo/config.toml` nur beim Hochlaufen vom aktuellen Verzeichnis aus gefunden werden.
