@@ -43,7 +43,8 @@ jobs:
       - name: Install draw.io CLI (headless export backend)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb libasound2
+          sudo apt-get install -y -qq xvfb
+          sudo apt-get install -y -qq libasound2t64 || sudo apt-get install -y -qq libasound2
           curl -sL -o drawio.deb "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-amd64-${DRAWIO_VERSION}.deb"
           sudo apt-get install -y -qq ./drawio.deb
           drawio --version
