@@ -21,6 +21,9 @@ Formale ADRs (Architecture Decision Records) werden angelegt, sobald eine Entsch
 
 | Bausteinsicht statt handgezeichneter Diagramme für Kapitel 5
 | Diagramm und Modell bleiben synchron, Lint-Regeln (z. B. C01) erzwingen die Core/Port/Board-Trennung maschinell statt nur dokumentarisch. Issue #29
+
+| Config-Syntax: OIL-inspiriert statt Original-OIL oder eigene Notation
+| Erkennbare OSEK/AUTOSAR-Blockstruktur ohne OILs volle Grammatik-Komplexität — Grammatik siehe <<section-concepts>>. Issue #7
 |===
 
-Offene Entscheidungen: siehe PLAN.md, Abschnitt "Offene Punkte für Rücksprache" (Lizenz, Config-Syntax, Anzahl Demo-OS-Applications).
+Offene Entscheidungen: siehe PLAN.md, Abschnitt "Offene Punkte für Rücksprache" (Lizenz, Anzahl Demo-OS-Applications).

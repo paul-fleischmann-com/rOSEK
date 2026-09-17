@@ -2,6 +2,41 @@
 == Cross-cutting Concepts
 
 Static Configuration statt dynamischer Allokation:: Alle OS-Objekte (Tasks, OS-Applications, Resources, Alarme) werden in einer `.cfg`-Datei deklariert; `build.rs` generiert daraus Rust-Konstanten. Betrifft alle Schichten gleichermaßen (siehe <<section-bausteinsicht>>, Ebene 1).
++
+**Syntax-Entscheidung (Issue #7)**: OIL-inspiriert, aber bewusst vereinfacht — erkennbare OSEK/AUTOSAR-OIL-Blockstruktur (Keyword, Name, `{ KEY = WERT; }; `), ohne OILs volle Grammatik (keine `IMPLEMENTATION`/`CONFIGURATION`-Trennung, keine Objekt-Typ-Deklarationen, keine Vererbung). Zeigt AUTOSAR/OSEK-Vertrautheit, bleibt aber in vertretbarem Parser-Aufwand für #8. Grammatik (aktueller Umfang, deckt EPIC 1 STORY 1.1.1/1.1.2 — `RESOURCE`/`ALARM`/`COUNTER`-Blöcke folgen mit den Issues, die sie tatsächlich brauchen, z. B. Phase 4 für Alarme):
++
+[source]
+----
+file       := { block } ;
+block      := keyword name "{" { attribute } "}" ";" ;
+keyword    := "TASK" | "OS_APPLICATION" ;
+attribute  := key "=" value ";" ;
+value      := integer | ident | "TRUE" | "FALSE" ;
+comment    := "//" { any-character-until-newline } ;   (* zeilenweise, ignoriert vom Parser *)
+
+(* TASK-Attribute *)
+PRIORITY    = integer                 (* siehe ECUC_Os_00075 OsTaskPriority *)
+SCHEDULE    = "FULL" | "NON"          (* siehe ECUC_Os_00076 OsTaskSchedule *)
+APPLICATION = ident                   (* Referenz auf einen OS_APPLICATION-Namen *)
+
+(* OS_APPLICATION-Attribute *)
+TRUSTED     = "TRUE" | "FALSE"        (* siehe SWS_Os_00446 *)
+----
++
+Beispiel:
++
+[source]
+----
+TASK MainTask {
+  PRIORITY = 5;
+  SCHEDULE = FULL;
+  APPLICATION = TrustedApp;
+};
+
+OS_APPLICATION TrustedApp {
+  TRUSTED = TRUE;
+};
+----
 
 Schutzdomänen als Leitkonzept:: Memory Protection und OS-Applications sind kein Aufsatz auf einen fertigen Scheduler, sondern werden von Phase 0 an mitgedacht (siehe PLAN.md, Abschnitt "Startpunkt-Entscheidung"). Der Scheduler (Phase 3) entsteht *innerhalb* dieser Domänen.
 
