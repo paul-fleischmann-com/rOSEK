@@ -1,0 +1,19 @@
+[[section-stakeholder]]
+== Stakeholder
+
+[cols="1,2,3", options="header"]
+|===
+| Stakeholder | Rolle | Interesse
+
+| Autor/Entwickler (Paul Fleischmann)
+| Product Owner, Entwickler, Tester in Personalunion
+| Technische Tiefe, Nachweisbarkeit auf echter Hardware, Fortschritt pro Phase als Bewerbungsargument
+
+| Recruiter/Interviewer (Embedded/Automotive, DACH)
+| Leser/Bewerter des Repos
+| Bewertbarkeit der AUTOSAR-OS-Kompetenz anhand von Code, Requirements- und Architekturdokumentation
+
+| AUTOSAR-Konsortium
+| Normgeber (indirekt, keine aktive Stakeholder-Beziehung)
+| Markenschutz ("AUTOSAR" nicht im Projektnamen), Lizenzbedingungen der Spezifikationsdokumente werden eingehalten
+|===

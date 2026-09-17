@@ -1,0 +1,39 @@
+[[section-scope]]
+== Scope
+
+=== In Scope
+
+* rOSEK-Kernel (Core + HAL + Port `am335x` + Board `beaglebone-black`) für die BeagleBone Black (TI AM335x, ARM Cortex-A8, Single-Core)
+* AUTOSAR-OS-Funktionsumfang mindestens BCC1 (Basic Tasks, voll-präemptiv, Prioritäten) eingebettet in ein OS-Application-/Memory-Protection-Modell von Beginn an
+* Static-Config-Pipeline (`.cfg`-Datei to `build.rs` to generierte Rust-Konstanten), keine dynamische Allokation zur Laufzeit
+* UART0-Konsole und GPIO1-User-LEDs als Diagnose-/Lebenszeichen-Schnittstellen
+* Boot über bestehendes u-boot (Raw-Binary), kein eigener MLO/X-Loader
+
+=== Out of Scope (aktuelle Ausbaustufe)
+
+* Netzwerk-Stack (Ethernet/USB-Treiber) — eigene, spätere Erweiterung außerhalb des OS-Kerns
+* Weitere SoCs/Boards (neue `rosek-port-*`/`rosek-board-*`-Crates sind vorbereitet, aber nicht Teil dieser Ausbaustufe)
+* Extended Tasks/Events (ECC) und Timing Protection — erst Phase 4, optional
+* Automatisierter Hardware-Test in CI (siehe PLAN.md, Abschnitt "Testinfrastruktur")
+
+=== Schnittstellen zur Umgebung
+
+[cols="1,4", options="header"]
+|===
+| Schnittstelle | Bedeutung
+
+| UART0 (115200 8N1, USB-Seriell am J1-Header)
+| Textausgabe für Boot-Diagnose, Panics, Requirement-Demos
+
+| User-LEDs USR0–3 (GPIO1)
+| Sichtbares Lebenszeichen ohne Kabel
+
+| u-boot (`go`-Kommando)
+| Lädt das Raw-Binary von SD-Karte/eMMC und springt an die Einsprungadresse — einzige Boot-Schnittstelle, kein eigener Loader
+
+| MMU (AM335x)
+| Grundlage der Memory-Protection-Domänen (OS-Applications, Phase 2)
+
+| DMTimer (mehrere Instanzen)
+| Zeitbasis für Scheduler/Alarme (Phase 3/4)
+|===

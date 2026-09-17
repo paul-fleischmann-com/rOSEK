@@ -1,0 +1,31 @@
+[[section-roadmap]]
+== Roadmap
+
+Deckungsgleich mit PLAN.md "Meilensteine" und den GitHub-Milestones im Repo.
+
+[cols="1,3,3", options="header"]
+|===
+| Phase (EPIC) | Inhalt | Sichtbares Ergebnis
+
+| 0 — Boot-Fundament
+| Startup-Code, Vektortabelle, Stacks pro CPU-Modus, MMU-Flat-Mapping, UART0-Konsole, LED-Lebenszeichen, Panic-Handler
+| Board bootet, gibt Text über UART aus, LED blinkt
+
+| 1 — Static-Config-Pipeline
+| OIL-ähnliche `.cfg`-Datei, Parser + Codegenerator in `build.rs`
+| Konfiguration ändert sich über Datei, nicht über Kernel-Code
+
+| 2 — OS-Application-Modell + Memory Protection
+| MMU-Regionen pro OS-App, Trusted/Non-trusted, Data-Abort-Handler
+| Zwei OS-Apps demonstrierbar isoliert, Verletzung führt zu kontrolliertem Fehlerpfad
+
+| 3 — Scheduler in OS-Apps eingebettet
+| Basic Tasks, voll-präemptiv, Prioritäten, Ready-Queue (BCC1)
+| Mehrere Tasks in verschiedenen OS-Apps laufen sichtbar
+
+| 4 — Alarme/Extended Tasks/Timing Protection
+| Counter/Alarm, danach optional Extended Tasks/Events (ECC) und Timing Protection
+| Zeitgesteuerte Aktivierung, erste ECC-Fähigkeiten
+|===
+
+Diese Ausbaustufe des Product Backlogs (docs/req42/04-product-backlog.adoc) deckt EPIC 0–3 (BCC1) vollständig ab; EPIC 4 ist als Backlog-Platzhalter angelegt und wird erst nach Abschluss von BCC1 im Detail ausformuliert.

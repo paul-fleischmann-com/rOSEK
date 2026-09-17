@@ -1,0 +1,9 @@
+[[section-teams]]
+== Teams
+
+rOSEK ist ein Einzelpersonen-Portfolioprojekt. Es gibt kein Team im klassischen Sinn — Paul Fleischmann übernimmt Product-Owner-, Entwickler- und Testerrolle in Personalunion (siehe docs/req42/02-stakeholder.adoc).
+
+Konsequenzen für die Requirements-Arbeit:
+
+* Keine Rollentrennung zwischen Anforderungserhebung, Umsetzung und Abnahme — Abnahmekriterien in den GitHub-Issues übernehmen die Kontrollfunktion, die sonst ein Reviewer/Team hätte.
+* Kein Bus-Factor-Ausgleich — siehe docs/req42/12-risks-assumptions.adoc.

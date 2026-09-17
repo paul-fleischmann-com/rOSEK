@@ -1,0 +1,43 @@
+[[section-domain-terminology]]
+== Domain Terminology
+
+[cols="1,3", options="header"]
+|===
+| Begriff | Bedeutung
+
+| OSEK OS
+| Die ursprüngliche, event-getriggerte Echtzeit-Betriebssystem-Spezifikation, auf der AUTOSAR OS aufbaut.
+
+| AUTOSAR OS
+| Erweiterung von OSEK OS um OS-Applications, Memory Protection, Timing Protection, Multi-Core-Unterstützung u. a. — Gegenstand von SWS_OS.
+
+| BCC1 / ECC
+| Basic Conformance Class 1 (nur Basic Tasks) bzw. Extended Conformance Class (zusätzlich Extended Tasks/Events) — Skalierbarkeitsklassen des AUTOSAR-OS-Funktionsumfangs.
+
+| Basic Task
+| Task-Typ ohne eigenen Wartezustand (kein `WaitEvent`) — Umfang von BCC1, siehe EPIC 3.
+
+| OS-Application
+| Konfigurierbare Gruppierung von Tasks/ISRs/Alarmen/Countern/ScheduleTables, die eine Schutzdomäne bildet (trusted oder non-trusted) — siehe EPIC 2.
+
+| Trusted / Non-trusted OS-Application
+| Trusted OS-Applications dürfen mit gelockerter Überwachung laufen und privilegiert ausgeführt werden; bei Non-trusted OS-Applications wird das Schutzmodell immer durchgesetzt.
+
+| Resource
+| OSEK/AUTOSAR-Mechanismus zur wechselseitigen Ausschlusssteuerung zwischen Tasks/ISRs (z. B. `RES_SCHEDULER`).
+
+| Alarm / Counter
+| Counter zählt Ticks (Hardware- oder Software-Zeitbasis); ein Alarm löst bei Erreichen eines Zählwerts eine Aktion aus (Task aktivieren, Counter inkrementieren, Callback).
+
+| ScheduleTable
+| Statisch konfigurierte, zeitgesteuerte Abfolge von Expiry Points zur synchronisierten Aktivierung mehrerer Tasks — OSEKtime-ähnliches Konzept innerhalb von OSEK OS.
+
+| Data Abort
+| ARM-Exception, die bei einem unzulässigen Speicherzugriff (z. B. MMU-Schutzverletzung) ausgelöst wird — Grundlage für den kontrollierten Fehlerpfad in EPIC 2.
+
+| Flat Mapping
+| 1:1-Abbildung von virtuellen auf physische Adressen über die MMU, als Basis-Konfiguration vor der Einrichtung feingranularer Schutzregionen.
+
+| SWS / RS (AUTOSAR-Dokumenttypen)
+| SWS = "Software Specification" (Modul-Spezifikation, hier: SWS_OS); RS = "Requirements Specification" (übergeordnete Requirements, hier: RS_OS).
+|===

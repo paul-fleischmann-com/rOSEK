@@ -1,0 +1,128 @@
+[[section-product-backlog]]
+== Product Backlog
+
+Gliederung: EPIC = Phase (siehe PLAN.md "Meilensteine" / GitHub-Milestones), FEATURE = zusammengehörige Fähigkeit, STORY = einzelne Anforderung im Format "Als <Rolle> möchte ich <Funktionalität>, damit <Nutzen>."
+
+Jede Story trägt einen Link zur Quelle. Für Phase 0 (Boot-Fundament) gibt es bewusst **keinen** SWS_Os_*/SRS_Os_*-Bezug: Board-Bootstrapping (Vektortabelle, MMU-Flat-Mapping, UART/GPIO-Treiber) ist nicht Teil des AUTOSAR-OS-Spezifikationsumfangs (SWS_OS beschreibt die OS-Schicht *oberhalb* eines bereits laufenden Systems) und wird stattdessen auf PLAN.md zurückgeführt. Ab Phase 1 verweist jede Story auf den jeweiligen SWS_Os_*/SRS_Os_*-Anchor in link:../autosar/sws_os/README.adoc[docs/autosar/sws_os/] bzw. link:../autosar/rs_os/README.adoc[docs/autosar/rs_os/].
+
+=== EPIC 0: Phase 0 — Boot-Fundament
+
+Kein SWS_OS-Bezug (siehe oben). Quelle: PLAN.md, Abschnitt "Meilensteine", Phase 0.
+
+FEATURE 0.1: Startup & Vektortabelle::
+STORY 0.1.1: Als Kernel möchte ich vor jedem Rust-Code eine ARM-Vektortabelle und einen eigenen Stack pro CPU-Modus eingerichtet haben, damit Exceptions/Interrupts in definiertem, isoliertem Stack-Speicher landen.
++
+_Link: PLAN.md "Meilensteine" Phase 0; Repo-Issue #1._
+
+FEATURE 0.2: MMU-Flat-Mapping::
+STORY 0.2.1: Als Kernel möchte ich beim Boot ein 1:1-MMU-Mapping aktiv haben, damit die späteren Memory-Protection-Regionen (Phase 2) auf einer bereits aktiven MMU aufbauen, statt sie nachträglich einzuführen.
++
+_Link: PLAN.md "Meilensteine" Phase 0; Repo-Issue #2._
+
+FEATURE 0.3: UART0-Konsole::
+STORY 0.3.1: Als Entwickler möchte ich UART0 (115200 8N1) mit einfacher Textausgabe initialisiert haben, damit Boot-Fortschritt und Panics ohne Debugger sichtbar sind.
++
+_Link: PLAN.md "Zielhardware"; Repo-Issue #3._
+
+FEATURE 0.4: LED-Lebenszeichen::
+STORY 0.4.1: Als Entwickler möchte ich, dass die User-LEDs (USR0–3 über GPIO1) anzeigen, dass der Kernel läuft, damit der Board-Zustand ohne Kabel sichtbar ist.
++
+_Link: PLAN.md "Zielhardware"; Repo-Issue #4._
+
+FEATURE 0.5: Panic-Handler::
+STORY 0.5.1: Als Kernel möchte ich einen definierten Panic-Handler (`#![no_std]`) haben, damit nicht behebbare Fehler einen kontrollierten Zustand (UART-Ausgabe + LED-Signal) erreichen statt undefiniertem Verhalten.
++
+_Link: PLAN.md "Meilensteine" Phase 0; Repo-Issue #5._
+
+=== EPIC 1: Phase 1 — Static-Config-Pipeline
+
+Quelle: PLAN.md, Abschnitt "Architektur" (Static-Config-Layer) und die ECUC-Konfigurationsparameter aus link:../autosar/sws_os/10-configuration-specification.adoc[SWS_OS Kapitel 10], die das AUTOSAR-konforme Zielmodell für die eigene, OIL-ähnliche Config-Syntax vorgeben.
+
+FEATURE 1.1: OS-Objekt-Konfigurationsmodell::
+STORY 1.1.1: Als Integrator möchte ich Tasks mit Priorität und Scheduling-Policy (voll-präemptiv/nicht-präemptiv) in einer Konfigurationsdatei deklarieren, damit das Task-Verhalten dem AUTOSAR-Modell `OsTaskSchedule` (FULL/NON) entspricht.
++
+_Link: link:../autosar/sws_os/10-configuration-specification/10.2-containers-and-configuration-parameters.adoc#ECUC_Os_00075[ECUC_Os_00075] (OsTaskPriority), link:../autosar/sws_os/10-configuration-specification/10.2-containers-and-configuration-parameters.adoc#ECUC_Os_00076[ECUC_Os_00076] (OsTaskSchedule), §10.2.32 OsTask._
+
+STORY 1.1.2: Als Integrator möchte ich OS-Applications als benannte Gruppierung von Tasks/ISRs/Alarmen mit einem Trusted/Non-trusted-Flag deklarieren, damit Phase 2 eine Config-Zeit-Quelle der Wahrheit für das Schutzmodell hat.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00445[SWS_Os_00445], link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00446[SWS_Os_00446]; link:../autosar/sws_os/10-configuration-specification/10.2-containers-and-configuration-parameters.adoc[§10.2.9 OsApplication]._
+
+FEATURE 1.2: Codegenerator (`build.rs`)::
+STORY 1.2.1: Als Build-System möchte ich, dass `build.rs` die Config-Datei parst und zur Compile-Zeit Rust-Konstanten für die deklarierten OS-Objekte erzeugt, damit zur Laufzeit keine dynamische Allokation nötig ist (AUTOSAR-Prinzip der statischen Konfiguration).
++
+_Link: PLAN.md "Architektur" (Static-Config-Layer); Repo-Issue #8._
+
+STORY 1.2.2: Als Entwickler möchte ich, dass Parser und Codegenerator durch Host-Unit-Tests abgedeckt sind, damit Config-Fehler ohne Zielhardware erkannt werden.
++
+_Link: PLAN.md "Testinfrastruktur"; Repo-Issue #10._
+
+=== EPIC 2: Phase 2 — OS-Application-Modell + Memory Protection
+
+Quelle: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc[SWS_OS §7.6 OS-Application] und link:../autosar/sws_os/07-functional-specification/7.7-protection-facilities.adoc[§7.7 Protection Facilities], link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc[RS_OS §4.5 Protection Facilities].
+
+FEATURE 2.1: OS-Application-Modell::
+STORY 2.1.1: Als Kernel möchte ich OS-Applications als konfigurierbare Gruppierung von Tasks/ISRs/Alarmen/Countern/ScheduleTables unterstützen, damit sie als Fault Containment Regions wirken: OSEK OS kennt keine Mehrfach-Applikationen auf einem Prozessor und damit keine Eindämmung, sodass ein Fehler in einer Komponente ungehindert in eine andere übergreifen kann — im Fehlerfall muss die Fehlerbehandlung alle zu einer Applikation gehörenden Objekte gezielt stoppen können.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00445[SWS_Os_00445], link:../autosar/rs_os/04-requirement-specification/4.2-real-time-operating-system.adoc#SRS_Os_11001[SRS_Os_11001] (Rationale/Use Case: Fault Containment Regions)._
+
+STORY 2.1.2: Als Kernel möchte ich zwischen trusted und non-trusted OS-Applications unterscheiden, damit trusted Applications mit gelockerter Absicherung laufen dürfen, während non-trusted Applications immer durchgesetzt wird.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00446[SWS_Os_00446]._
+
+STORY 2.1.3: Als Kernel möchte ich den Zugriff auf OS-Objekte, die einer anderen OS-Application gehören, verweigern, sofern der Zugriff nicht explizit zur Konfigurationszeit gewährt wurde, damit eine Application nicht zur Laufzeit ein Objekt einer anderen manipulieren und diese dadurch außerhalb ihres Entwurfsverhaltens bringen kann (RS_OS-Beispiel: ein Alarm darf keinen Task in einer fremden OS-Application aktivieren können, ohne dass das konfiguriert wurde) — das grenzt mögliche Fehlerquellen bei der Fehlersuche ein.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00448[SWS_Os_00448], link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc#SRS_Os_11010[SRS_Os_11010] (präziser als das generische Fault-Isolation-Requirement: exakt "OS-Application modifying OS objects that are not owned")._
+
+STORY 2.1.4: Als Kernel möchte ich eine OS-Application auf Anfrage (oder über den Protection-Hook) terminieren können, indem alle ihre Tasks/ISRs/Alarme/ScheduleTables gestoppt und ihre Interrupts deaktiviert werden, damit eine Application mit mehreren Tasks/ISRs atomar gestoppt werden kann, ohne den gesamten Kernel herunterzufahren — ein vollständiger Shutdown wäre unpraktikabel, solange andere OS-Applications weiterlaufen sollen.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00447[SWS_Os_00447], link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00502[SWS_Os_00502], link:../autosar/rs_os/04-requirement-specification/4.8-application-error-handling.adoc#SRS_Os_11022[SRS_Os_11022]._
+
+FEATURE 2.2: Memory Protection::
+STORY 2.2.1: Als Kernel möchte ich Schreibzugriff auf meine eigenen Datensektionen und meinen Stack von non-trusted OS-Applications aus verhindern, damit die Kernel-Integrität nicht durch Applikationscode kompromittiert werden kann — ohne diese Absicherung wäre der Speicher aller OS-Applications global beschreibbar und ein Task-Stack-Overflow in einer Application könnte unbemerkt Kernel- oder Fremddaten korrumpieren.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.7-protection-facilities.adoc#SWS_Os_00198[SWS_Os_00198], link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc#SRS_Os_11005[SRS_Os_11005] (Rationale: "a task of an OS-Application may overflow its stack, causing static data of an unrelated OS-Application to be corrupted")._
+
+STORY 2.2.2: Als Kernel möchte ich Schreibzugriff auf die privaten Daten-/Stack-Bereiche einer OS-Application von anderen non-trusted OS-Applications aus verhindern, damit — wie in STORY 2.2.1 für den Kernel selbst — ein Stack-Overflow oder Fehler in einer Application nicht die Daten einer unbeteiligten Application korrumpiert (Fault Containment zwischen Applications, nicht nur zwischen Kernel und Applications).
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.7-protection-facilities.adoc#SWS_Os_00207[SWS_Os_00207], link:../autosar/sws_os/07-functional-specification/7.7-protection-facilities.adoc#SWS_Os_00355[SWS_Os_00355], link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc#SRS_Os_11005[SRS_Os_11005]._
+
+STORY 2.2.3: Als Kernel möchte ich einen Data-Abort-Handler haben, der bei einer Memory-Protection-Verletzung mit einem definierten Fehlerpfad (z. B. Terminierung der betroffenen OS-Application) statt einem harten Absturz reagiert, damit ein Schutzfehler zur Laufzeit überhaupt erkannt wird und die Reaktion (welche Ebene — OS, OS-Application oder Task/ISR — betroffen ist und welche Aktion folgt) von der Applikation wählbar bleibt statt fest vom Kernel vorgegeben zu sein.
++
+_Link: PLAN.md "Meilensteine" Phase 2 ("Ergebnis"); link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc#SRS_Os_11013[SRS_Os_11013] (Protection-Error-Erkennung zur Laufzeit), link:../autosar/rs_os/04-requirement-specification/4.5-protection-facilities.adoc#SRS_Os_11014[SRS_Os_11014] (wählbare Fehlerreaktion auf OS-/OS-Application-/Task-ISR-Ebene), link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00502[SWS_Os_00502]._
+
+STORY 2.2.4: Als Integrator möchte ich mindestens zwei OS-Applications (eine trusted, eine non-trusted) isoliert auf echter Hardware demonstrieren, wobei eine gezielte Verletzung den kontrollierten Fehlerpfad auslöst, damit das Schutzmodell nachweisbar funktioniert und nicht nur spezifiziert ist.
++
+_Link: PLAN.md "Meilensteine" Phase 2 ("Ergebnis"); Repo-Issue #12 (Entscheidung Anzahl Demo-OS-Applications)._
+
+=== EPIC 3: Phase 3 — Scheduler in OS-Apps eingebettet
+
+Quelle: link:../autosar/sws_os/07-functional-specification/7.1-core-os.adoc[SWS_OS §7.1 Core OS], link:../autosar/rs_os/04-requirement-specification/4.2-real-time-operating-system.adoc[RS_OS §4.2 Real-Time Operating System] und link:../autosar/rs_os/04-requirement-specification/4.3-statically-defined-scheduling.adoc[§4.3 Statically Defined Scheduling].
+
+FEATURE 3.1: Basic-Task-Scheduling::
+STORY 3.1.1: Als Kernel möchte ich Basic Tasks (BCC1) mit fester Prioritätsordnung voll-präemptiv schedulen, damit Tasks mit höherer Priorität immer vor Tasks mit niedrigerer Priorität laufen, passend zum OSEK/AUTOSAR-Scheduling-Modell.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.1-core-os.adoc#SWS_Os_00001[SWS_Os_00001], §7.1.1._
+
+STORY 3.1.2: Als Kernel möchte ich eine Ready-Queue führen, die nur Tasks enthält, deren OS-Application im Zustand `APPLICATION_ACCESSIBLE` ist, damit eine terminierte OS-Application aus RS_OS-Sicht wirklich als Fault Containment Region wirkt: "the fault handling mechanism needs to stop all objects associated with a software component from executing" — der Scheduler darf eine gestoppte Application nicht durch Weiterplanen ihrer Tasks unterlaufen.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.6-os-application.adoc#SWS_Os_00504[SWS_Os_00504], link:../autosar/rs_os/04-requirement-specification/4.2-real-time-operating-system.adoc#SRS_Os_11001[SRS_Os_11001] (Use Case)._
+
+STORY 3.1.3: Als Kernel möchte ich, dass Interrupts immer eine höhere Priorität als Tasks haben, damit zeitkritische Hardware-Ereignisse nie durch Task-Scheduling verzögert werden.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.1-core-os.adoc[§7.1.1] ("only interrupts with higher priority than Tasks")._
+
+STORY 3.1.4: Als Integrator möchte ich mehrere Tasks in verschiedenen OS-Applications gleichzeitig auf echter Hardware demonstrieren (sichtbar über UART/LED), damit das Zusammenspiel von Scheduler und Schutzdomänen nachweisbar funktioniert.
++
+_Link: PLAN.md "Meilensteine" Phase 3 ("Ergebnis")._
+
+=== EPIC 4: Phase 4 — Alarme/Extended Tasks/Timing Protection (Backlog, nicht Teil der aktuellen BCC1-Ausbaustufe)
+
+Quelle: link:../autosar/rs_os/04-requirement-specification/4.3-statically-defined-scheduling.adoc[RS_OS §4.3 Statically Defined Scheduling], link:../autosar/sws_os/07-functional-specification/7.1-core-os.adoc[SWS_OS §7.1.2.3].
+
+FEATURE 4.1: Counter/Alarm::
+STORY 4.1.1: Als Kernel möchte ich Counter und Alarme bereitstellen, die bei Ablauf einen Task aktivieren oder einen Counter inkrementieren können, damit eine Reihe von Tasks synchron mit statisch definiertem Inter-Arrival-Time freigegeben werden kann — tabellenbasierte Schedules sind laut RS_OS effizienter und leichter verständlich als rein alarmgesteuerte Task-Aktivierung.
++
+_Link: link:../autosar/sws_os/07-functional-specification/7.1-core-os.adoc#SWS_Os_00301[SWS_Os_00301], link:../autosar/rs_os/04-requirement-specification/4.3-statically-defined-scheduling.adoc#SRS_Os_00098[SRS_Os_00098]._
+
+FEATURE 4.2 (optional): Extended Tasks/Events, Timing Protection::
+Platzhalter für ECC-Fähigkeiten — wird erst nach Abschluss von BCC1 (EPIC 0–3) im Detail ausformuliert.

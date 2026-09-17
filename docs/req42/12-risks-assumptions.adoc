@@ -1,0 +1,35 @@
+[[section-risks-assumptions]]
+== Risks & Assumptions
+
+=== Risiken
+
+[cols="1,3,2", options="header"]
+|===
+| Risiko | Beschreibung | Auswirkung
+
+| Hardware-Verfügbarkeit
+| Phasen-Abnahme erfordert physischen Zugriff auf eine BeagleBone Black; ohne Board sind die "Ergebnis"-Spalten der Roadmap nicht verifizierbar.
+| Verzögerung der Phasenabnahme
+
+| Lizenzentscheidung offen
+| Die Repo-Lizenz ist laut PLAN.md "Offene Punkte" noch nicht entschieden (MIT/Apache-2.0 vorgeschlagen).
+| Beeinflusst öffentliche Sichtbarkeit/Nachnutzbarkeit als Bewerbungsreferenz
+
+| AUTOSAR-Spezifikationsversion driftet
+| Requirements sind gegen R25-11 verankert (siehe docs/autosar/); künftige Releases können Requirement-IDs ändern/entfernen (wie bereits zwischen R24-11 und R25-11 bei SWS_OS Kapitel 13 geschehen).
+| Traceability-Links können bei einem Versions-Update veralten
+
+| Bus-Factor 1
+| Einzelpersonen-Projekt (siehe docs/req42/10-teams.adoc) ohne Vertretung.
+| Kein Ausfallschutz bei Unterbrechung
+
+| Toolchain-Instabilität
+| Nightly-Rust + `build-std` sind nicht so stabil wie Stable-Toolchains; ein Nightly-Update kann den Build brechen.
+| Zusätzlicher Wartungsaufwand, siehe PLAN.md "Build- und Toolchain-Setup"
+|===
+
+=== Annahmen
+
+* Die BeagleBone Black verfügt über ein funktionierendes u-boot auf eMMC/SD, das Raw-Binaries per `go`-Kommando starten kann (siehe PLAN.md "Zielhardware").
+* Für den BCC1-Umfang (EPIC 0–3) ist keine NEON-Nutzung erforderlich; Soft-Float genügt (siehe PLAN.md "Build- und Toolchain-Setup").
+* Es ist kein automatisierter Hardware-Testpfad in CI erforderlich; manuelles Flashen/Verifizieren pro Phase ist für den Projektzweck (Portfolio-Nachweis) ausreichend (siehe PLAN.md "Testinfrastruktur").

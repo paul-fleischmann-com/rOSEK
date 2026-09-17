@@ -1,0 +1,34 @@
+[[section-assets]]
+== Assets
+
+Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
+
+[cols="1,3", options="header"]
+|===
+| Asset | Beschreibung
+
+| `PLAN.md`
+| Projektplan: Zielsetzung, Architektur, Meilensteine, Build-/Testinfrastruktur, CI/CD, offene Punkte.
+
+| `README.md`
+| Kurzüberblick und Einstiegspunkt für das Repository.
+
+| `docs/autosar/sws_os/`
+| Konvertierte AUTOSAR SWS_OS-Spezifikation (R25-11, AsciiDoc, kapitelweise), inkl. Quell-PDF unter `source/`.
+
+| `docs/autosar/rs_os/`
+| Konvertierte AUTOSAR RS_OS-Spezifikation (R25-11, AsciiDoc, kapitelweise), inkl. Quell-PDF unter `source/`.
+
+| `docs/req42/` (dieses Verzeichnis)
+| Requirements-Dokumentation nach req42-Struktur.
+
+| GitHub Issues/Milestones
+| Phasen 0–4 als Milestones, Arbeitspakete als Issues, siehe Repo `paul-fleischmann-com/rOSEK`.
+|===
+
+Noch nicht vorhanden (laut PLAN.md "Build- und Toolchain-Setup" angekündigt, aber nicht Teil dieses Repo-Standes):
+
+* Cargo-Workspace mit `rosek-core`/`rosek-hal`/`rosek-port-am335x`/`rosek-board-beaglebone-black`
+* `.cargo/config.toml`, `linker.ld`, CI-Workflow unter `.github/workflows/`
+
+Diese Lücke ist konsistent mit dem aktuellen Projektstand (Planungsphase, siehe README.md "Status") und keine Unstimmigkeit dieses Requirements-Kapitels.

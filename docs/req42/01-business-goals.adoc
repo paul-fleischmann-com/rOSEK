@@ -1,0 +1,18 @@
+[[section-business-goals]]
+== Business Goals
+
+G1 — AUTOSAR-OS-Kompetenznachweis:: Ein eigenständiger, AUTOSAR-OS-konformer Realtime-Kernel (SWS_OS) auf realer Hardware demonstriert tiefes Verständnis der AUTOSAR-OS-Spezifikation — nicht nur deren Anwendung, sondern deren Implementierung aus dem Normtext heraus.
++
+_Link: PLAN.md, Abschnitt "Zielsetzung"._
+
+G2 — Bewerbungsfähigkeit DACH Embedded/Automotive:: rOSEK dient als vorzeigbares Portfolio-Projekt für Bewerbungen auf Embedded-/Automotive-Architektur-Rollen im deutschsprachigen Raum. Jede Phase liefert ein auf echter Hardware vorführbares Ergebnis.
++
+_Link: PLAN.md, Abschnitt "Zielsetzung" und "Meilensteine"._
+
+G3 — Saubere IP-/Lizenzlage:: Clean-Room-Implementierung nach der offenen AUTOSAR-OS-Spezifikation, keine Übernahme von ERIKA-Enterprise-Code oder anderem fremden Quellcode, kein Markenkonflikt mit "AUTOSAR" im Projektnamen.
++
+_Link: PLAN.md, Abschnitt "Scope-Abgrenzung"._
+
+G4 — Portierbarkeit als Architekturprinzip:: Die Trennung in Core/HAL/Port/Board (analog zur MCAL/ECU-Abstraction-Trennung in AUTOSAR) demonstriert Architekturkompetenz über die reine Feature-Implementierung hinaus.
++
+_Link: PLAN.md, Abschnitt "Portierbarkeit: Core / Port / Derivat"._

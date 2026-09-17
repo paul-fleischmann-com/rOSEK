@@ -1,0 +1,15 @@
+[[section-supporting-models]]
+== Supporting Models
+
+Schichtenmodell (Core/HAL/Port/Board) und das Phasenmodell::
+Siehe PLAN.md, Abschnitte "Architektur" und "Portierbarkeit: Core / Port / Derivat" für das Mermaid-Diagramm der vier Schichten (API/Core/HAL/Static-Config) und die Crate-Aufteilung (`rosek-core`, `rosek-hal`, `rosek-port-am335x`, `rosek-board-beaglebone-black`).
+
+Bausteinsicht (arc42)::
+Die formale Bausteinsicht des Architekturmodells wird in Issue #29 mit https://github.com/docToolchain/Bausteinsicht[docToolchain/Bausteinsicht] erstellt und unter `docs/arc42/` abgelegt. Dieses Kapitel wird nach Abschluss von #29 um einen Verweis dorthin ergänzt.
+
+OS-Application-Zustandsmodell::
+UML-Zustandsmodell `APPLICATION_ACCESSIBLE` / `APPLICATION_TERMINATED` — siehe docs/autosar/sws_os/07-functional-specification/7.6-os-application.adoc, Figuren 7.9/7.10 (als `....`-Literalblöcke aus der Quelle übernommen, referenziert `SWS_Os_00500`, `SWS_Os_00502`).
+
+AUTOSAR-Referenzdokumente::
+* link:../autosar/sws_os/README.adoc[SWS_OS] — Modul-Spezifikation (Funktionsumfang, API, Konfiguration)
+* link:../autosar/rs_os/README.adoc[RS_OS] — übergeordnete Requirements, aus denen SWS_OS abgeleitet ist

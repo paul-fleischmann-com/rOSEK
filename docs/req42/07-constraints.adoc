@@ -1,0 +1,31 @@
+[[section-constraints]]
+== Constraints
+
+[cols="1,3", options="header"]
+|===
+| Constraint | Herkunft/Begründung
+
+| Zielhardware: TI AM335x, ARM Cortex-A8 (ARMv7-A), Single-Core, VFPv3-D16 ohne NEON
+| PLAN.md "Zielhardware" — physische Board-Vorgabe, nicht verhandelbar für diese Ausbaustufe
+
+| Keine dynamische Speicherallokation zur Laufzeit
+| AUTOSAR-Prinzip der statischen Konfiguration; PLAN.md "Architektur" (Static-Config-Layer)
+
+| Kein Fork/Port von ERIKA Enterprise, kein fremder Quellcode
+| Lizenzabgrenzung (ERIKA ist dual GPLv2/kommerziell) — PLAN.md "Scope-Abgrenzung"
+
+| Projektname enthält nicht "AUTOSAR"
+| Markenschutz des AUTOSAR-Konsortiums — PLAN.md "Zielsetzung"
+
+| Kein QEMU-Testpfad
+| Es existiert kein AM335x/BeagleBone-Maschinenmodell in QEMU — PLAN.md "Build- und Toolchain-Setup"
+
+| Nightly-Rust, `build-std`, Target `armv7a-none-eabi` (soft float)
+| Vermeidet frühe FPU-Enable-Logik im Startup-Code — PLAN.md "Build- und Toolchain-Setup"
+
+| Lizenz für das eigene Repo noch offen
+| Siehe docs/req42/12-risks-assumptions.adoc und PLAN.md "Offene Punkte für Rücksprache"
+
+| Boot ausschließlich über bestehendes u-boot (Raw-Binary)
+| Kein eigener MLO/X-Loader vorgesehen — PLAN.md "Zielhardware"
+|===

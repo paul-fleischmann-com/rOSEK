@@ -1,0 +1,89 @@
+= rOSEK Requirements (req42)
+:toc:
+
+Angepasste Struktur nach dem https://github.com/pgerstbach/req42-framework[req42-Framework] (P. Hruschka / M. Meuten) für die agile Requirements-Dokumentation von rOSEK.
+
+Ausgangsbasis:: PLAN.md (Projektplan) und die konvertierte AUTOSAR-Spezifikation unter link:../autosar/sws_os/README.adoc[SWS_OS] bzw. link:../autosar/rs_os/README.adoc[RS_OS]
+Umfang dieser Ausbaustufe:: mindestens BCC1 (Phasen 0–3 aus PLAN.md: Boot, Static-Config, OS-Application/Memory-Protection, Scheduler)
+Format:: AsciiDoc, ein Kapitel pro Datei, wie im req42-Original
+
+Diese Kopie verzichtet auf die im req42-Original enthaltenen `ifdef::req42help[]`-Erklärblöcke (Lehrtext für Requirements-Engineering-Einsteiger) und enthält stattdessen direkt die rOSEK-spezifischen Inhalte je Kapitel.
+
+[[section-traceability]]
+== Traceability
+
+Requirements laufen in rOSEK durch drei Ebenen, jede mit einer anderen Fragestellung:
+
+[cols="1,2,3", options="header"]
+|===
+| Ebene | Beantwortet | Fundstelle
+
+| RS_OS (`SRS_Os_*`)
+| *Warum* — Motivation/Rationale/Use Case auf Systemebene, unabhängig von einer konkreten API
+| link:../autosar/rs_os/README.adoc[docs/autosar/rs_os/]
+
+| SWS_OS (`SWS_Os_*`)
+| *Was* — die technische Konkretisierung als prüfbares "shall"-Requirement; referenziert sein RS_OS-Requirement selbst über die Zeile "Upstream requirements: ..."
+| link:../autosar/sws_os/README.adoc[docs/autosar/sws_os/]
+
+| req42 Product Backlog (STORY)
+| *Was für rOSEK* — die konkrete, für rOSEK formulierte Anforderung als User Story, deren "damit"-Klausel aus dem RS_OS-Rationale/Use-Case-Text abgeleitet ist
+| docs/req42/04-product-backlog.adoc
+|===
+
+=== Beispielkette
+
+`SRS_Os_11005` (RS_OS, Warum: "a task of an OS-Application may overflow its stack, causing static data of an unrelated OS-Application to be corrupted") to `SWS_Os_00198` (SWS_OS, Was: "shall prevent write access to its own data sections and its own stack from non-trusted OS-Applications") to STORY 2.2.1 (req42, rOSEK-Anforderung, EPIC 2 "OS-Application-Modell + Memory Protection") to spätere Implementierung in `rosek-core`/`rosek-hal`.
+
+=== Verlinkungskonvention
+
+* Jede Story, die auf AUTOSAR zurückgeht, verlinkt *beide* Ebenen wo vorhanden (SWS_Os_* *und* SRS_Os_*), nicht nur eine — RS_OS liefert die Begründung, SWS_OS die technische Präzisierung.
+* Links zeigen immer auf Datei *und* Anchor, nicht nur auf die Datei: `link:../autosar/<sws_os\|rs_os>/<pfad>.adoc#<ID>[<ID>]`. Ein Link ohne Anchor-Fragment ist nur zulässig, wenn kein einzelnes Requirement, sondern ein ganzes Kapitel gemeint ist (z. B. Verweis auf ein Konfigurationskapitel als Ganzes).
+* Requirement-IDs werden nicht neu abgeschrieben oder paraphrasiert kopiert — der Volltext bleibt in `docs/autosar/`, hier wird nur zitiert/verlinkt.
+
+=== Ausnahme: Phase 0 (Boot-Fundament)
+
+Board-Bootstrapping (Vektortabelle, MMU-Flat-Mapping, UART/GPIO-Treiber) hat **keine** AUTOSAR-Entsprechung, weil SWS_OS/RS_OS erst oberhalb eines bereits laufenden Systems ansetzen. EPIC-0-Stories verlinken stattdessen auf PLAN.md und die zugehörigen Repo-Issues. Das ist eine bewusste, dokumentierte Abweichung von der sonst durchgängigen AUTOSAR-Traceability, keine Lücke.
+
+=== Verifikation
+
+Jeder `link:`-Verweis auf `docs/autosar/` muss auf eine tatsächlich existierende `[[ID]]`-Anchor-Definition zeigen. Das lässt sich prüfen mit:
+
+[source,python]
+----
+import re
+text = open('docs/req42/04-product-backlog.adoc', encoding='utf-8').read()
+for l in re.findall(r'link:(\.\./autosar/[^\[\]]+?)\[', text):
+    path, _, anchor = l.partition('#')
+    content = open('docs/' + path.replace('../', ''), encoding='utf-8').read()
+    if anchor and f'[[{anchor}]]' not in content:
+        print("BROKEN:", l)
+----
+
+Neue Stories mit AUTOSAR-Bezug sollten vor dem Commit auf diese Weise geprüft werden, ebenso wie das Gesamtdokument mit `asciidoctor docs/req42/README.adoc` fehlerfrei rendern muss.
+
+== Kapitel
+
+include::01-business-goals.adoc[leveloffset=+1]
+
+include::02-stakeholder.adoc[leveloffset=+1]
+
+include::03-scope.adoc[leveloffset=+1]
+
+include::04-product-backlog.adoc[leveloffset=+1]
+
+include::05-supporting-models.adoc[leveloffset=+1]
+
+include::06-quality-requirements.adoc[leveloffset=+1]
+
+include::07-constraints.adoc[leveloffset=+1]
+
+include::08-domain-terminology.adoc[leveloffset=+1]
+
+include::09-assets.adoc[leveloffset=+1]
+
+include::10-teams.adoc[leveloffset=+1]
+
+include::11-roadmap.adoc[leveloffset=+1]
+
+include::12-risks-assumptions.adoc[leveloffset=+1]

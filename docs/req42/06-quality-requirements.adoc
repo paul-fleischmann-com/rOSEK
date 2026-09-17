@@ -1,0 +1,26 @@
+[[section-quality-requirements]]
+== Quality Requirements
+
+Zeitverhalten (Determinismus):: Scheduling-Entscheidungen erfolgen fest priorisiert und voll-präemptiv (siehe EPIC 3); es gibt keine dynamische Speicherallokation zur Laufzeit (siehe EPIC 1), damit Ausführungszeiten vorhersagbar bleiben — Grundvoraussetzung für einen Realtime-Kernel.
++
+_Link: EPIC 1 (Static-Config-Pipeline), EPIC 3 (Basic-Task-Scheduling)._
+
+Fehler-Eindämmung (Fault Containment):: Ein Fehler in einer (insbesondere non-trusted) OS-Application darf niemals eine andere OS-Application oder den Kernel selbst korrumpieren; Verletzungen führen zu einem kontrollierten Fehlerpfad statt einem Absturz.
++
+_Link: EPIC 2 (Memory Protection)._
+
+Beobachtbarkeit:: Boot-Fortschritt, Panics und Requirement-Demonstrationen müssen ohne Debugger über UART0 und die User-LEDs nachvollziehbar sein.
++
+_Link: EPIC 0 (UART0-Konsole, LED-Lebenszeichen)._
+
+Portabilität:: Ein neues Ziel (SoC oder Board) darf nur einen neuen `rosek-port-*`/`rosek-board-*` erfordern, niemals eine Änderung an `rosek-core`.
++
+_Link: PLAN.md "Portierbarkeit: Core / Port / Derivat"._
+
+Ressourcen-Sparsamkeit:: Der Kernel muss auf einem Single-Core Cortex-A8 ohne NEON und ohne Hardware-Fließkomma-Zwang (Soft-Float-Target) lauffähig sein, mit kleinem statischem Speicher-Footprint (keine Heap-Allokation).
++
+_Link: PLAN.md "Zielhardware", "Build- und Toolchain-Setup"._
+
+Testbarkeit:: Kernel-Logik, die sich von der Hardware isolieren lässt (Scheduler-Entscheidungen, Config-Parser), muss über Host-Unit-Tests mit Mock-HAL verifizierbar sein, ohne Zielhardware zu benötigen.
++
+_Link: PLAN.md "Testinfrastruktur"; EPIC 1, STORY 1.2.2._
