@@ -10,5 +10,9 @@ dependencies = [
 ]
 
 [[package]]
+name = "rosek-config"
+version = "0.1.0"
+
+[[package]]
 name = "rosek-port-am335x"
 version = "0.1.0"

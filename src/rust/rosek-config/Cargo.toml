@@ -1,0 +1,5 @@
+[package]
+name = "rosek-config"
+version = "0.1.0"
+edition = "2021"
+description = "Host-only parser + code generator for rOSEK's OIL-inspired static configuration format. Never compiled for the target - used from rosek-board-beaglebone-black/build.rs and tested on the host toolchain (see PLAN.md \"Testinfrastruktur\")."

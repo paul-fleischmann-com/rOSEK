@@ -42,6 +42,10 @@
       "runsOn": {
         "notation": "läuft auf",
         "dashed": true
+      },
+      "buildDependsOn": {
+        "notation": "nutzt zur Build-Zeit",
+        "dashed": true
       }
     }
   },
@@ -107,6 +111,14 @@
       "title": "BeagleBone Black (AM335x)",
       "description": "Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot.",
       "link": "../../PLAN.md#zielhardware"
+    },
+    "rosek_config": {
+      "kind": "crate",
+      "title": "rosek-config",
+      "technology": "Rust (std, Host)",
+      "tags": ["build-tooling"],
+      "description": "Reine Host/std-Crate: parst die OIL-inspirierte .cfg-Datei und generiert daraus Rust-Konstanten. Läuft nur zur Build-Zeit (aus rosek-board-beaglebone-black/build.rs heraus), nie auf dem Ziel-Target — daher weder \"portable\" noch \"concrete\" im Sinne von C01, sondern eine eigene, orthogonale Kategorie.",
+      "link": "../../PLAN.md#architektur"
     }
   },
 
@@ -120,7 +132,8 @@
     { "from": "rosek_port_am335x",    "to": "rosek_hal",           "kind": "implements", "label": "AM335x-Register" },
     { "from": "rosek_board_bbb",      "to": "rosek_port_am335x",   "kind": "dependsOn",  "label": "SoC-Familie AM335x" },
     { "from": "rosek_board_bbb",      "to": "rosek_core",          "kind": "dependsOn",  "label": "bindet Kernel Core ein" },
-    { "from": "rosek_board_bbb",      "to": "beaglebone_black",    "kind": "runsOn",     "label": "Raw-Binary via u-boot" }
+    { "from": "rosek_board_bbb",      "to": "beaglebone_black",    "kind": "runsOn",     "label": "Raw-Binary via u-boot" },
+    { "from": "rosek_board_bbb",      "to": "rosek_config",        "kind": "buildDependsOn", "label": "build.rs: .cfg -> Rust-Konstanten" }
   ],
 
   "constraints": [
@@ -155,7 +168,7 @@
     "crates": {
       "title": "Core/Port/Board-Aufteilung",
       "description": "Die Cargo-Workspace-Aufteilung aus PLAN.md \"Portierbarkeit: Core / Port / Derivat\": rosek-core und rosek-hal sind board-/architekturneutral, rosek-port-am335x und rosek-board-beaglebone-black sind konkret.",
-      "include": ["rosek_core", "rosek_hal", "rosek_port_am335x", "rosek_board_bbb", "beaglebone_black"],
+      "include": ["rosek_core", "rosek_hal", "rosek_port_am335x", "rosek_board_bbb", "beaglebone_black", "rosek_config"],
       "layout": "layered"
     }
   }

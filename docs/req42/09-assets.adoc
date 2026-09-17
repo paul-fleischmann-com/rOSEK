@@ -32,10 +32,21 @@ Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
 | Erste zwei Workspace-Crates: Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus (Issue #1); flache 1:1-MMU-Abbildung mit DDR als Normal-cacheable und allem anderen als Device-Memory, MMU+Caches aktiviert (Issue #2); UART0-Treiber (115200 8N1, gepollt) mit Boot-Meldung beim Start (Issue #3); USR-LED-Lebenszeichen-Blink über GPIO1 *und* GPIO2 Pins 21–24 (Issue #4 — PLAN.md nennt nur GPIO1, das offizielle BeagleBone-Black-Device-Tree aber GPIO2; auf User-Wunsch werden beide angesteuert statt sich für eines zu entscheiden); selbstständiger Panic-Handler mit UART-Diagnose + schnellerem Fehler-Blink (Issue #5) — Phase 0 (Boot-Fundament) damit vollständig.
 
 | `src/rust/Cargo.toml`, `src/rust/rust-toolchain.toml`, `src/rust/.cargo/config.toml`, `src/rust/rosek-board-beaglebone-black/linker.ld`
-| Workspace- und Build-Grundgerüst, Target `armv7a-none-eabi`, Nightly `nightly-2022-11-22` (siehe PLAN.md "Build- und Toolchain-Setup"). Cargo-Befehle müssen aus `src/rust/` (oder einem Unterverzeichnis davon) heraus laufen, da `rust-toolchain.toml`/`.cargo/config.toml` nur beim Hochlaufen vom aktuellen Verzeichnis aus gefunden werden.
+| Workspace-Grundgerüst, Nightly `nightly-2022-11-22` (siehe PLAN.md "Build- und Toolchain-Setup"). Cargo-Befehle müssen aus `src/rust/` (oder einem Unterverzeichnis davon) heraus laufen (Toolchain-/Config-Discovery). **Kein** workspace-weites Default-Target mehr (Issue #8) — der Workspace mischt `#![no_std]`-Firmware-Crates mit der Host/std-Crate `rosek-config`, ein einzelnes Default-Target könnte nur für eine der beiden Seiten richtig sein:
+[source,bash]
+----
+# Firmware (rosek-port-am335x + rosek-board-beaglebone-black):
+cargo build --release --target armv7a-none-eabi -Z build-std=core -p rosek-board-beaglebone-black
+
+# rosek-config (Parser/Codegen, Host):
+cargo test -p rosek-config
+----
+
+| `src/rust/rosek-config/`
+| Host/std-Crate: Lexer + rekursiv-absteigender Parser für die in #7 entschiedene Config-Grammatik (`TASK`/`OS_APPLICATION`), 14 Unit-Tests (u. a. Fehlermeldungen mit korrekter Zeilennummer). `default-members` der Workspace, läuft also bei einem bloßen `cargo build`/`cargo test` ohne `-p`. Nie fürs `armv7a-none-eabi`-Target kompiliert (Issue #8).
 |===
 
 Noch nicht vorhanden:
 
 * `rosek-core`, `rosek-hal` (folgen mit ihren eigenen Issues ab Phase 1)
-* CI-Workflow unter `.github/workflows/` für Build/Host-Test/Lint (Issue #6 — bislang existieren nur die dokumentationsbezogenen Workflows `architecture-diagrams.yml` und `traceability-check.yml`)
+* Codegenerator in `build.rs`, der `rosek-config` tatsächlich aufruft (Issue #9) — der Parser existiert, ist aber noch nicht verdrahtet

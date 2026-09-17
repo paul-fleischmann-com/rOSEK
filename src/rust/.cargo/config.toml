@@ -1,8 +1,2 @@
-[build]
-target = "armv7a-none-eabi"
-
-[unstable]
-build-std = ["core"]
-
 [target.armv7a-none-eabi]
 rustflags = ["-C", "link-arg=--nmagic"]

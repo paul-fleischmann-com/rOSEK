@@ -14,6 +14,11 @@
 | Rust
 | Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind.
 
+| rosek-config
+| crate
+| Rust (std, Host)
+| Reine Host/std-Crate: parst die OIL-inspirierte .cfg-Datei und generiert daraus Rust-Konstanten. Läuft nur zur Build-Zeit (aus rosek-board-beaglebone-black/build.rs heraus), nie auf dem Ziel-Target — daher weder "portable" noch "concrete" im Sinne von C01, sondern eine eigene, orthogonale Kategorie.
+
 | rosek-core
 | crate
 | Rust

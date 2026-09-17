@@ -1,8 +1,8 @@
 {
-  "checksum": "sha256:1947f1268e815656a1a014a5de26ad698262cccf7d577cdd36626f61918035b1",
-  "timestamp": "2026-09-17T08:49:58Z",
-  "model_hash": "sha256:2b777ed1fcbee5b16af021c0d1d01aea7b82eeb3ecee7da2cd6d860479175860",
-  "drawio_hash": "sha256:0f9d58a75445206db37f5cc08bdb08aaeb831968cffd0bf3746d9020d4d08952",
+  "checksum": "sha256:b6852716c78dcec49640534481bd3b3b0598fe89ea1a562530d3e3e1bc9114bc",
+  "timestamp": "2026-09-17T14:06:40Z",
+  "model_hash": "sha256:7e99183ad15b3eb6f9659837fc4006e8e4ce59fe04e704e699c79f16688bf3dd",
+  "drawio_hash": "sha256:3c569a140d5c30a8cfbad979d8ab24f4cc0019969f594950742be2e3d08aa801",
   "elements": {
     "api_layer": {
       "title": "API-Layer",
@@ -31,6 +31,13 @@
       "technology": "Rust",
       "kind": "crate",
       "link": "../../PLAN.md#portierbarkeit-core--port--derivat"
+    },
+    "rosek_config": {
+      "title": "rosek-config",
+      "description": "Reine Host/std-Crate: parst die OIL-inspirierte .cfg-Datei und generiert daraus Rust-Konstanten. Läuft nur zur Build-Zeit (aus rosek-board-beaglebone-black/build.rs heraus), nie auf dem Ziel-Target — daher weder \"portable\" noch \"concrete\" im Sinne von C01, sondern eine eigene, orthogonale Kategorie.",
+      "technology": "Rust (std, Host)",
+      "kind": "crate",
+      "link": "../../PLAN.md#architektur"
     },
     "rosek_core": {
       "title": "rosek-core",
@@ -122,6 +129,13 @@
       "index": 8,
       "label": "Raw-Binary via u-boot",
       "kind": "runsOn"
+    },
+    {
+      "from": "rosek_board_bbb",
+      "to": "rosek_config",
+      "index": 9,
+      "label": "build.rs: .cfg -\u003e Rust-Konstanten",
+      "kind": "buildDependsOn"
     }
   ],
   "rendered_elements": {
@@ -130,6 +144,7 @@
     "hal_port_layer": true,
     "kernel_core": true,
     "rosek_board_bbb": true,
+    "rosek_config": true,
     "rosek_core": true,
     "rosek_hal": true,
     "rosek_port_am335x": true,

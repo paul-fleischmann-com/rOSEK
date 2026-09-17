@@ -3,6 +3,7 @@ C4Context
 
     System(beaglebone_black, "BeagleBone Black (AM335x)", "Cortex-A8 @ 1 GHz, Single-Core, VFPv3-D16 ohne NEON, UART0, GPIO1, DMTimer, Boot über bestehendes u-boot.")
     System(rosek_board_bbb, "rosek-board-beaglebone-black", "Rust", "Nur das Board-Spezifische: Pin-Muxing, Taktkonfiguration, Speicherkarte, welche UART/GPIO-Pins tatsächlich herausgeführt sind.")
+    System(rosek_config, "rosek-config", "Rust (std, Host)", "Reine Host/std-Crate: parst die OIL-inspirierte .cfg-Datei und generiert daraus Rust-Konstanten. Läuft nur zur Build-Zeit (aus rosek-board-beaglebone-black/build.rs heraus), nie auf dem Ziel-Target — daher weder 'portable' noch 'concrete' im Sinne von C01, sondern eine eigene, orthogonale Kategorie.")
     System(rosek_core, "rosek-core", "Rust", "Komplett architektur- und boardneutral: Scheduler, OS-Application-Modell, Memory-Protection-Logik, Static-Config-Verarbeitung. Kennt nur Rust-Traits (HAL), keine Register.")
     System(rosek_hal, "rosek-hal", "Rust (Trait-Definitionen)", "Definiert die Trait-Schnittstellen, die rosek-core braucht: Timer, InterruptController, Mmu, Uart, Gpio.")
     System(rosek_port_am335x, "rosek-port-am335x", "Rust", "Implementierung der HAL-Traits für die AM335x-SoC-Familie: Register-Layout, Interrupt-Controller-Typ, MMU-Aufbau. Gilt für alle Boards mit diesem SoC.")
@@ -12,3 +13,4 @@ C4Context
     Rel(rosek_board_bbb, rosek_port_am335x, "SoC-Familie AM335x")
     Rel(rosek_board_bbb, rosek_core, "bindet Kernel Core ein")
     Rel(rosek_board_bbb, beaglebone_black, "Raw-Binary via u-boot")
+    Rel(rosek_board_bbb, rosek_config, "build.rs: .cfg -> Rust-Konstanten")

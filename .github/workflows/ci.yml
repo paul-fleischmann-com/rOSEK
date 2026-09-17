@@ -1,9 +1,9 @@
 name: CI
 
 # Build/test/lint pipeline for the Rust kernel workspace under src/rust/.
-# See PLAN.md "CI/CD: GitHub Actions" for the original proposal — two
-# corrections made against it here, both verified empirically before this
-# workflow was written (see commit message / issue #6 for detail):
+# See PLAN.md "CI/CD: GitHub Actions" for the original proposal — corrections
+# made against it here, all verified empirically before this workflow was
+# written or last updated (see commit messages / issues #6, #8 for detail):
 #   - cargo-binutils needs rustc >= 1.70; our pinned nightly-2022-11-22 is
 #     1.67.0-nightly, so it can't install. Uses the toolchain's own bundled
 #     llvm-objcopy directly instead.
@@ -11,7 +11,14 @@ name: CI
 #     -C linker flag is set anywhere in this workspace) - no extra lld
 #     package needed, unlike the `sudo apt-get install -y lld` PLAN.md
 #     proposed.
-# Also targets `master` (this repo's actual default branch), not `main`.
+#   - Also targets `master` (this repo's actual default branch), not `main`.
+#   - No workspace-wide default `--target`/`-Z build-std` (see
+#     .cargo/config.toml and src/rust/Cargo.toml `default-members`): the
+#     workspace mixes #![no_std] firmware crates (need
+#     --target armv7a-none-eabi -Z build-std=core) with the host/std
+#     rosek-config crate (issue #8, needs neither) - every command below is
+#     explicit about which one it means instead of relying on an implicit
+#     default that can only be right for one of the two.
 
 on:
   push:
@@ -34,7 +41,8 @@ jobs:
           rustup target add armv7a-none-eabi --toolchain nightly-2022-11-22
           rustup component add llvm-tools-preview --toolchain nightly-2022-11-22
 
-      - run: cargo build --release
+      - name: Build firmware (armv7a-none-eabi)
+        run: cargo build --release --target armv7a-none-eabi -Z build-std=core -p rosek-board-beaglebone-black
 
       - name: Convert ELF to raw binary (objcopy)
         run: |
@@ -51,12 +59,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Test host-capable crates (mock-HAL)
+
+      - name: Test rosek-config (parser/codegen, issue #8/#10)
+        run: cargo test -p rosek-config
+
+      - name: Test rosek-core (mock-HAL) once it exists
         run: |
           if [ -d rosek-core ]; then
             cargo test -p rosek-core --features mock-hal
           else
-            echo "rosek-core doesn't exist yet (lands in a later phase, see PLAN.md) - nothing host-testable yet."
+            echo "rosek-core doesn't exist yet (lands in a later phase, see PLAN.md) - nothing to test there yet."
           fi
 
   lint:
@@ -70,4 +82,11 @@ jobs:
           rustup target add armv7a-none-eabi --toolchain nightly-2022-11-22
 
       - run: cargo +nightly-2022-11-22 fmt --check
-      - run: cargo +nightly-2022-11-22 clippy --release -- -D warnings
+
+      - name: Clippy rosek-config (host)
+        run: cargo +nightly-2022-11-22 clippy -p rosek-config -- -D warnings
+
+      - name: Clippy firmware crates (armv7a-none-eabi)
+        run: |
+          cargo +nightly-2022-11-22 clippy --release --target armv7a-none-eabi -Z build-std=core \
+            -p rosek-port-am335x -p rosek-board-beaglebone-black -- -D warnings

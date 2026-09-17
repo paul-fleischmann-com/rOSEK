@@ -3,7 +3,20 @@ resolver = "2"
 members = [
     "rosek-port-am335x",
     "rosek-board-beaglebone-black",
+    "rosek-config",
 ]
+
+# rosek-config is the one host/std crate in this workspace (parses the
+# .cfg format, runs only at build time - see PLAN.md "Testinfrastruktur").
+# Everything else here is #![no_std] and only ever meant to be built with
+# --target armv7a-none-eabi; there is deliberately no default `[build]
+# target` in .cargo/config.toml (a workspace-wide default would force
+# rosek-config through the bare-metal target too, which it can't compile
+# for). `cargo build`/`cargo test` with no -p therefore only touches
+# rosek-config by default; the firmware crates always need an explicit
+# `-p ... --target armv7a-none-eabi`. See docs/req42/09-assets.adoc for
+# the exact commands.
+default-members = ["rosek-config"]
 
 # rosek-core and rosek-hal join this workspace once their own issues (Phase 1+)
 # give them actual content — see PLAN.md "Portierbarkeit: Core / Port / Derivat"
