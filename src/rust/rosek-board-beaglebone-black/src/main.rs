@@ -12,6 +12,12 @@
 //! [`panic`] (issue #5) is this crate's other job: turning an unrecoverable
 //! error into a controlled, observable state instead of undefined
 //! behaviour, per docs/req42/04-product-backlog.adoc EPIC 0/STORY 0.5.1.
+//!
+//! [`config`] is `build.rs`-generated from `rosek.cfg` (issue #7/#8/#9):
+//! plain `&'static` data, no heap or dynamic allocation. Nothing consumes
+//! it at runtime yet (the scheduler is Phase 3) - `board_main` prints its
+//! shape over UART as end-to-end proof the config -> codegen pipeline
+//! actually produces linked-in, correct data, not just code that compiles.
 
 #![no_std]
 #![no_main]
@@ -23,6 +29,10 @@ use core::fmt::Write as _;
 // (see linker.ld) and reaches `board_main` by branching to it directly from
 // assembly, not through a Rust call.
 use rosek_port_am335x as _;
+
+mod config {
+    include!(concat!(env!("OUT_DIR"), "/config.rs"));
+}
 
 /// Branched to from `rosek-port-am335x::startup::_start` once the vector
 /// table, VBAR, all per-CPU-mode stacks and `.bss` are set up.
@@ -36,6 +46,12 @@ pub extern "C" fn board_main() -> ! {
     let _ = writeln!(
         uart,
         "rOSEK: boot fundament up (MMU flat-mapped, UART0 115200 8N1)"
+    );
+    let _ = writeln!(
+        uart,
+        "rOSEK: config loaded ({} task(s), {} OS-Application(s))",
+        config::TASKS.len(),
+        config::OS_APPLICATIONS.len()
     );
 
     let mut leds = unsafe { rosek_port_am335x::gpio::UserLeds::init() };

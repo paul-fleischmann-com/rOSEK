@@ -13,3 +13,9 @@ doctest = false
 
 [dependencies]
 rosek-port-am335x = { path = "../rosek-port-am335x" }
+
+# build-dependencies always compile for the HOST, regardless of the crate's
+# own --target - this is what makes mixing a host/std codegen crate into a
+# #![no_std] firmware workspace work at all (see docs/req42/09-assets.adoc).
+[build-dependencies]
+rosek-config = { path = "../rosek-config" }

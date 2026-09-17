@@ -43,10 +43,13 @@ cargo test -p rosek-config
 ----
 
 | `src/rust/rosek-config/`
-| Host/std-Crate: Lexer + rekursiv-absteigender Parser für die in #7 entschiedene Config-Grammatik (`TASK`/`OS_APPLICATION`), 14 Unit-Tests (u. a. Fehlermeldungen mit korrekter Zeilennummer). `default-members` der Workspace, läuft also bei einem bloßen `cargo build`/`cargo test` ohne `-p`. Nie fürs `armv7a-none-eabi`-Target kompiliert (Issue #8).
+| Host/std-Crate: Lexer + rekursiv-absteigender Parser (Issue #8) + Codegenerator (`codegen`-Modul, Issue #9) für die in #7 entschiedene Config-Grammatik (`TASK`/`OS_APPLICATION`). 18 Unit-Tests, darunter ein Test, der den generierten Code tatsächlich durch `rustc` kompilieren lässt statt nur Teilstrings zu prüfen. `default-members` der Workspace, läuft also bei einem bloßen `cargo build`/`cargo test` ohne `-p`. Nie fürs `armv7a-none-eabi`-Target kompiliert.
+
+| `src/rust/rosek-board-beaglebone-black/rosek.cfg`, `build.rs` (Codegen-Teil)
+| Board-eigene Static-Config (ein `OS_APPLICATION`, ein `TASK`, Platzhalter-Inhalt bis Phase 2/3 echte Werte brauchen). `build.rs` parst sie über `rosek-config` und schreibt `$OUT_DIR/config.rs`; `main.rs` bindet das per `include!` ein und gibt die Anzahl geladener Tasks/OS-Applications beim Boot über UART aus — Ende-zu-Ende-Beleg, dass die Pipeline tatsächlich läuft (Issue #9).
 |===
 
 Noch nicht vorhanden:
 
 * `rosek-core`, `rosek-hal` (folgen mit ihren eigenen Issues ab Phase 1)
-* Codegenerator in `build.rs`, der `rosek-config` tatsächlich aufruft (Issue #9) — der Parser existiert, ist aber noch nicht verdrahtet
+* Etwas, das die generierten `TASKS`/`OS_APPLICATIONS`-Konstanten zur Laufzeit tatsächlich *nutzt* (Scheduler/Memory-Protection, Phase 2/3) — aktuell wird nur ihre Anzahl ausgegeben

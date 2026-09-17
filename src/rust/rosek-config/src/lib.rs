@@ -24,6 +24,7 @@
 //! `OS_APPLICATION`?) are a semantic, codegen-time concern — issue #9's
 //! job, not this one's.
 
+pub mod codegen;
 mod lexer;
 
 use lexer::{Lexer, Token};

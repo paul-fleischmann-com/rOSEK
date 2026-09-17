@@ -6,6 +6,7 @@ version = 3
 name = "rosek-board-beaglebone-black"
 version = "0.1.0"
 dependencies = [
+ "rosek-config",
  "rosek-port-am335x",
 ]
 
