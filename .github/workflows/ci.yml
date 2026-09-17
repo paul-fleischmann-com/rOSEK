@@ -1,0 +1,73 @@
+name: CI
+
+# Build/test/lint pipeline for the Rust kernel workspace under src/rust/.
+# See PLAN.md "CI/CD: GitHub Actions" for the original proposal — two
+# corrections made against it here, both verified empirically before this
+# workflow was written (see commit message / issue #6 for detail):
+#   - cargo-binutils needs rustc >= 1.70; our pinned nightly-2022-11-22 is
+#     1.67.0-nightly, so it can't install. Uses the toolchain's own bundled
+#     llvm-objcopy directly instead.
+#   - `armv7a-none-eabi` links with Rust's bundled rust-lld by default (no
+#     -C linker flag is set anywhere in this workspace) - no extra lld
+#     package needed, unlike the `sudo apt-get install -y lld` PLAN.md
+#     proposed.
+# Also targets `master` (this repo's actual default branch), not `main`.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: src/rust
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned nightly toolchain
+        run: |
+          rustup toolchain install nightly-2022-11-22 --profile minimal --component rust-src
+          rustup target add armv7a-none-eabi --toolchain nightly-2022-11-22
+          rustup component add llvm-tools-preview --toolchain nightly-2022-11-22
+
+      - run: cargo build --release
+
+      - name: Convert ELF to raw binary (objcopy)
+        run: |
+          OBJCOPY="$(rustc +nightly-2022-11-22 --print sysroot)/lib/rustlib/$(rustc +nightly-2022-11-22 -vV | sed -n 's/^host: //p')/bin/llvm-objcopy"
+          "$OBJCOPY" -O binary target/armv7a-none-eabi/release/rosek rosek.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rosek-bin
+          path: src/rust/rosek.bin
+
+  host-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test host-capable crates (mock-HAL)
+        run: |
+          if [ -d rosek-core ]; then
+            cargo test -p rosek-core --features mock-hal
+          else
+            echo "rosek-core doesn't exist yet (lands in a later phase, see PLAN.md) - nothing host-testable yet."
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned nightly toolchain
+        run: |
+          rustup toolchain install nightly-2022-11-22 --profile minimal --component rust-src,clippy,rustfmt
+          rustup target add armv7a-none-eabi --toolchain nightly-2022-11-22
+
+      - run: cargo +nightly-2022-11-22 fmt --check
+      - run: cargo +nightly-2022-11-22 clippy --release -- -D warnings
