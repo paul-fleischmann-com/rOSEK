@@ -6,12 +6,13 @@
 //!
 //! Filled in incrementally per PLAN.md "Meilensteine" Phase 0:
 //! [`startup`] (vector table + per-CPU-mode stacks, issue #1), [`mmu`]
-//! (flat identity mapping, issue #2) and [`uart`] (UART0 console, issue #3)
-//! so far. GPIO follows as its own issue (#4).
+//! (flat identity mapping, issue #2), [`uart`] (UART0 console, issue #3)
+//! and [`gpio`] (USR-LED life sign, issue #4) so far.
 
 #![no_std]
 #![feature(asm_const)]
 
+pub mod gpio;
 pub mod mmu;
 pub mod startup;
 pub mod uart;

@@ -7,9 +7,10 @@
 //!
 //! After that, `board_main` enables the flat MMU mapping
 //! (`rosek-port-am335x::mmu`, issue #2), initialises UART0 and prints a
-//! boot message (`rosek-port-am335x::uart`, issue #3), then parks - LED
-//! life-sign and the real panic handler are separate, not-yet-implemented
-//! issues (#4, #5; see PLAN.md "Meilensteine" Phase 0 and
+//! boot message (`rosek-port-am335x::uart`, issue #3), then blinks the
+//! USR LEDs forever as a life sign (`rosek-port-am335x::gpio`, issue #4) -
+//! the real panic handler is a separate, not-yet-implemented issue (#5;
+//! see PLAN.md "Meilensteine" Phase 0 and
 //! docs/req42/04-product-backlog.adoc EPIC 0).
 
 #![no_std]
@@ -37,7 +38,8 @@ pub extern "C" fn board_main() -> ! {
         "rOSEK: boot fundament up (MMU flat-mapped, UART0 115200 8N1)"
     );
 
-    idle()
+    let mut leds = unsafe { rosek_port_am335x::gpio::UserLeds::init() };
+    rosek_port_am335x::gpio::blink_forever(&mut leds)
 }
 
 /// Placeholder only - every `#![no_std]` binary needs *some* panic handler

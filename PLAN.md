@@ -33,7 +33,7 @@ BeagleBone Black mit TI-SoC AM335x, ARM Cortex-A8 (ARMv7-A), Single-Core.
 | Interrupt-Controller | INTC (AM335x-spezifisch) |
 | Timer | DMTimer (mehrere Instanzen) |
 | Konsole | UART0, 115200 8N1, über USB-Seriell-Kabel am J1-Header |
-| Lebenszeichen ohne Kabel | User-LEDs USR0–3 über GPIO1 |
+| Lebenszeichen ohne Kabel | User-LEDs USR0–3 (laut offiziellem BeagleBone-Black-Device-Tree über GPIO2 Pins 21–24, nicht GPIO1 — GPIO1 21–24 ist die Verdrahtung der BeagleBone *Blue*; Treiber steuert beide Bänke an, siehe Issue #4) |
 | Boot | vorhandenes u-boot auf eMMC/SD lädt Kernel als Raw-Binary |
 
 Kein Netzwerk-Stack im Scope — Ethernet/USB-Treiber sind eigene, spätere Erweiterung, kein Bestandteil des OS-Kerns.
