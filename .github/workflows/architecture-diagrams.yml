@@ -47,7 +47,8 @@ jobs:
           sudo apt-get install -y -qq libasound2t64 || sudo apt-get install -y -qq libasound2
           curl -sL -o drawio.deb "https://github.com/jgraph/drawio-desktop/releases/download/v${DRAWIO_VERSION}/drawio-amd64-${DRAWIO_VERSION}.deb"
           sudo apt-get install -y -qq ./drawio.deb
-          drawio --version
+          # drawio is Electron-based and needs a display even for --version, hence xvfb-run here too
+          xvfb-run -a drawio --version
 
       - name: Validate architecture model
         working-directory: docs/arc42
