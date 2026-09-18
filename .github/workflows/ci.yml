@@ -71,6 +71,32 @@ jobs:
             echo "rosek-core doesn't exist yet (lands in a later phase, see PLAN.md) - nothing to test there yet."
           fi
 
+  host-tools-test:
+    # rosek-config-cli/rosek-config-tui (issue #16, dev tooling only, see
+    # src/rust/Cargo.toml `exclude`) aren't workspace members and each pin
+    # their own `stable` toolchain, so they're built/tested from their own
+    # directories instead of alongside the `host-test`/`lint` jobs above.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: rosek-config-cli - fmt/clippy/test
+        working-directory: src/rust/rosek-config-cli
+        run: |
+          cargo fmt --check
+          cargo clippy --all-targets -- -D warnings
+          cargo test
+
+      - name: rosek-config-tui - fmt/clippy/test
+        working-directory: src/rust/rosek-config-tui
+        run: |
+          cargo fmt --check
+          cargo clippy --all-targets -- -D warnings
+          cargo test
+
   lint:
     runs-on: ubuntu-latest
     steps:

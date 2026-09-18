@@ -1,0 +1,12 @@
+[package]
+name = "rosek-config-cli"
+version = "0.1.0"
+edition = "2021"
+description = "Scriptable generate/validate CLI for rOSEK's .cfg static configuration files - no TUI dependencies, meant for CI/scripting. See rosek-config-tui for the interactive editor. Dev tooling only, not part of the kernel - excluded from the main workspace, see src/rust/Cargo.toml."
+
+[[bin]]
+name = "rosek-config-cli"
+path = "src/main.rs"
+
+[dependencies]
+rosek-config = { path = "../rosek-config" }

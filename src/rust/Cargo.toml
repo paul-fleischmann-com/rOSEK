@@ -18,14 +18,18 @@ members = [
 # the exact commands.
 default-members = ["rosek-config"]
 
-# rosek-config-tui (CLI + interactive TUI config editor, dev tooling only -
-# not part of the kernel) is deliberately NOT a workspace member: it needs
-# ratatui/crossterm, whose transitive deps require rustc >= 1.71, newer
-# than the workspace-pinned nightly-2022-11-22. It has its own
-# rust-toolchain.toml (stable) and its own Cargo.lock, and depends on
-# rosek-config via a plain path dependency - build it from inside its own
-# directory (`cd rosek-config-tui && cargo run -- ...`), not from here.
-exclude = ["rosek-config-tui"]
+# rosek-config-cli (scriptable generate/validate CLI) and rosek-config-tui
+# (interactive editor) are dev tooling only, not part of the kernel, and
+# deliberately NOT workspace members: rosek-config-tui needs ratatui/
+# crossterm, whose transitive deps require rustc >= 1.71, newer than the
+# workspace-pinned nightly-2022-11-22 (rosek-config-cli has no such need,
+# but is excluded too for the same reason and to keep both host tools
+# built/released the same way - see .github/workflows/release.yml). Each
+# has its own rust-toolchain.toml (stable) and its own Cargo.lock, and
+# depends on rosek-config via a plain path dependency - build them from
+# inside their own directory (`cd rosek-config-cli && cargo run -- ...`),
+# not from here.
+exclude = ["rosek-config-cli", "rosek-config-tui"]
 
 # rosek-core and rosek-hal join this workspace once their own issues (Phase 1+)
 # give them actual content — see PLAN.md "Portierbarkeit: Core / Port / Derivat"

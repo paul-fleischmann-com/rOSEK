@@ -1,0 +1,149 @@
+name: Release
+
+# Packages rOSEK's three independently-versioned artifacts and, on a
+# v*.*.* tag push, publishes them as a GitHub Release (goreleaser-style:
+# one archive per package per target platform). See src/rust/Cargo.toml
+# and rosek-config-cli/rosek-config-tui's own doc comments for why these
+# are three separate packages/toolchains in the first place.
+#
+#   - rosek-firmware:    the armv7a-none-eabi kernel binary (ELF + raw
+#                         .bin, pinned nightly-2022-11-22, single target -
+#                         it only ever runs on the BeagleBone Black).
+#   - rosek-config-cli:  scriptable .cfg generate/validate, no TUI deps.
+#   - rosek-config-tui:  interactive .cfg editor.
+#     Both host tools build on `stable` (see their own rust-toolchain.toml)
+#     and are packaged natively on one GitHub-hosted runner per target
+#     triple - no cross-compilation toolchain needed.
+#
+# workflow_dispatch is a dry run: it builds and uploads everything as
+# workflow artifacts but does NOT create a GitHub Release, so testing this
+# workflow never pollutes the repo's public release list. Only a pushed
+# `v*.*.*` tag actually publishes a Release.
+#
+# Assumption worth re-checking if this ever fails on the free plan: this
+# was written assuming GitHub-hosted `ubuntu-24.04-arm`/macOS/Windows
+# runners are available here the same way ubuntu-latest already is (per
+# GitHub's 2025 ARM-runner GA announcement) - branch protection turned out
+# to need GitHub Pro on this repo (see issue #6), so don't assume this one
+# works until a run has actually gone green.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for a dry-run build (no tag, no Release is published)"
+        required: false
+        default: "dev"
+
+permissions:
+  contents: write
+
+env:
+  VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned nightly toolchain
+        run: |
+          rustup toolchain install nightly-2022-11-22 --profile minimal --component rust-src
+          rustup target add armv7a-none-eabi --toolchain nightly-2022-11-22
+          rustup component add llvm-tools-preview --toolchain nightly-2022-11-22
+
+      - name: Build firmware (armv7a-none-eabi)
+        working-directory: src/rust
+        run: cargo build --release --target armv7a-none-eabi -Z build-std=core -p rosek-board-beaglebone-black
+
+      - name: Convert ELF to raw binary (objcopy) and package
+        working-directory: src/rust
+        run: |
+          OBJCOPY="$(rustc +nightly-2022-11-22 --print sysroot)/lib/rustlib/$(rustc +nightly-2022-11-22 -vV | sed -n 's/^host: //p')/bin/llvm-objcopy"
+          mkdir -p pkg
+          cp target/armv7a-none-eabi/release/rosek pkg/rosek.elf
+          "$OBJCOPY" -O binary pkg/rosek.elf pkg/rosek.bin
+          tar czf "rosek-firmware-${VERSION}-armv7a-none-eabi.tar.gz" -C pkg rosek.elf rosek.bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rosek-firmware-armv7a-none-eabi
+          path: src/rust/rosek-firmware-${{ env.VERSION }}-armv7a-none-eabi.tar.gz
+
+  host-tools:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            archive: tar.gz
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            archive: tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build rosek-config-cli
+        working-directory: src/rust/rosek-config-cli
+        run: cargo build --release
+
+      - name: Build rosek-config-tui
+        working-directory: src/rust/rosek-config-tui
+        run: cargo build --release
+
+      - name: Package (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        shell: bash
+        run: |
+          tar czf "rosek-config-cli-${VERSION}-${{ matrix.target }}.tar.gz" \
+            -C src/rust/rosek-config-cli/target/release rosek-config-cli
+          tar czf "rosek-config-tui-${VERSION}-${{ matrix.target }}.tar.gz" \
+            -C src/rust/rosek-config-tui/target/release rosek-config-tui
+
+      - name: Package (zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path src/rust/rosek-config-cli/target/release/rosek-config-cli.exe `
+            -DestinationPath "rosek-config-cli-$env:VERSION-${{ matrix.target }}.zip"
+          Compress-Archive -Path src/rust/rosek-config-tui/target/release/rosek-config-tui.exe `
+            -DestinationPath "rosek-config-tui-$env:VERSION-${{ matrix.target }}.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: host-tools-${{ matrix.target }}
+          path: rosek-config-*-${{ env.VERSION }}-${{ matrix.target }}.${{ matrix.archive }}
+
+  publish:
+    needs: [firmware, host-tools]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List packaged artifacts
+        run: ls -la artifacts
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push'
+        run: gh release create "${{ github.ref_name }}" artifacts/* --title "${{ github.ref_name }}" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

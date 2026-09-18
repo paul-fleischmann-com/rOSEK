@@ -26,7 +26,7 @@ Vorhandene Artefakte im Repository (Stand dieser Ausbaustufe):
 | Phasen 0–4 als Milestones, Arbeitspakete als Issues, siehe Repo `paul-fleischmann-com/rOSEK`.
 
 | `.github/workflows/ci.yml`
-| build/host-test/lint für den Rust-Kernel-Workspace (Issue #6), in echtem CI grün. `host-test` erkennt, dass `rosek-core` noch nicht existiert, und meldet das neutral statt fehlzuschlagen. Branch-Protection auf `master` noch nicht aktiviert (Repo-Settings-Änderung, Rückfrage beim User ausstehend).
+| build/host-test/host-tools-test/lint für den Rust-Kernel-Workspace (Issue #6), in echtem CI grün. `host-test` erkennt, dass `rosek-core` noch nicht existiert, und meldet das neutral statt fehlzuschlagen. `host-tools-test` deckt `rosek-config-cli`/`rosek-config-tui` ab (fmt/clippy/test unter `stable`) — vorher eine Lücke, die erst beim Release-Workflow aufgefallen ist. Branch-Protection auf `master` nicht aktivierbar (Free-Plan-Repo, siehe Issue #6-Kommentar).
 
 | `src/rust/rosek-port-am335x/`, `src/rust/rosek-board-beaglebone-black/`
 | Erste zwei Workspace-Crates: Vektortabelle, VBAR/SCTLR-Setup, `.bss`-Zeroing, Stack pro CPU-Modus (Issue #1); flache 1:1-MMU-Abbildung mit DDR als Normal-cacheable und allem anderen als Device-Memory, MMU+Caches aktiviert (Issue #2); UART0-Treiber (115200 8N1, gepollt) mit Boot-Meldung beim Start (Issue #3); USR-LED-Lebenszeichen-Blink über GPIO1 *und* GPIO2 Pins 21–24 (Issue #4 — PLAN.md nennt nur GPIO1, das offizielle BeagleBone-Black-Device-Tree aber GPIO2; auf User-Wunsch werden beide angesteuert statt sich für eines zu entscheiden); selbstständiger Panic-Handler mit UART-Diagnose + schnellerem Fehler-Blink (Issue #5) — Phase 0 (Boot-Fundament) damit vollständig.
@@ -46,7 +46,16 @@ cargo test -p rosek-config
 | Host/std-Crate: Lexer + rekursiv-absteigender Parser (Issue #8) + Codegenerator (`codegen`-Modul, Issue #9) für die in #7 entschiedene Config-Grammatik (`TASK`/`OS_APPLICATION`). 22 Tests, seit Issue #10 als Integrationstests unter `tests/parser.rs` (16) und `tests/codegen.rs` (6) statt inline in `src/` — alle Tests nutzen ohnehin nur die öffentliche API, `src/` enthält keinen Testcode. Darunter ein echter, dabei gefundener Bug (der Lexer klemmte überlaufende Zahlen bisher still auf `u32::MAX` statt sie abzulehnen) und ein Test, der den generierten Code tatsächlich durch `rustc` kompilieren lässt statt nur Teilstrings zu prüfen. `default-members` der Workspace, läuft also bei einem bloßen `cargo build`/`cargo test` ohne `-p`. Nie fürs `armv7a-none-eabi`-Target kompiliert.
 
 | `src/rust/rosek-board-beaglebone-black/rosek.cfg`, `build.rs` (Codegen-Teil)
-| Board-eigene Static-Config (ein `OS_APPLICATION`, ein `TASK`, Platzhalter-Inhalt bis Phase 2/3 echte Werte brauchen). `build.rs` parst sie über `rosek-config` und schreibt `$OUT_DIR/config.rs`; `main.rs` bindet das per `include!` ein und gibt die Anzahl geladener Tasks/OS-Applications beim Boot über UART aus — Ende-zu-Ende-Beleg, dass die Pipeline tatsächlich läuft (Issue #9).
+| Board-eigene Static-Config (zwei `OS_APPLICATION`s, zwei `TASK`s, Platzhalter-Inhalt bis Phase 2/3 echte Werte brauchen). `build.rs` parst sie über `rosek-config` und schreibt `$OUT_DIR/config.rs`; `main.rs` bindet das per `include!` ein und gibt die Anzahl geladener Tasks/OS-Applications beim Boot über UART aus — Ende-zu-Ende-Beleg, dass die Pipeline tatsächlich läuft (Issue #9).
+
+| `src/rust/rosek-config-cli/`
+| Eigenständiges, aus dem Workspace ausgeschlossenes Host-Tool: skriptbares `generate`/`validate` über `rosek-config`, keine TUI-Abhängigkeiten. Eigenes `rust-toolchain.toml` (`stable`) statt der gepinnten Firmware-Nightly. 5 Prozess-Level-Tests gegen das gebaute Binary (`tests/cli.rs`, über `CARGO_BIN_EXE_rosek-config-cli`).
+
+| `src/rust/rosek-config-tui/`
+| Eigenständiges, aus dem Workspace ausgeschlossenes Host-Tool: interaktiver ratatui-Editor (`edit <pfad.cfg>`) für `.cfg`-Dateien, inklusive Live-Vorschau des generierten Codes. Editier-Logik (`app.rs`) bewusst frei von ratatui/crossterm-Typen und dadurch ohne echtes Terminal unit-testbar (10 Tests). `rosek-config` bekam dafür ein `serialize`-Modul (Config → `.cfg`-Text, verwirft Kommentare — daher der jetzt vereinfachte Kopfkommentar in `rosek.cfg`). Ebenfalls `stable` statt der gepinnten Nightly, wie `rosek-config-cli`.
+
+| `.github/workflows/release.yml`
+| Goreleaser-artiges Release-Packaging für alle drei unabhängig versionierten Artefakte (Kernel-Firmware, `rosek-config-cli`, `rosek-config-tui`) als je eigenes Archiv pro Zielplattform. Läuft bei Push eines `v*.*.*`-Tags (veröffentlicht ein GitHub Release) oder manuell per `workflow_dispatch` (reiner Trockenlauf, baut/paketiert alles als Workflow-Artefakte, veröffentlicht aber nichts). Noch nicht in echtem CI verifiziert (kein Tag bisher gepusht) — insbesondere die Verfügbarkeit von `ubuntu-24.04-arm`/macOS/Windows-Runnern auf diesem Free-Plan-Repo ist eine Annahme, keine bestätigte Tatsache (siehe Kommentar im Workflow selbst).
 |===
 
 Noch nicht vorhanden:
