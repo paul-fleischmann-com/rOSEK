@@ -1,1 +1,4 @@
 /src/rust/target/
+# rosek-config-tui is excluded from the workspace (own toolchain/Cargo.lock,
+# see src/rust/Cargo.toml) so its target/ isn't covered by the entry above.
+/src/rust/rosek-config-tui/target/

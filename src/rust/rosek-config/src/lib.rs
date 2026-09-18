@@ -26,6 +26,7 @@
 
 pub mod codegen;
 mod lexer;
+pub mod serialize;
 
 use lexer::{Lexer, Token};
 use std::fmt;

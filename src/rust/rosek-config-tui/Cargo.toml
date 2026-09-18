@@ -1,0 +1,14 @@
+[package]
+name = "rosek-config-tui"
+version = "0.1.0"
+edition = "2021"
+description = "CLI + interactive terminal editor for rOSEK's .cfg static configuration files. Dev tooling only, not part of the kernel - excluded from the main workspace, see src/rust/Cargo.toml."
+
+[[bin]]
+name = "rosek-config-tui"
+path = "src/main.rs"
+
+[dependencies]
+rosek-config = { path = "../rosek-config" }
+ratatui = "0.29"
+crossterm = "0.28"
