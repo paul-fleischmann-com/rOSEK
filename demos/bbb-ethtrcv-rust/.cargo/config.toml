@@ -1,0 +1,8 @@
+[build]
+target = "armv7a-none-eabihf"
+
+[target.armv7a-none-eabihf]
+rustflags = [
+    "-C", "link-arg=-Tlinker.ld",
+    "-C", "link-arg=-Map=target/armv7a-none-eabihf/release/bbb-ethtrcv-rust.map"
+]
