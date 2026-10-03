@@ -111,6 +111,57 @@ The MDIO divider value currently used by the PoC is:
 This must be verified against the actual AM3358 clock tree
 before treating the MDIO implementation as production code.
 
+## Rust vs. C für Embedded Treiber
+
+### Vorteile Rust
+
+**Memory Safety ohne Runtime-Overhead**
+Der Borrow-Checker verhindert Use-after-free, dangling Pointer und
+Data Races zur Compile-Zeit — ohne Garbage Collector. Gerade bei
+MMIO-Registern und Interrupt-Handlern kritisch.
+
+**Typsystem erzwingt Korrektheit**
+`#[repr(u8)]` Enums machen ungültige Registerwerte undarstellbar.
+`Result<T, E>` erzwingt Fehlerbehandlung — ein vergessenes Returncode-
+Check ist ein Compile-Fehler, kein stiller Bug.
+
+**Keine impliziten Konvertierungen**
+`u8 as u32` ist explizit. In C entstehen durch integer promotion und
+signed/unsigned-Mischung regelmäßig subtile Bugs in Registeroperationen.
+
+**cbindgen: C-Header garantiert synchron**
+Die C-Schnittstelle wird aus dem Rust-Code generiert — Header und
+Implementierung können nie divergieren.
+
+**Modernes Tooling**
+`cargo`, integrierte Tests, `rust-analyzer`, reproducible Builds out of the
+box.
+
+### Nachteile Rust
+
+**Lernkurve**
+Ownership, Lifetimes und `unsafe` erfordern Einarbeitung — besonders für
+Teams mit reinem C-Hintergrund.
+
+**`unsafe` nicht vermeidbar**
+MMIO, Startup-Code und direkte Registeroperationen brauchen `unsafe`.
+Der Sicherheitsgewinn liegt darin, `unsafe` auf kleine, klar abgegrenzte
+Blöcke zu beschränken — nicht darin, es ganz zu eliminieren.
+
+**Toolchain-Komplexität**
+Cross-Compilation (rustup targets, linker flags, cbindgen) ist aufwändiger
+als ein einzelner `arm-none-eabi-gcc` Aufruf. Für neue Targets fehlen
+manchmal `core`-Prebuilds.
+
+**AUTOSAR-Toolketten kennen kein Rust**
+Klassische AUTOSAR-Generatoren (EB tresos, Vector DaVinci) erzeugen C.
+Integration bedeutet immer eine C-ABI-Grenze plus manuell gepflegtes
+Makefile/CMake.
+
+**Binärgröße / LTO**
+Bei `opt-level = "s"` und `lto = true` vergleichbar mit C. Ohne LTO kann
+das Rust-Binary durch Monomorphisierung größer werden.
+
 ## Next steps
 
 1. Verify UART0 on hardware.
