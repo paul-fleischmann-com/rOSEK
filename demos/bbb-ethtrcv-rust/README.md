@@ -59,36 +59,43 @@ Build:
 
     cargo build --release
 
-## Exported C ABI
+## C Header (automatisch generiert)
 
-    void EthTrcv_Init(void);
+`include/EthTrcv.h` wird bei jedem `cargo build` automatisch aus dem
+Rust-Code generiert. Niemals manuell editieren.
 
-    uint8_t EthTrcv_SetTransceiverMode(
-        uint8_t trcv_idx,
-        uint8_t mode
+    Std_ReturnType EthTrcv_SetTransceiverMode(
+        uint8_t          TrcvIdx,
+        EthTrcv_ModeType CtrlMode   /* ETHTRCV_MODE_DOWN | ETHTRCV_MODE_ACTIVE */
     );
 
-PoC values:
+    void EthTrcv_Init(const void *CfgPtr);
 
-    trcv_idx 0 = onboard LAN8710A
+    #define E_OK     0
+    #define E_NOT_OK 1
 
-    mode 0 = DOWN
-    mode 1 = ACTIVE
+Rust ist die **Quelle der Wahrheit**. cbindgen liest den Rust-AST und
+schreibt den C-Header — C und Rust können nie auseinanderlaufen.
 
-    return 0 = E_OK
-    return 1 = E_NOT_OK
+### Warum cbindgen und nicht bindgen?
 
-These types are intentionally simplified and are not yet
-the final AUTOSAR 2025 type definitions.
+`bindgen` geht die umgekehrte Richtung: C-Header → Rust-FFI-Deklarationen
+(extern "C" Blöcke). Das ist richtig wenn eine bestehende C-Bibliothek
+aus Rust aufgerufen werden soll. Hier implementiert Rust den BSW-Stack und
+C ist der Aufrufer — deshalb cbindgen.
+
+| Richtung          | Tool       | Anwendungsfall                              |
+|-------------------|------------|---------------------------------------------|
+| Rust → C Header   | cbindgen   | Rust ist Implementierung, C ruft auf        |
+| C Header → Rust   | bindgen    | Bestehende C-Bibliothek aus Rust aufrufen   |
 
 ## Raw binary
 
-If arm-none-eabi-objcopy is installed:
+    make
 
-    arm-none-eabi-objcopy \
-        -O binary \
-        target/armv7a-none-eabihf/release/bbb-ethtrcv-rust \
-        bbb-ethtrcv-rust.bin
+Erzeugt via `rust-objcopy`:
+
+    target/armv7a-none-eabihf/release/bbb-ethtrcv-rust.bin
 
 ## Hardware assumptions
 
