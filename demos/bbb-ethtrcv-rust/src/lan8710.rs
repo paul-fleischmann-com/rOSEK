@@ -1,37 +1,37 @@
 use crate::mdio::Mdio;
 
 
-pub const LAN8710A_PHY_ADDR: u8 = 0;
+pub(crate) const LAN8710A_PHY_ADDR: u8 = 0;
 
 
-pub const REG_BMCR: u8 = 0x00;
+pub(crate) const REG_BMCR: u8 = 0x00;
 #[allow(dead_code)]
-pub const REG_BMSR: u8 = 0x01;
+pub(crate) const REG_BMSR: u8 = 0x01;
 #[allow(dead_code)]
-pub const REG_PHYID1: u8 = 0x02;
+pub(crate) const REG_PHYID1: u8 = 0x02;
 #[allow(dead_code)]
-pub const REG_PHYID2: u8 = 0x03;
+pub(crate) const REG_PHYID2: u8 = 0x03;
 
 
-pub const BMCR_RESET: u16 =
+pub(crate) const BMCR_RESET: u16 =
     1 << 15;
 
-pub const BMCR_AUTONEG_ENABLE: u16 =
+pub(crate) const BMCR_AUTONEG_ENABLE: u16 =
     1 << 12;
 
-pub const BMCR_POWER_DOWN: u16 =
+pub(crate) const BMCR_POWER_DOWN: u16 =
     1 << 11;
 
-pub const BMCR_RESTART_AUTONEG: u16 =
+pub(crate) const BMCR_RESTART_AUTONEG: u16 =
     1 << 9;
 
 
 #[allow(dead_code)]
-pub const BMSR_AUTONEG_COMPLETE: u16 =
+pub(crate) const BMSR_AUTONEG_COMPLETE: u16 =
     1 << 5;
 
 #[allow(dead_code)]
-pub const BMSR_LINK_STATUS: u16 =
+pub(crate) const BMSR_LINK_STATUS: u16 =
     1 << 2;
 
 

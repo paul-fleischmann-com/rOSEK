@@ -3,6 +3,9 @@ name = "bbb-ethtrcv-rust"
 version = "0.1.0"
 edition = "2021"
 
+[build-dependencies]
+cbindgen = "0.29"
+
 [profile.release]
 opt-level = "s"
 lto = true
